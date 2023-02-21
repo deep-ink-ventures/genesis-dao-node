@@ -207,6 +207,17 @@ pub mod pallet {
 		ValueQuery,
 	>;
 
+	#[pallet::storage]
+	/// History for the total supply across all accounts.
+	pub(super) type SupplyHistory<T: Config<I>, I: 'static = ()> = StorageDoubleMap<
+		_,
+		Blake2_128Concat,
+		T::AssetId,
+		Blake2_128Concat,
+		BlockNumberFor<T>,
+		AssetBalanceOf<T, I>,
+	>;
+
 	#[pallet::genesis_config]
 	pub struct GenesisConfig<T: Config<I>, I: 'static = ()> {
 		/// Genesis assets: id, owner, is_sufficient, min_balance
@@ -247,6 +258,7 @@ pub mod pallet {
 						accounts: 0,
 						sufficients: 0,
 						approvals: 0,
+						supply_history_count: 0,
 						status: AssetStatus::Live,
 					},
 				);
@@ -338,6 +350,12 @@ pub mod pallet {
 			asset_id: T::AssetId,
 			approvals_destroyed: u32,
 			approvals_remaining: u32,
+		},
+		/// Supply history was destroyed for given asset.
+		SupplyHistoryDestroyed {
+			asset_id: T::AssetId,
+			items_destroyed: u32,
+			items_remaining: u32,
 		},
 		/// An asset class is in the process of being destroyed.
 		DestructionStarted {
@@ -500,6 +518,30 @@ pub mod pallet {
 			let id: T::AssetId = id.into();
 			let removed_approvals = Self::do_destroy_approvals(id, T::RemoveItemsLimit::get())?;
 			Ok(Some(T::WeightInfo::destroy_approvals(removed_approvals)).into())
+		}
+
+		/// Destroy all supply history associated with a given asset up to the max (T::RemoveItemsLimit).
+		///
+		/// `destroy_supply_history` should only be called after `start_destroy` has been called, and the
+		/// asset is in a `Destroying` state.
+		///
+		/// Due to weight restrictions, this function may need to be called multiple times to fully
+		/// destroy all supply history. It will destroy `RemoveItemsLimit` approvals at a time.
+		///
+		/// - `id`: The identifier of the asset to be destroyed. This must identify an existing
+		///   asset.
+		///
+		/// Each call emits the `Event::DestroyedSupplyHistory` event.
+		#[pallet::call_index(40)]
+		#[pallet::weight(T::WeightInfo::destroy_approvals(T::RemoveItemsLimit::get()))]
+		pub fn destroy_supply_history(
+			origin: OriginFor<T>,
+			id: T::AssetIdParameter,
+		) -> DispatchResultWithPostInfo {
+			let _ = ensure_signed(origin)?;
+			let id: T::AssetId = id.into();
+			let removed_items = Self::do_destroy_supply_history(id, T::RemoveItemsLimit::get())?;
+			Ok(Some(T::WeightInfo::destroy_approvals(removed_items)) /*FIXME after weight is added: Some(T::WeightInfo::destroy_supply_history(removed_items))*/.into())
 		}
 
 		/// Complete destroying asset and unreserve currency.

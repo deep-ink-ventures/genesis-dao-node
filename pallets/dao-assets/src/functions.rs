@@ -47,6 +47,16 @@ impl<T: Config<I>, I: 'static> Pallet<T, I> {
 		Asset::<T, I>::get(id).map(|x| x.supply)
 	}
 
+	/// Get the total historical supply of an asset `id` at a certain `block`.
+	pub fn total_historical_supply(id: T::AssetId, block: BlockNumberFor<T>) -> T::Balance {
+		Self::maybe_total_historical_supply(id, block).unwrap_or_default()
+	}
+
+	/// Get the total historical supply of an asset `id` at a certain `block` if the asset exists.
+	pub fn maybe_total_historical_supply(id: T::AssetId, block: BlockNumberFor<T>) -> Option<T::Balance> {
+		SupplyHistory::<T, I>::get(id, block)
+	}
+
 	pub(super) fn new_account(
 		who: &T::AccountId,
 		d: &mut AssetDetailsOf<T, I>,
@@ -309,7 +319,14 @@ impl<T: Config<I>, I: 'static> Pallet<T, I> {
 				T::Balance::max_value() - details.supply >= amount,
 				"checked in prep; qed"
 			);
-			details.supply = details.supply.saturating_add(amount);
+			details.supply.saturating_accrue(amount);
+
+			let block = frame_system::Pallet::<T>::block_number();
+			if !SupplyHistory::<T, I>::contains_key(id, block) {
+				details.supply_history_count.saturating_inc();
+			}
+			SupplyHistory::<T, I>::insert(id, block, details.supply);
+
 			Ok(())
 		})?;
 		Self::deposit_event(Event::Issued {
@@ -390,8 +407,13 @@ impl<T: Config<I>, I: 'static> Pallet<T, I> {
 			}
 
 			debug_assert!(details.supply >= actual, "checked in prep; qed");
-			details.supply = details.supply.saturating_sub(actual);
+			details.supply.saturating_reduce(actual);
 
+			let block = frame_system::Pallet::<T>::block_number();
+			if !SupplyHistory::<T, I>::contains_key(id, block) {
+				details.supply_history_count.saturating_inc();
+			}
+			SupplyHistory::<T, I>::insert(id, block, details.supply);
 			Ok(())
 		})?;
 		Self::deposit_event(Event::Burned { asset_id: id, owner: target.clone(), balance: actual });
@@ -636,16 +658,18 @@ impl<T: Config<I>, I: 'static> Pallet<T, I> {
 				owner: owner.clone(),
 				issuer: owner.clone(),
 				admin: owner.clone(),
-				supply: Zero::zero(),
+				supply: Zero::zero(), // no need to record a supply of zero in the SupplyHistory
 				deposit: Zero::zero(),
 				min_balance,
 				is_sufficient,
 				accounts: 0,
 				sufficients: 0,
 				approvals: 0,
+				supply_history_count: 0,
 				status: AssetStatus::Live,
 			},
 		);
+
 		Self::deposit_event(Event::ForceCreated { asset_id: id, owner });
 		Ok(())
 	}
@@ -736,6 +760,35 @@ impl<T: Config<I>, I: 'static> Pallet<T, I> {
 		Ok(removed_approvals)
 	}
 
+	/// Destroy supply history associated with a given asset up to the max (T::RemoveItemsLimit).
+	///
+	/// Each call emits the `Event::SupplyHistoryDestroyed` event
+	/// Returns the number of destroyed history items.
+	pub(super) fn do_destroy_supply_history(
+		id: T::AssetId,
+		max_items: u32,
+	) -> Result<u32, DispatchError> {
+		let mut removed_count = 0;
+		Asset::<T, I>::try_mutate_exists(id, |maybe_details| -> Result<(), DispatchError> {
+			let details = maybe_details.as_mut().ok_or(Error::<T, I>::Unknown)?;
+
+			// Should only destroy items while the asset is in a destroying state.
+			ensure!(details.status == AssetStatus::Destroying, Error::<T, I>::IncorrectStatus);
+
+			removed_count = SupplyHistory::<T, I>::drain_prefix(id).take(max_items as usize).count() as u32;
+			//details.supply_history_count.saturating_reduce(removed_count);
+			details.supply_history_count -= removed_count;
+
+			Self::deposit_event(Event::SupplyHistoryDestroyed {
+				asset_id: id,
+				items_destroyed: removed_count,
+				items_remaining: details.supply_history_count,
+			});
+			Ok(())
+		})?;
+		Ok(removed_count)
+	}
+
 	/// Complete destroying an asset and unreserve the deposit.
 	///
 	/// On success, the `Event::Destroyed` event is emitted.
@@ -745,6 +798,7 @@ impl<T: Config<I>, I: 'static> Pallet<T, I> {
 			ensure!(details.status == AssetStatus::Destroying, Error::<T, I>::IncorrectStatus);
 			ensure!(details.accounts == 0, Error::<T, I>::InUse);
 			ensure!(details.approvals == 0, Error::<T, I>::InUse);
+			ensure!(details.supply_history_count == 0, Error::<T, I>::InUse);
 
 			let metadata = Metadata::<T, I>::take(id);
 			T::Currency::unreserve(

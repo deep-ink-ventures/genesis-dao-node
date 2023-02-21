@@ -99,6 +99,7 @@ fn it_destroys_a_dao() {
 		let asset_id = dao.asset_id.unwrap();
 		assert_ok!(Assets::start_destroy(RuntimeOrigin::signed(1), asset_id));
 		assert_ok!(Assets::destroy_accounts(RuntimeOrigin::signed(1), asset_id));
+		assert_ok!(Assets::destroy_supply_history(RuntimeOrigin::signed(1), asset_id));
 		assert_ok!(Assets::finish_destroy(RuntimeOrigin::signed(1), asset_id));
 
 		assert_ok!(DaoCore::destroy_dao(RuntimeOrigin::signed(1), b"GDAO".to_vec()));

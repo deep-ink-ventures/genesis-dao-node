@@ -57,6 +57,8 @@ pub struct AssetDetails<Balance, AccountId, DepositBalance> {
 	pub(super) sufficients: u32,
 	/// The total number of approvals.
 	pub(super) approvals: u32,
+	/// The total number of supply history items
+	pub(super) supply_history_count: u32,
 	/// The status of the asset
 	pub status: AssetStatus,
 }
