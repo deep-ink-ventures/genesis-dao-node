@@ -207,6 +207,12 @@ pub mod pallet {
 		ValueQuery,
 	>;
 
+	#[pallet::storage]
+	#[pallet::unbounded]
+	/// History for the total supply across all accounts.
+	pub(super) type SupplyHistory<T: Config<I>, I: 'static = ()> =
+		StorageMap<_, Blake2_128Concat, T::AssetId, Vec<(BlockNumberFor<T>, AssetBalanceOf<T, I>)>>;
+
 	#[pallet::genesis_config]
 	pub struct GenesisConfig<T: Config<I>, I: 'static = ()> {
 		/// Genesis assets: id, owner, is_sufficient, min_balance
