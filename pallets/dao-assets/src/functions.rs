@@ -47,6 +47,21 @@ impl<T: Config<I>, I: 'static> Pallet<T, I> {
 		Asset::<T, I>::get(id).map(|x| x.supply)
 	}
 
+	/// Get the total historical supply of an asset `id` at a certain `block`.
+	pub fn total_historical_supply(id: T::AssetId, block: BlockNumberFor<T>) -> T::Balance {
+		SupplyHistory::<T, I>::get(id).map_or(Zero::zero(), |history| {
+			let index = history.partition_point(|&e| e.0 <= block);
+			(index != 0).then(|| history[index - 1].1).unwrap_or(Zero::zero())
+		})
+	}
+
+	pub(super) fn append_supply_history(id: T::AssetId, supply: T::Balance) {
+		let mut history = SupplyHistory::<T, I>::get(id).unwrap_or_default();
+		let block = frame_system::Pallet::<T>::block_number();
+		history.push((block, supply));
+		SupplyHistory::<T, I>::insert(id, history);
+	}
+
 	pub(super) fn new_account(
 		who: &T::AccountId,
 		d: &mut AssetDetailsOf<T, I>,
@@ -309,7 +324,10 @@ impl<T: Config<I>, I: 'static> Pallet<T, I> {
 				T::Balance::max_value() - details.supply >= amount,
 				"checked in prep; qed"
 			);
-			details.supply = details.supply.saturating_add(amount);
+			details.supply.saturating_accrue(amount);
+
+			Self::append_supply_history(id, details.supply);
+
 			Ok(())
 		})?;
 		Self::deposit_event(Event::Issued {
@@ -390,7 +408,9 @@ impl<T: Config<I>, I: 'static> Pallet<T, I> {
 			}
 
 			debug_assert!(details.supply >= actual, "checked in prep; qed");
-			details.supply = details.supply.saturating_sub(actual);
+			details.supply.saturating_reduce(actual);
+
+			Self::append_supply_history(id, details.supply);
 
 			Ok(())
 		})?;
@@ -636,7 +656,7 @@ impl<T: Config<I>, I: 'static> Pallet<T, I> {
 				owner: owner.clone(),
 				issuer: owner.clone(),
 				admin: owner.clone(),
-				supply: Zero::zero(),
+				supply: Zero::zero(), // no need to record a supply of zero in the SupplyHistory
 				deposit: Zero::zero(),
 				min_balance,
 				is_sufficient,
@@ -646,6 +666,7 @@ impl<T: Config<I>, I: 'static> Pallet<T, I> {
 				status: AssetStatus::Live,
 			},
 		);
+
 		Self::deposit_event(Event::ForceCreated { asset_id: id, owner });
 		Ok(())
 	}
@@ -662,6 +683,7 @@ impl<T: Config<I>, I: 'static> Pallet<T, I> {
 				ensure!(details.owner == check_owner, Error::<T, I>::NoPermission);
 			}
 			details.status = AssetStatus::Destroying;
+			SupplyHistory::<T, I>::remove(id);
 
 			Self::deposit_event(Event::DestructionStarted { asset_id: id });
 			Ok(())
