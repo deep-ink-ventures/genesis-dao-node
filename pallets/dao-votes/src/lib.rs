@@ -135,7 +135,7 @@ pub mod pallet {
 			let dao_id = dao.id;
 			let asset_id = dao.asset_id.ok_or(Error::<T>::DaoTokenNotYetIssued)?;
 			let governance =
-				<Governances<T>>::get(dao_id.clone()).ok_or(Error::<T>::GovernanceNotSet)?;
+				<Governances<T>>::get(&dao_id).ok_or(Error::<T>::GovernanceNotSet)?;
 
 			let meta: BoundedVec<_, _> =
 				meta.try_into().map_err(|_| DaoError::<T>::MetadataInvalidLengthTooLong)?;
@@ -190,7 +190,7 @@ pub mod pallet {
 				proposal_id.try_into().map_err(|_| Error::<T>::ProposalIdInvalidLengthTooLong)?;
 
 			// check that a proposal exists with the given id
-			let mut proposal = <Proposals<T>>::try_get(proposal_id.clone())
+			let mut proposal = <Proposals<T>>::try_get(&proposal_id)
 				.map_err(|_| Error::<T>::ProposalDoesNotExist)?;
 
 			// check that sender is owner of the DAO
@@ -217,7 +217,7 @@ pub mod pallet {
 				proposal_id.try_into().map_err(|_| Error::<T>::ProposalIdInvalidLengthTooLong)?;
 
 			// check that a proposal exists with the given id
-			let mut proposal = <Proposals<T>>::try_get(proposal_id.clone())
+			let mut proposal = <Proposals<T>>::try_get(&proposal_id)
 				.map_err(|_| Error::<T>::ProposalDoesNotExist)?;
 
 			// check that the proposal is currently active
@@ -331,7 +331,7 @@ pub mod pallet {
 				proposal_id.try_into().map_err(|_| Error::<T>::ProposalIdInvalidLengthTooLong)?;
 
 			// check that a proposal exists with the given id
-			let proposal = <Proposals<T>>::try_get(proposal_id.clone())
+			let proposal = <Proposals<T>>::try_get(&proposal_id)
 				.map_err(|_| Error::<T>::ProposalDoesNotExist)?;
 
 			// check that the proposal is active
