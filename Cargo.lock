@@ -3034,6 +3034,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "indexmap-nostd"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8e04e2fd2b8188ea827b32ef11de88377086d690286ab35747ef7f9bf3ccb590"
+
+[[package]]
 name = "inout"
 version = "0.1.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3994,6 +4000,8 @@ dependencies = [
  "frame-try-runtime",
  "pallet-aura",
  "pallet-balances",
+ "pallet-contracts",
+ "pallet-contracts-primitives",
  "pallet-dao-assets",
  "pallet-dao-core",
  "pallet-dao-votes",
@@ -4720,6 +4728,58 @@ dependencies = [
  "scale-info",
  "sp-runtime 7.0.0",
  "sp-std 5.0.0",
+]
+
+[[package]]
+name = "pallet-contracts"
+version = "4.0.0-dev"
+source = "git+https://github.com/paritytech/substrate.git?branch=polkadot-v0.9.42#9326fee1fb853be3d5096a2beef5fb46624e9d75"
+dependencies = [
+ "bitflags",
+ "environmental",
+ "frame-benchmarking",
+ "frame-support",
+ "frame-system",
+ "impl-trait-for-tuples",
+ "log",
+ "pallet-contracts-primitives",
+ "pallet-contracts-proc-macro",
+ "parity-scale-codec",
+ "rand 0.8.5",
+ "scale-info",
+ "serde",
+ "smallvec",
+ "sp-api",
+ "sp-core 7.0.0",
+ "sp-io 7.0.0",
+ "sp-runtime 7.0.0",
+ "sp-std 5.0.0",
+ "wasm-instrument 0.4.0",
+ "wasmi 0.28.0",
+ "wasmparser-nostd",
+]
+
+[[package]]
+name = "pallet-contracts-primitives"
+version = "7.0.0"
+source = "git+https://github.com/paritytech/substrate.git?branch=polkadot-v0.9.42#9326fee1fb853be3d5096a2beef5fb46624e9d75"
+dependencies = [
+ "bitflags",
+ "parity-scale-codec",
+ "scale-info",
+ "sp-runtime 7.0.0",
+ "sp-std 5.0.0",
+ "sp-weights 4.0.0",
+]
+
+[[package]]
+name = "pallet-contracts-proc-macro"
+version = "4.0.0-dev"
+source = "git+https://github.com/paritytech/substrate.git?branch=polkadot-v0.9.42#9326fee1fb853be3d5096a2beef5fb46624e9d75"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.18",
 ]
 
 [[package]]
@@ -5835,7 +5895,7 @@ dependencies = [
  "cc",
  "libc",
  "once_cell",
- "spin",
+ "spin 0.5.2",
  "untrusted",
  "web-sys",
  "winapi",
@@ -6372,7 +6432,7 @@ dependencies = [
  "sp-version",
  "sp-wasm-interface 7.0.0",
  "tracing",
- "wasmi",
+ "wasmi 0.13.2",
 ]
 
 [[package]]
@@ -6384,8 +6444,8 @@ dependencies = [
  "sp-maybe-compressed-blob",
  "sp-wasm-interface 7.0.0",
  "thiserror",
- "wasm-instrument",
- "wasmi",
+ "wasm-instrument 0.3.0",
+ "wasmi 0.13.2",
 ]
 
 [[package]]
@@ -6398,7 +6458,7 @@ dependencies = [
  "sc-executor-common",
  "sp-runtime-interface 7.0.0",
  "sp-wasm-interface 7.0.0",
- "wasmi",
+ "wasmi 0.13.2",
 ]
 
 [[package]]
@@ -8444,7 +8504,7 @@ dependencies = [
  "log",
  "parity-scale-codec",
  "sp-std 5.0.0",
- "wasmi",
+ "wasmi 0.13.2",
  "wasmtime 6.0.2",
 ]
 
@@ -8459,7 +8519,7 @@ dependencies = [
  "log",
  "parity-scale-codec",
  "sp-std 6.0.0",
- "wasmi",
+ "wasmi 0.13.2",
  "wasmtime 5.0.1",
 ]
 
@@ -8499,6 +8559,12 @@ name = "spin"
 version = "0.5.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6e63cff320ae2c57904679ba7cb63280a3dc4613885beafb148ee7bf9aa9042d"
+
+[[package]]
+name = "spin"
+version = "0.9.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6980e8d7511241f8acf4aebddbb1ff938df5eebe98691418c4468d0b72a96a67"
 
 [[package]]
 name = "spki"
@@ -9714,6 +9780,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "wasm-instrument"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2a47ecb37b9734d1085eaa5ae1a81e60801fd8c28d4cabdd8aedb982021918bc"
+dependencies = [
+ "parity-wasm",
+]
+
+[[package]]
 name = "wasm-opt"
 version = "0.111.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -9777,7 +9852,19 @@ checksum = "06c326c93fbf86419608361a2c925a31754cf109da1b8b55737070b4d6669422"
 dependencies = [
  "parity-wasm",
  "wasmi-validation",
- "wasmi_core",
+ "wasmi_core 0.2.1",
+]
+
+[[package]]
+name = "wasmi"
+version = "0.28.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8e61a7006b0fdf24f6bbe8dcfdad5ca1b350de80061fb2827f31c82fbbb9565a"
+dependencies = [
+ "spin 0.9.8",
+ "wasmi_arena",
+ "wasmi_core 0.12.0",
+ "wasmparser-nostd",
 ]
 
 [[package]]
@@ -9788,6 +9875,12 @@ checksum = "91ff416ad1ff0c42e5a926ed5d5fab74c0f098749aa0ad8b2a34b982ce0e867b"
 dependencies = [
  "parity-wasm",
 ]
+
+[[package]]
+name = "wasmi_arena"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "401c1f35e413fac1846d4843745589d9ec678977ab35a384db8ae7830525d468"
 
 [[package]]
 name = "wasmi_core"
@@ -9801,6 +9894,18 @@ dependencies = [
  "num-rational",
  "num-traits",
  "region",
+]
+
+[[package]]
+name = "wasmi_core"
+version = "0.12.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "624e6333e861ef49095d2d678b76ebf30b06bf37effca845be7e5b87c90071b7"
+dependencies = [
+ "downcast-rs",
+ "libm 0.2.7",
+ "num-traits",
+ "paste",
 ]
 
 [[package]]
@@ -9821,6 +9926,15 @@ checksum = "64b20236ab624147dfbb62cf12a19aaf66af0e41b8398838b66e997d07d269d4"
 dependencies = [
  "indexmap",
  "url",
+]
+
+[[package]]
+name = "wasmparser-nostd"
+version = "0.100.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9157cab83003221bfd385833ab587a039f5d6fa7304854042ba358a3b09e0724"
+dependencies = [
+ "indexmap-nostd",
 ]
 
 [[package]]
