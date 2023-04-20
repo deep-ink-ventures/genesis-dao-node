@@ -56,6 +56,9 @@ pub use pallet_dao_assets;
 pub use pallet_dao_core;
 pub use pallet_dao_votes;
 
+/// Import Hookpoints pallet ...
+pub use pallet_hookpoints;
+
 /// An index to a block.
 pub type BlockNumber = u32;
 
@@ -412,6 +415,12 @@ impl pallet_dao_votes::Config for Runtime {
 	type WeightInfo = pallet_dao_votes::weights::SubstrateWeight<Runtime>;
 }
 
+// Configure the Hookpoints pallet ...
+impl pallet_hookpoints::Config for Runtime {
+	type RuntimeEvent = RuntimeEvent;
+	type MaxLengthId = ConstU32<32>;
+}
+
 // Create the runtime by composing the FRAME pallets that were previously configured.
 construct_runtime!(
 	pub struct Runtime
@@ -434,6 +443,7 @@ construct_runtime!(
 		Assets: pallet_dao_assets,
 		DaoCore: pallet_dao_core,
 		Votes: pallet_dao_votes,
+		Hookpoints: pallet_hookpoints,
 	}
 );
 
