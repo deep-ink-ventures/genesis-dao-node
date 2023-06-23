@@ -8,5 +8,9 @@ default-members = [
 	"node",
 	"runtime",
 	]
+exclude = [
+	"contracts/genesis-dao-traits",
+	"contracts/base-genesis-dao",
+	]
 [profile.release]
 panic = "unwind"
