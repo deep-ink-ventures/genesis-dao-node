@@ -1,7 +1,7 @@
 use crate as pallet_dao_votes;
 use frame_support::{
 	parameter_types,
-	traits::{AsEnsureOriginWithArg, ConstU128, ConstU16, ConstU32, ConstU64, ConstU8},
+	traits::{AsEnsureOriginWithArg, ConstBool, ConstU128, ConstU16, ConstU32, ConstU64, ConstU8},
 };
 use frame_system as system;
 use sp_core::H256;
@@ -9,6 +9,7 @@ use sp_core::H256;
 use sp_runtime::{
 	testing::Header,
 	traits::{BlakeTwo256, IdentityLookup},
+	AccountId32,
 };
 
 type UncheckedExtrinsic = frame_system::mocking::MockUncheckedExtrinsic<Test>;
@@ -27,10 +28,13 @@ frame_support::construct_runtime!(
 		UncheckedExtrinsic = UncheckedExtrinsic,
 	{
 		System: frame_system,
+		Timestamp: pallet_timestamp,
 		Balances: pallet_balances,
+		Contracts: pallet_contracts,
 		Assets: pallet_dao_assets,
 		DaoCore: pallet_dao_core,
-		DaoVotes: pallet_dao_votes
+		HookPoints: pallet_hookpoints,
+		DaoVotes: pallet_dao_votes,
 	}
 );
 
@@ -45,7 +49,7 @@ impl system::Config for Test {
 	type BlockNumber = u64;
 	type Hash = H256;
 	type Hashing = BlakeTwo256;
-	type AccountId = u32;
+	type AccountId = AccountId32;
 	type Lookup = IdentityLookup<Self::AccountId>;
 	type Header = Header;
 	type RuntimeEvent = RuntimeEvent;
@@ -59,6 +63,14 @@ impl system::Config for Test {
 	type SS58Prefix = ConstU16<42>;
 	type OnSetCode = ();
 	type MaxConsumers = frame_support::traits::ConstU32<16>;
+}
+
+impl pallet_timestamp::Config for Test {
+	/// A timestamp: milliseconds since the unix epoch.
+	type Moment = u64;
+	type OnTimestampSet = ();
+	type MinimumPeriod = ConstU64<0>;
+	type WeightInfo = ();
 }
 
 impl pallet_balances::Config for Test {
@@ -77,6 +89,64 @@ impl pallet_balances::Config for Test {
 	type MaxFreezes = ();
 	type HoldIdentifier = ();
 	type MaxHolds = ();
+}
+
+fn schedule<T: pallet_contracts::Config>() -> pallet_contracts::Schedule<T> {
+	pallet_contracts::Schedule {
+		limits: pallet_contracts::Limits {
+			runtime_memory: 1024 * 1024 * 1024,
+			..Default::default()
+		},
+		..Default::default()
+	}
+}
+
+parameter_types! {
+	pub const DepositPerItem: Balance = 0;
+	pub const DepositPerByte: Balance = 0;
+	pub Schedule: pallet_contracts::Schedule<Test> = schedule::<Test>();
+	pub const DefaultDepositLimit: Balance = 0;
+}
+
+// Pallet contracts promises to never use this, but needs this type anyway
+// Therefore we provide it, but panic when called.
+pub struct FakeRandom;
+impl<Output, BlockNumber> frame_support::traits::Randomness<Output, BlockNumber> for FakeRandom {
+	fn random(_: &[u8]) -> (Output, BlockNumber) {
+		panic!("Pallet contracts promised not to call me");
+	}
+
+	fn random_seed() -> (Output, BlockNumber) {
+		panic!("Pallet contracts promised not to call me");
+	}
+}
+
+impl pallet_contracts::Config for Test {
+	type Time = Timestamp;
+	type Randomness = FakeRandom;
+	type Currency = Balances;
+	type RuntimeEvent = RuntimeEvent;
+	type RuntimeCall = RuntimeCall;
+	/// The safest default is to allow no calls at all.
+	///
+	/// Runtimes should whitelist dispatchables that are allowed to be called from contracts
+	/// and make sure they are stable. Dispatchables exposed to contracts are not allowed to
+	/// change because that would break already deployed contracts. The `RuntimeCall` structure
+	/// itself is not allowed to change the indices of existing pallets, too.
+	type CallFilter = frame_support::traits::Nothing;
+	type DepositPerItem = DepositPerItem;
+	type DepositPerByte = DepositPerByte;
+	type CallStack = [pallet_contracts::Frame<Self>; 31];
+	type WeightPrice = (); //pallet_transaction_payment::Pallet<Self>;
+	type WeightInfo = pallet_contracts::weights::SubstrateWeight<Self>;
+	type ChainExtension = ();
+	type Schedule = Schedule;
+	type AddressGenerator = pallet_contracts::DefaultAddressGenerator;
+	type MaxCodeLen = ConstU32<{ 128 * 1024 }>;
+	type DefaultDepositLimit = DefaultDepositLimit;
+	type MaxStorageKeyLen = ConstU32<128>;
+	type MaxDebugBufferLen = ConstU32<{ 2 * 1024 * 1024 }>;
+	type UnsafeUnstableInterface = ConstBool<false>;
 }
 
 parameter_types! {
@@ -114,6 +184,11 @@ impl pallet_dao_core::Config for Test {
 	type WeightInfo = ();
 }
 
+impl pallet_hookpoints::Config for Test {
+	type RuntimeEvent = RuntimeEvent;
+	type MaxLengthId = ConstU32<32>;
+}
+
 impl pallet_dao_votes::Config for Test {
 	type RuntimeEvent = RuntimeEvent;
 	type ProposalDeposit = ConstU128<10>;
@@ -121,12 +196,17 @@ impl pallet_dao_votes::Config for Test {
 	type WeightInfo = ();
 }
 
+pub const ALICE: AccountId32 = AccountId32::new([1u8; 32]);
+pub const BOB: AccountId32 = AccountId32::new([2u8; 32]);
+
 // Build genesis storage according to the mock runtime.
 pub fn new_test_ext() -> sp_io::TestExternalities {
 	let mut t = frame_system::GenesisConfig::default().build_storage::<Test>().unwrap();
-	pallet_balances::GenesisConfig::<Test> { balances: vec![(1, 100)] }
-		.assimilate_storage(&mut t)
-		.unwrap();
+	pallet_balances::GenesisConfig::<Test> {
+		balances: vec![(ALICE, 1_000_000_000_000), (BOB, 1_000_000_000_000)],
+	}
+	.assimilate_storage(&mut t)
+	.unwrap();
 
 	let mut ext = sp_io::TestExternalities::new(t);
 	ext.execute_with(|| System::set_block_number(1));

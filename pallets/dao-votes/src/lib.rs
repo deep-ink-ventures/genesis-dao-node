@@ -2,11 +2,14 @@
 
 use sp_std::prelude::*;
 
+#[cfg(debug_assertions)]
+use frame_support::assert_ok;
 use frame_support::{
 	sp_runtime::traits::{One, Saturating, Zero},
 	storage::bounded_vec::BoundedVec,
 	traits::ReservableCurrency,
 };
+
 pub use pallet::*;
 
 #[cfg(feature = "runtime-benchmarks")]
@@ -27,10 +30,12 @@ pub use types::*;
 mod governance_types;
 use governance_types::*;
 
+use pallet_contracts::{Determinism, Pallet as Contracts};
 use pallet_dao_assets::{AssetBalanceOf, Pallet as Assets};
 use pallet_dao_core::{
 	AccountIdOf, CurrencyOf, DaoIdOf, DepositBalanceOf, Error as DaoError, Pallet as Core,
 };
+use pallet_hookpoints::Pallet as HookPoints;
 
 pub mod weights;
 use weights::WeightInfo;
@@ -78,7 +83,9 @@ pub mod pallet {
 	pub struct Pallet<T>(_);
 
 	#[pallet::config]
-	pub trait Config: frame_system::Config + pallet_dao_core::Config {
+	pub trait Config:
+		frame_system::Config + pallet_dao_core::Config + pallet_hookpoints::Config
+	{
 		type RuntimeEvent: From<Event<Self>> + IsType<<Self as frame_system::Config>::RuntimeEvent>;
 
 		#[pallet::constant]
@@ -341,7 +348,7 @@ pub mod pallet {
 			proposal_id: T::ProposalId,
 			in_favor: Option<bool>,
 		) -> DispatchResult {
-			let voter = ensure_signed(origin)?;
+			let voter: <T as frame_system::Config>::AccountId = ensure_signed(origin)?;
 
 			// check that a proposal exists with the given id
 			let mut proposal =
@@ -364,41 +371,83 @@ pub mod pallet {
 			);
 
 			let vote = <Votes<T>>::get(proposal_id, &voter);
-			if vote != in_favor {
-				<Votes<T>>::set(proposal_id, &voter, in_favor);
-				let asset_id = Core::<T>::get_dao(&proposal.dao_id)
-					.expect("DAO exists")
-					.asset_id
-					.expect("asset has been issued");
-				let token_balance = Assets::<T>::total_historical_balance(
-					asset_id.into(),
-					&voter,
-					proposal.birth_block,
-				)
-				.expect("history exists");
-				// undo old vote
-				match vote {
-					Some(true) => {
-						proposal.in_favor -= token_balance;
-					},
-					Some(false) => {
-						proposal.against -= token_balance;
-					},
-					None => {},
-				}
-				// count new vote
-				match in_favor {
-					Some(true) => {
-						proposal.in_favor += token_balance;
-					},
-					Some(false) => {
-						proposal.against += token_balance;
-					},
-					None => {},
-				}
-				// record updated proposal counts
-				<Proposals<T>>::insert(proposal_id, proposal);
+			if vote == in_favor {
+				// vote already stored
+				return Ok(())
 			}
+
+			<Votes<T>>::set(proposal_id, &voter, in_favor);
+			let dao = Core::<T>::get_dao(&proposal.dao_id).expect("DAO exists");
+			let asset_id = dao.asset_id.expect("asset has been issued");
+			let token_balance = Assets::<T>::total_historical_balance(
+				asset_id.into(),
+				&voter,
+				proposal.birth_block,
+			)
+			.expect("history exists");
+
+			// hookpoints
+			let on_voting_calc: BoundedVec<_, _> = b"ON_VOTING_CALC".to_vec().try_into().unwrap();
+			let callback: Option<_> =
+				HookPoints::<T>::specific_callbacks(&dao.owner, on_voting_calc)
+					.or_else(|| HookPoints::<T>::callbacks(&dao.owner));
+
+			// enable debug in debug mode and disable in release mode
+			#[cfg(debug_assertions)]
+			let debug = true;
+			#[cfg(not(debug_assertions))]
+			let debug = false;
+
+			let callback_result: Result<_, DispatchError> =
+				callback.map_or(Ok(token_balance), |contract| {
+					// the selector for "GenesisDAO::calculate_voting_power"
+					let mut data = 0xa68e4cba_u32.to_be_bytes().to_vec();
+					data.append(&mut voter.encode()); // argument AccountId
+					data.append(&mut token_balance.encode()); // argument u128
+					let contract_exec_result = Contracts::<T>::bare_call(
+						voter.clone(),
+						contract,
+						0_u32.into(),              // value to transfer
+						Weight::from_all(10_000_000_000), // gas limit
+						Some(0_u32.into()),        // storage deposit limit
+						data,
+						debug,
+						Determinism::Enforced,
+					);
+					// check debug message
+					#[cfg(debug_assertions)]
+					assert_eq!(String::from_utf8_lossy(&contract_exec_result.debug_message), "");
+					let result = contract_exec_result.result?;
+					<Result<AssetBalanceOf<T>, _>>::decode(&mut &result.data[..])
+						.map_err(|_| DispatchError::Other("decoding error"))?
+				});
+			// show errors in debug mode, but ignore in release mode
+			#[cfg(debug_assertions)]
+			assert_ok!(callback_result);
+			let voting_power = callback_result.unwrap_or(token_balance);
+
+			// undo old vote
+			match vote {
+				Some(true) => {
+					proposal.in_favor -= voting_power;
+				},
+				Some(false) => {
+					proposal.against -= voting_power;
+				},
+				None => {},
+			}
+			// count new vote
+			match in_favor {
+				Some(true) => {
+					proposal.in_favor += voting_power;
+				},
+				Some(false) => {
+					proposal.against += voting_power;
+				},
+				None => {},
+			}
+			// record updated proposal counts
+			<Proposals<T>>::insert(proposal_id, proposal);
 
 			Self::deposit_event(Event::<T>::VoteCast { proposal_id, voter, in_favor });
 			Ok(())

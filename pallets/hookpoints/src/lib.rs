@@ -41,7 +41,7 @@ pub mod pallet {
 		StorageMap<Hasher = Blake2_128Concat, Key = T::AccountId, Value = T::AccountId>;
 
 	#[pallet::storage]
-	#[pallet::getter(fn named_callbacks)]
+	#[pallet::getter(fn specific_callbacks)]
 	pub type SpecificCallbacks<T: Config> = StorageDoubleMap<
 		Hasher1 = Blake2_128Concat,
 		Key1 = T::AccountId,

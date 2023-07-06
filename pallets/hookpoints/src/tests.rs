@@ -35,7 +35,7 @@ fn register_specific_callback() {
 		let id = b"contract".to_vec();
 		assert_ok!(HookPoints::register_specific_callback(origin, contract, id.clone()));
 		let id: BoundedVec<_, _> = id.try_into().unwrap();
-		assert_eq!(HookPoints::named_callbacks(who, id), Some(42));
+		assert_eq!(HookPoints::specific_callbacks(who, id), Some(42));
 		System::assert_last_event(Event::SpecificCallbackRegistered { who }.into());
 	});
 }

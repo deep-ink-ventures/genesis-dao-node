@@ -20,13 +20,18 @@ frame-system = { version = "4.0.0-dev", default-features = false, git = "https:/
 scale-info = { version = "2.1.1", default-features = false, features = ["derive"] }
 sp-std = { version = "5.0.0", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.42" }
 pallet-balances = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.42" }
+pallet-contracts-primitives = { version = "7.0.0", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.42" }
+pallet-contracts = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.42" }
 pallet-dao-core = { version = "4.0.0-dev", default-features = false, path = "../dao-core" }
-pallet-dao-assets = { version = "4.0.0-dev", default-features = false,  path = "../dao-assets" }
+pallet-dao-assets = { version = "4.0.0-dev", default-features = false, path = "../dao-assets" }
+pallet-hookpoints = { version = "4.0.0-dev", default-features = false, path = "../hookpoints" }
 
 [dev-dependencies]
 sp-core = { version = "7.0.0", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.42" }
 sp-io = { version = "7.0.0", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.42" }
 sp-runtime = { version = "7.0.0", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.42" }
+pallet-timestamp = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.42" }
+pallet-transaction-payment = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.42" }
 
 [features]
 default = ["std"]
@@ -38,13 +43,17 @@ std = [
 	"scale-info/std",
 	"sp-runtime/std",
 	"pallet-balances/std",
+	"pallet-contracts-primitives/std",
+	"pallet-contracts/std",
 	"pallet-dao-assets/std",
 	"pallet-dao-core/std",
+	"pallet-hookpoints/std",
 ]
 runtime-benchmarks = [
 	"frame-benchmarking/runtime-benchmarks",
 	"pallet-dao-assets/runtime-benchmarks",
 	"pallet-dao-core/runtime-benchmarks",
+	"pallet-hookpoints/runtime-benchmarks",
 ]
 try-runtime = [
 	"frame-support/try-runtime"
