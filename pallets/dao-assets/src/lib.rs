@@ -51,6 +51,8 @@ type AccountIdLookupOf<T> = <<T as frame_system::Config>::Lookup as StaticLookup
 pub mod pallet {
 	use super::*;
 	use frame_support::pallet_prelude::*;
+	use frame_support::sp_runtime;
+	use frame_support::traits::BuildGenesisConfig;
 	use frame_system::pallet_prelude::*;
 
 	/// The current storage version.
@@ -231,7 +233,7 @@ pub mod pallet {
 	}
 
 	#[pallet::genesis_build]
-	impl<T: Config> GenesisBuild<T> for GenesisConfig<T> {
+	impl<T: Config> BuildGenesisConfig<T> for GenesisConfig<T> {
 		fn build(&self) {
 			for (id, owner, min_balance) in &self.assets {
 				assert!(!Asset::<T>::contains_key(id), "Asset id already in use");
