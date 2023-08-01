@@ -4,7 +4,7 @@ use super::*;
 use frame_system::RawOrigin;
 
 use crate::Pallet as Votes;
-use frame_system::{Config as SystemConfig, Pallet as System};
+use frame_system::{Pallet as System};
 use pallet_dao_core::Pallet as DaoCore;
 
 /// Creates a DAO for the given caller
@@ -68,7 +68,7 @@ pub fn setup_proposal<T: Config>(caller: T::AccountId, dao_id: Vec<u8>) -> T::Pr
 	proposal_id
 }
 
-pub fn run_to_block<T: Config>(n: <T as SystemConfig>::BlockNumber) {
+pub fn run_to_block<T: Config>(n: BlockNumberFor<T>) {
 	use frame_support::traits::{OnFinalize, OnInitialize};
 	while System::<T>::block_number() < n {
 		let mut block = System::<T>::block_number();
