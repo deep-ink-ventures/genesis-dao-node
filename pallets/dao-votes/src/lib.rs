@@ -38,8 +38,8 @@ use pallet_dao_core::{
 use pallet_hookpoints::Pallet as HookPoints;
 
 pub mod weights;
-use weights::WeightInfo;
 use frame_system::pallet_prelude::BlockNumberFor;
+use weights::WeightInfo;
 
 type ProposalSlotOf<T> = ProposalSlot<DaoIdOf<T>, <T as frame_system::Config>::AccountId>;
 type ProposalOf<T> = Proposal<
@@ -402,9 +402,9 @@ pub mod pallet {
 					let contract_exec_result = Contracts::<T>::bare_call(
 						voter.clone(),
 						contract,
-						0_u32.into(),              // value to transfer
+						0_u32.into(),                     // value to transfer
 						Weight::from_all(10_000_000_000), // gas limit
-						Some(0_u32.into()),        // storage deposit limit
+						Some(0_u32.into()),               // storage deposit limit
 						data,
 						DebugInfo::Skip,
 						CollectEvents::Skip,

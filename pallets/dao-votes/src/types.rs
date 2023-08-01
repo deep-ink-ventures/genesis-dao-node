@@ -24,7 +24,9 @@ pub struct Proposal<DaoId, AccountId, BlockId, Balance, Metadata> {
 	pub against: Balance,
 }
 
-#[derive(Clone, Copy, Encode, Decode, Eq, PartialEq, Default, RuntimeDebug, MaxEncodedLen, TypeInfo)]
+#[derive(
+	Clone, Copy, Encode, Decode, Eq, PartialEq, Default, RuntimeDebug, MaxEncodedLen, TypeInfo,
+)]
 pub enum ProposalStatus {
 	#[default]
 	Running,

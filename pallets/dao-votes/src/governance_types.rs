@@ -1,5 +1,8 @@
 use codec::MaxEncodedLen;
-use frame_support::{codec::{Decode, Encode}, RuntimeDebug};
+use frame_support::{
+	codec::{Decode, Encode},
+	RuntimeDebug,
+};
 use scale_info::TypeInfo;
 
 #[derive(Clone, Encode, Decode, Eq, PartialEq, RuntimeDebug, MaxEncodedLen, TypeInfo)]
@@ -16,7 +19,8 @@ pub struct Governance<Balance> {
 pub enum Voting {
 	Majority {
 		// how many more ayes than nays there must be for proposal acceptance
-		// thus proposal acceptance requires: ayes >= nays + token_supply / 1024 * minimum_majority_per_1024
+		// thus proposal acceptance requires: ayes >= nays + token_supply / 1024 *
+		// minimum_majority_per_1024
 		minimum_majority_per_1024: u8,
 	},
 }
