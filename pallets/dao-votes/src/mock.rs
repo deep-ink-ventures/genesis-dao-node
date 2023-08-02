@@ -135,7 +135,7 @@ impl pallet_contracts::Config for Test {
 	type DepositPerItem = DepositPerItem;
 	type DepositPerByte = DepositPerByte;
 	type CallStack = [pallet_contracts::Frame<Self>; 31];
-	type WeightPrice = (); //pallet_transaction_payment::Pallet<Self>;
+	type WeightPrice = ();
 	type WeightInfo = pallet_contracts::weights::SubstrateWeight<Self>;
 	type ChainExtension = ();
 	type Schedule = Schedule;

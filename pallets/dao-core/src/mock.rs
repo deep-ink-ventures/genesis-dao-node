@@ -1,7 +1,7 @@
 use crate as pallet_dao_core;
 use frame_support::{
 	parameter_types,
-	traits::{AsEnsureOriginWithArg, ConstBool, ConstU128, ConstU32, ConstU64, ConstU8, Randomness},
+	traits::{AsEnsureOriginWithArg, ConstBool, ConstU128, ConstU32, ConstU64, ConstU8},
 };
 use sp_core::H256;
 
@@ -17,13 +17,6 @@ pub(crate) type Balance = u128;
 pub type Nonce = u32;
 // Account ID
 pub type AccountId = u64;
-
-pub const PLANCK: Balance = 1;
-pub const MILLIDOT: Balance = PLANCK * 10_000_000;
-
-pub const fn deposit(items: u32, bytes: u32) -> Balance {
-	items as Balance * 150 * MILLIDOT + bytes as Balance * 60 * MILLIDOT
-}
 
 parameter_types! {
 	pub const ExistentialDeposit: Balance = 1;
@@ -92,6 +85,41 @@ impl pallet_balances::Config for Test {
 	type MaxHolds = ();
 }
 
+parameter_types! {
+	// we're not really using this, as reservation is via DAO, but whatever
+	pub const ApprovalDeposit: Balance = 1;
+	pub const AssetsStringLimit: u32 = 50;
+}
+
+impl pallet_dao_assets::Config for Test {
+	type RuntimeEvent = RuntimeEvent;
+	type Balance = Balance;
+	type AssetId = u32;
+	type AssetIdParameter = u32;
+	type Currency = Balances;
+	type ForceOrigin = frame_system::EnsureRoot<Self::AccountId>;
+	type CreateOrigin = AsEnsureOriginWithArg<frame_system::EnsureSigned<Self::AccountId>>;
+	type ApprovalDeposit = ApprovalDeposit;
+	type RemoveItemsLimit = ConstU32<1000>;
+	type StringLimit = AssetsStringLimit;
+	type HistoryHorizon = ConstU32<4200>;
+	type WeightInfo = ();
+	#[cfg(feature = "runtime-benchmarks")]
+	type BenchmarkHelper = ();
+}
+
+impl pallet_dao_core::Config for Test {
+	type RuntimeEvent = RuntimeEvent;
+	type MinLength = ConstU32<3>;
+	type MaxLengthId = ConstU32<8>;
+	type MaxLengthName = ConstU32<16>;
+	type MaxLengthMetadata = ConstU32<256>;
+	type Currency = Balances;
+	type DaoDeposit = ConstU128<10>;
+	type TokenUnits = ConstU8<10>;
+	type AssetId = u32;
+	type WeightInfo = ();
+}
 
 fn schedule<T: pallet_contracts::Config>() -> pallet_contracts::Schedule<T> {
 	pallet_contracts::Schedule {
@@ -139,99 +167,10 @@ impl pallet_contracts::Config for Test {
 	type DepositPerItem = DepositPerItem;
 	type DepositPerByte = DepositPerByte;
 	type CallStack = [pallet_contracts::Frame<Self>; 31];
-	type WeightPrice = (); //pallet_transaction_payment::Pallet<Self>;
-	type WeightInfo = pallet_contracts::weights::SubstrateWeight<Self>;
-	type ChainExtension = ();
-	type Schedule = Schedule;
-	type AddressGenerator = pallet_contracts::DefaultAddressGenerator;
-	type MaxCodeLen = ConstU32<{ 128 * 1024 }>;
-	type DefaultDepositLimit = DefaultDepositLimit;
-	type MaxStorageKeyLen = ConstU32<128>;
-	type MaxDebugBufferLen = ConstU32<{ 2 * 1024 * 1024 }>;
-	type UnsafeUnstableInterface = ConstBool<false>;
-}
-
-parameter_types! {
-	// we're not really using this, as reservation is via DAO, but whatever
-	pub const ApprovalDeposit: Balance = 1;
-	pub const AssetsStringLimit: u32 = 50;
-}
-
-impl pallet_dao_assets::Config for Test {
-	type RuntimeEvent = RuntimeEvent;
-	type Balance = Balance;
-	type AssetId = u32;
-	type AssetIdParameter = u32;
-	type Currency = Balances;
-	type ForceOrigin = frame_system::EnsureRoot<Self::AccountId>;
-	type CreateOrigin = AsEnsureOriginWithArg<frame_system::EnsureSigned<Self::AccountId>>;
-	type ApprovalDeposit = ApprovalDeposit;
-	type RemoveItemsLimit = ConstU32<1000>;
-	type StringLimit = AssetsStringLimit;
-	type HistoryHorizon = ConstU32<4200>;
-	type WeightInfo = ();
-	#[cfg(feature = "runtime-benchmarks")]
-	type BenchmarkHelper = ();
-}
-
-impl pallet_dao_core::Config for Test {
-	type RuntimeEvent = RuntimeEvent;
-	type MinLength = ConstU32<3>;
-	type MaxLengthId = ConstU32<8>;
-	type MaxLengthName = ConstU32<16>;
-	type MaxLengthMetadata = ConstU32<256>;
-	type Currency = Balances;
-	type DaoDeposit = ConstU128<10>;
-	type TokenUnits = ConstU8<10>;
-	type AssetId = u32;
-	type WeightInfo = ();
-}
-
-impl pallet_timestamp::Config for Test {
-	/// A timestamp: milliseconds since the unix epoch.
-	type Moment = u64;
-	type OnTimestampSet = ();
-	type MinimumPeriod = ConstU64<1000>;
-	type WeightInfo = ();
-}
-
-parameter_types! {
-	pub const DepositPerItem: Balance = deposit(1, 0);
-	pub const DepositPerByte: Balance = deposit(0, 1);
-	pub const DefaultDepositLimit: Balance = deposit(1024, 1024 * 1024);
-}
-
-pub struct FakeRandom;
-impl<Output, BlockNumber> Randomness<Output, BlockNumber> for FakeRandom {
-	fn random(_: &[u8]) -> (Output, BlockNumber) {
-		panic!("Pallet contracts promised not to call me");
-	}
-
-	fn random_seed() -> (Output, BlockNumber) {
-		panic!("Pallet contracts promised not to call me");
-	}
-}
-
-impl pallet_contracts::Config for Test {
-	type Time = Timestamp;
-	type Randomness = FakeRandom;
-	type Currency = Balances;
-	type RuntimeEvent = RuntimeEvent;
-	type RuntimeCall = RuntimeCall;
-	/// The safest default is to allow no calls at all.
-	///
-	/// Runtimes should whitelist dispatchables that are allowed to be called from contracts
-	/// and make sure they are stable. Dispatchables exposed to contracts are not allowed to
-	/// change because that would break already deployed contracts. The `RuntimeCall` structure
-	/// itself is not allowed to change the indices of existing pallets, too.
-	type CallFilter = frame_support::traits::Nothing;
-	type DepositPerItem = DepositPerItem;
-	type DepositPerByte = DepositPerByte;
-	type CallStack = [pallet_contracts::Frame<Self>; 31];
 	type WeightPrice = ();
 	type WeightInfo = pallet_contracts::weights::SubstrateWeight<Self>;
 	type ChainExtension = ();
-	type Schedule = ();
+	type Schedule = Schedule;
 	type AddressGenerator = pallet_contracts::DefaultAddressGenerator;
 	type MaxCodeLen = ConstU32<{ 128 * 1024 }>;
 	type DefaultDepositLimit = DefaultDepositLimit;
