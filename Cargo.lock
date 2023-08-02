@@ -4960,6 +4960,7 @@ dependencies = [
  "pallet-balances",
  "pallet-contracts",
  "pallet-dao-assets",
+ "pallet-timestamp",
  "parity-scale-codec",
  "scale-info",
  "sp-core 21.0.0",
