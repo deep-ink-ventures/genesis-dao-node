@@ -32,10 +32,10 @@ parameter_types! {
 frame_support::construct_runtime!(
 	pub struct Test {
 		System: frame_system,
+		Timestamp: pallet_timestamp,
 		Balances: pallet_balances,
 		Assets: pallet_dao_assets,
 		DaoCore: pallet_dao_core,
-		Timestamp: pallet_timestamp,
 		Contracts: pallet_contracts,
 	}
 );
@@ -66,6 +66,14 @@ impl frame_system::Config for Test {
 	type MaxConsumers = ConstU32<2>;
 }
 
+impl pallet_timestamp::Config for Test {
+	/// A timestamp: milliseconds since the unix epoch.
+	type Moment = u64;
+	type OnTimestampSet = ();
+	type MinimumPeriod = ConstU64<0>;
+	type WeightInfo = ();
+}
+
 impl pallet_balances::Config for Test {
 	type MaxLocks = ConstU32<50>;
 	type MaxReserves = ();
@@ -82,6 +90,65 @@ impl pallet_balances::Config for Test {
 	type MaxFreezes = ();
 	type RuntimeHoldReason = ();
 	type MaxHolds = ();
+}
+
+
+fn schedule<T: pallet_contracts::Config>() -> pallet_contracts::Schedule<T> {
+	pallet_contracts::Schedule {
+		limits: pallet_contracts::Limits {
+			runtime_memory: 1024 * 1024 * 1024,
+			..Default::default()
+		},
+		..Default::default()
+	}
+}
+
+parameter_types! {
+	pub const DepositPerItem: Balance = 0;
+	pub const DepositPerByte: Balance = 0;
+	pub Schedule: pallet_contracts::Schedule<Test> = schedule::<Test>();
+	pub const DefaultDepositLimit: Balance = 0;
+}
+
+// Pallet contracts promises to never use this, but needs this type anyway
+// Therefore we provide it, but panic when called.
+pub struct FakeRandom;
+impl<Output, BlockNumber> frame_support::traits::Randomness<Output, BlockNumber> for FakeRandom {
+	fn random(_: &[u8]) -> (Output, BlockNumber) {
+		panic!("Pallet contracts promised not to call me");
+	}
+
+	fn random_seed() -> (Output, BlockNumber) {
+		panic!("Pallet contracts promised not to call me");
+	}
+}
+
+impl pallet_contracts::Config for Test {
+	type Time = Timestamp;
+	type Randomness = FakeRandom;
+	type Currency = Balances;
+	type RuntimeEvent = RuntimeEvent;
+	type RuntimeCall = RuntimeCall;
+	/// The safest default is to allow no calls at all.
+	///
+	/// Runtimes should whitelist dispatchables that are allowed to be called from contracts
+	/// and make sure they are stable. Dispatchables exposed to contracts are not allowed to
+	/// change because that would break already deployed contracts. The `RuntimeCall` structure
+	/// itself is not allowed to change the indices of existing pallets, too.
+	type CallFilter = frame_support::traits::Nothing;
+	type DepositPerItem = DepositPerItem;
+	type DepositPerByte = DepositPerByte;
+	type CallStack = [pallet_contracts::Frame<Self>; 31];
+	type WeightPrice = (); //pallet_transaction_payment::Pallet<Self>;
+	type WeightInfo = pallet_contracts::weights::SubstrateWeight<Self>;
+	type ChainExtension = ();
+	type Schedule = Schedule;
+	type AddressGenerator = pallet_contracts::DefaultAddressGenerator;
+	type MaxCodeLen = ConstU32<{ 128 * 1024 }>;
+	type DefaultDepositLimit = DefaultDepositLimit;
+	type MaxStorageKeyLen = ConstU32<128>;
+	type MaxDebugBufferLen = ConstU32<{ 2 * 1024 * 1024 }>;
+	type UnsafeUnstableInterface = ConstBool<false>;
 }
 
 parameter_types! {
