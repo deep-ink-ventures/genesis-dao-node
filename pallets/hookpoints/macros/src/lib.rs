@@ -5,8 +5,7 @@ use proc_macro2::TokenStream as TS;
 // use proc_macro2::{Ident, Span, TokenStream as TS, TokenTree as TT};
 use quote::quote;
 use syn::{
-	parse_quote, spanned::Spanned, Error, FnArg, Ident, ItemTrait, Result, ReturnType, TraitItem,
-	TraitItemFn,
+	spanned::Spanned, Error, FnArg, Ident, ItemTrait, Result, ReturnType, TraitItem, TraitItemFn,
 };
 
 /// this macro expands to one callback for each trait method but returns Result (or maybe Option):
