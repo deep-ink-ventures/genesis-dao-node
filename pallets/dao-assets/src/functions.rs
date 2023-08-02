@@ -610,7 +610,7 @@ impl<T: Config> Pallet<T> {
 		maybe_check_owner: Option<T::AccountId>,
 	) -> DispatchResult {
 		Asset::<T>::try_mutate_exists(id, |maybe_details| -> Result<(), DispatchError> {
-			let mut details = maybe_details.as_mut().ok_or(Error::<T>::Unknown)?;
+			let details = maybe_details.as_mut().ok_or(Error::<T>::Unknown)?;
 			if let Some(check_owner) = maybe_check_owner {
 				ensure!(details.owner == check_owner, Error::<T>::NoPermission);
 			}
@@ -665,7 +665,7 @@ impl<T: Config> Pallet<T> {
 	) -> Result<u32, DispatchError> {
 		let mut removed_approvals = 0;
 		Asset::<T>::try_mutate_exists(id, |maybe_details| -> Result<(), DispatchError> {
-			let mut details = maybe_details.as_mut().ok_or(Error::<T>::Unknown)?;
+			let details = maybe_details.as_mut().ok_or(Error::<T>::Unknown)?;
 
 			// Should only destroy accounts while the asset is in a destroying state.
 			ensure!(details.status == AssetStatus::Destroying, Error::<T>::IncorrectStatus);
@@ -693,7 +693,7 @@ impl<T: Config> Pallet<T> {
 	/// On success, the `Event::Destroyed` event is emitted.
 	pub(super) fn do_finish_destroy(id: T::AssetId) -> DispatchResult {
 		Asset::<T>::try_mutate_exists(id, |maybe_details| -> Result<(), DispatchError> {
-			let mut details = maybe_details.as_mut().ok_or(Error::<T>::Unknown)?;
+			let details = maybe_details.as_mut().ok_or(Error::<T>::Unknown)?;
 			ensure!(details.status == AssetStatus::Destroying, Error::<T>::IncorrectStatus);
 			ensure!(details.accounts == 0, Error::<T>::InUse);
 			ensure!(details.approvals == 0, Error::<T>::InUse);
