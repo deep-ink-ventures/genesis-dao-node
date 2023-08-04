@@ -1,0 +1,3070 @@
+warning: some crates are on edition 2021 which defaults to `resolver = "2"`, but virtual workspaces default to `resolver = "1"`
+note: to keep the current resolver, specify `workspace.resolver = "1"` in the workspace root's manifest
+note: to use the edition 2021 resolver, specify `workspace.resolver = "2"` in the workspace root's manifest
+   Compiling pallet-dao-assets v4.0.0-dev (/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets)
+warning: unused import: `parse_quote`
+ --> pallets/hookpoints/macros/src/lib.rs:8:2
+  |
+8 |     parse_quote, spanned::Spanned, Error, FnArg, Ident, ItemTrait, Result, ReturnType, TraitItem,
+  |     ^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` on by default
+
+warning: unused variable: `selector`
+  --> pallets/hookpoints/macros/src/lib.rs:60:6
+   |
+60 |     let selector: [u8; 4] = {
+   |         ^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_selector`
+   |
+   = note: `#[warn(unused_variables)]` on by default
+
+warning: `macros` (lib) generated 2 warnings (run `cargo fix --lib -p macros` to apply 2 suggestions)
+   Compiling local-runtime v4.0.0-dev (/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/runtime)
+error: Invalid genesis builder: expected `GenesisBuild<T>` or `GenesisBuild<T, I>`
+   --> pallets/dao-assets/src/lib.rs:236:18
+    |
+236 |     impl<T: Config> BuildGenesisConfig<T> for GenesisConfig<T> {
+    |                     ^^^^^^^^^^^^^^^^^^^^^
+
+error: unexpected token
+   --> pallets/dao-assets/src/lib.rs:236:36
+    |
+236 |     impl<T: Config> BuildGenesisConfig<T> for GenesisConfig<T> {
+    |                                       ^
+
+error[E0432]: unresolved import `pallet`
+ --> pallets/dao-assets/src/lib.rs:7:9
+  |
+7 | pub use pallet::*;
+  |         ^^^^^^ help: a similar path exists: `pallet_balances::pallet`
+
+error[E0432]: unresolved imports `crate::Approvals`, `crate::Asset`, `crate::Config`, `crate::DebitFlags`, `crate::Metadata`, `crate::Pallet`, `crate::SystemConfig`
+  --> pallets/dao-assets/src/impl_fungibles.rs:14:13
+   |
+14 | use crate::{Approvals, Asset, Config, DebitFlags, Metadata, Pallet, SystemConfig};
+   |             ^^^^^^^^^  ^^^^^  ^^^^^^  ^^^^^^^^^^  ^^^^^^^^  ^^^^^^  ^^^^^^^^^^^^
+   |             |          |      |                   |         |
+   |             |          |      |                   |         no `Pallet` in the root
+   |             |          |      |                   no `Metadata` in the root
+   |             |          |      no `Config` in the root
+   |             |          no `Asset` in the root
+   |             no `Approvals` in the root
+   |             help: a similar name exists in the module: `Approval`
+   |
+   = help: consider importing one of these items instead:
+           frame_system::Config
+           pallet_balances::Config
+   = help: consider importing this struct instead:
+           std::fs::Metadata
+   = help: consider importing one of these items instead:
+           frame_system::Pallet
+           pallet_balances::Pallet
+
+error[E0412]: cannot find type `Pallet` in this scope
+ --> pallets/dao-assets/src/functions.rs:9:17
+  |
+9 | impl<T: Config> Pallet<T> {
+  |                 ^^^^^^ not found in this scope
+  |
+help: consider importing one of these items
+  |
+3 + use frame_system::Pallet;
+  |
+3 + use pallet_balances::Pallet;
+  |
+
+error[E0405]: cannot find trait `Config` in this scope
+ --> pallets/dao-assets/src/functions.rs:9:9
+  |
+9 | impl<T: Config> Pallet<T> {
+  |         ^^^^^^ not found in this scope
+  |
+help: consider importing one of these items
+  |
+3 + use frame_system::Config;
+  |
+3 + use pallet_balances::Config;
+  |
+
+error[E0433]: failed to resolve: use of undeclared type `Account`
+  --> pallets/dao-assets/src/functions.rs:30:3
+   |
+30 |         Account::<T>::get(id, who.borrow()).map(|a| a.balance)
+   |         ^^^^^^^ use of undeclared type `Account`
+   |
+help: consider importing one of these items
+   |
+3  + use frame_system::Account;
+   |
+3  + use frame_system::offchain::Account;
+   |
+3  + use pallet_balances::Account;
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `Account`
+  --> pallets/dao-assets/src/functions.rs:38:3
+   |
+38 |         Account::<T>::get(id, who.borrow()).map(|a| a.balance + a.reserved)
+   |         ^^^^^^^ use of undeclared type `Account`
+   |
+help: consider importing one of these items
+   |
+3  + use frame_system::Account;
+   |
+3  + use frame_system::offchain::Account;
+   |
+3  + use pallet_balances::Account;
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `Account`
+  --> pallets/dao-assets/src/functions.rs:43:3
+   |
+43 |         Account::<T>::get(id, who.borrow()).map(|a| a.reserved)
+   |         ^^^^^^^ use of undeclared type `Account`
+   |
+help: consider importing one of these items
+   |
+3  + use frame_system::Account;
+   |
+3  + use frame_system::offchain::Account;
+   |
+3  + use pallet_balances::Account;
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `Account`
+   --> pallets/dao-assets/src/functions.rs:200:23
+    |
+200 |         let account = match Account::<T>::get(id, who) {
+    |                             ^^^^^^^ use of undeclared type `Account`
+    |
+help: consider importing one of these items
+    |
+3   + use frame_system::Account;
+    |
+3   + use frame_system::offchain::Account;
+    |
+3   + use pallet_balances::Account;
+    |
+
+error[E0433]: failed to resolve: use of undeclared type `Error`
+   --> pallets/dao-assets/src/functions.rs:226:43
+    |
+226 |         let details = Asset::<T>::get(id).ok_or(Error::<T>::Unknown)?;
+    |                                                 ^^^^^ use of undeclared type `Error`
+    |
+help: consider importing one of these items
+    |
+3   + use codec::Error;
+    |
+3   + use core::error::Error;
+    |
+3   + use core::fmt::Error;
+    |
+3   + use frame_support::dispatch::fmt::Error;
+    |
+      and 7 other candidates
+
+error[E0433]: failed to resolve: use of undeclared type `Error`
+   --> pallets/dao-assets/src/functions.rs:227:48
+    |
+227 |         ensure!(details.status == AssetStatus::Live, Error::<T>::AssetNotLive);
+    |                                                      ^^^^^ use of undeclared type `Error`
+    |
+help: consider importing one of these items
+    |
+3   + use codec::Error;
+    |
+3   + use core::error::Error;
+    |
+3   + use core::fmt::Error;
+    |
+3   + use frame_support::dispatch::fmt::Error;
+    |
+      and 7 other candidates
+
+error[E0433]: failed to resolve: use of undeclared type `Account`
+   --> pallets/dao-assets/src/functions.rs:229:17
+    |
+229 |         let account = Account::<T>::get(id, who).ok_or(Error::<T>::NoAccount)?;
+    |                       ^^^^^^^ use of undeclared type `Account`
+    |
+help: consider importing one of these items
+    |
+3   + use frame_system::Account;
+    |
+3   + use frame_system::offchain::Account;
+    |
+3   + use pallet_balances::Account;
+    |
+
+error[E0433]: failed to resolve: use of undeclared type `Error`
+   --> pallets/dao-assets/src/functions.rs:229:50
+    |
+229 |         let account = Account::<T>::get(id, who).ok_or(Error::<T>::NoAccount)?;
+    |                                                        ^^^^^ use of undeclared type `Error`
+    |
+help: consider importing one of these items
+    |
+3   + use codec::Error;
+    |
+3   + use core::error::Error;
+    |
+3   + use core::fmt::Error;
+    |
+3   + use frame_support::dispatch::fmt::Error;
+    |
+      and 7 other candidates
+
+error[E0433]: failed to resolve: use of undeclared type `Error`
+   --> pallets/dao-assets/src/functions.rs:257:46
+    |
+257 |         ensure!(f.best_effort || actual >= amount, Error::<T>::BalanceLow);
+    |                                                    ^^^^^ use of undeclared type `Error`
+    |
+help: consider importing one of these items
+    |
+3   + use codec::Error;
+    |
+3   + use core::error::Error;
+    |
+3   + use core::fmt::Error;
+    |
+3   + use frame_support::dispatch::fmt::Error;
+    |
+      and 7 other candidates
+
+error[E0433]: failed to resolve: use of undeclared type `Event`
+   --> pallets/dao-assets/src/functions.rs:322:23
+    |
+322 |         Self::deposit_event(Event::Issued {
+    |                             ^^^^^ use of undeclared type `Event`
+    |
+help: consider importing one of these items
+    |
+3   + use frame_system::Event;
+    |
+3   + use pallet_balances::Event;
+    |
+
+error[E0433]: failed to resolve: use of undeclared type `Error`
+   --> pallets/dao-assets/src/functions.rs:348:47
+    |
+348 |             let details = maybe_details.as_mut().ok_or(Error::<T>::Unknown)?;
+    |                                                        ^^^^^ use of undeclared type `Error`
+    |
+help: consider importing one of these items
+    |
+3   + use codec::Error;
+    |
+3   + use core::error::Error;
+    |
+3   + use core::fmt::Error;
+    |
+3   + use frame_support::dispatch::fmt::Error;
+    |
+      and 7 other candidates
+
+error[E0433]: failed to resolve: use of undeclared type `Error`
+   --> pallets/dao-assets/src/functions.rs:349:49
+    |
+349 |             ensure!(details.status == AssetStatus::Live, Error::<T>::AssetNotLive);
+    |                                                          ^^^^^ use of undeclared type `Error`
+    |
+help: consider importing one of these items
+    |
+3   + use codec::Error;
+    |
+3   + use core::error::Error;
+    |
+3   + use core::fmt::Error;
+    |
+3   + use frame_support::dispatch::fmt::Error;
+    |
+      and 7 other candidates
+
+error[E0433]: failed to resolve: use of undeclared type `Account`
+   --> pallets/dao-assets/src/functions.rs:352:22
+    |
+352 |             let mut account = Account::<T>::try_get(id, beneficiary)
+    |                               ^^^^^^^ use of undeclared type `Account`
+    |
+help: consider importing one of these items
+    |
+3   + use frame_system::Account;
+    |
+3   + use frame_system::offchain::Account;
+    |
+3   + use pallet_balances::Account;
+    |
+
+error[E0433]: failed to resolve: use of undeclared type `Account`
+   --> pallets/dao-assets/src/functions.rs:357:4
+    |
+357 |             Account::<T>::insert(id, beneficiary, account);
+    |             ^^^^^^^ use of undeclared type `Account`
+    |
+help: consider importing one of these items
+    |
+3   + use frame_system::Account;
+    |
+3   + use frame_system::offchain::Account;
+    |
+3   + use pallet_balances::Account;
+    |
+
+error[E0433]: failed to resolve: use of undeclared type `Error`
+   --> pallets/dao-assets/src/functions.rs:410:43
+    |
+410 |         let details = Asset::<T>::get(id).ok_or(Error::<T>::Unknown)?;
+    |                                                 ^^^^^ use of undeclared type `Error`
+    |
+help: consider importing one of these items
+    |
+3   + use codec::Error;
+    |
+3   + use core::error::Error;
+    |
+3   + use core::fmt::Error;
+    |
+3   + use frame_support::dispatch::fmt::Error;
+    |
+      and 7 other candidates
+
+error[E0433]: failed to resolve: use of undeclared type `Error`
+   --> pallets/dao-assets/src/functions.rs:411:48
+    |
+411 |         ensure!(details.status == AssetStatus::Live, Error::<T>::AssetNotLive);
+    |                                                      ^^^^^ use of undeclared type `Error`
+    |
+help: consider importing one of these items
+    |
+3   + use codec::Error;
+    |
+3   + use core::error::Error;
+    |
+3   + use core::fmt::Error;
+    |
+3   + use frame_support::dispatch::fmt::Error;
+    |
+      and 7 other candidates
+
+error[E0433]: failed to resolve: use of undeclared type `Error`
+   --> pallets/dao-assets/src/functions.rs:416:47
+    |
+416 |             let details = maybe_details.as_mut().ok_or(Error::<T>::Unknown)?;
+    |                                                        ^^^^^ use of undeclared type `Error`
+    |
+help: consider importing one of these items
+    |
+3   + use codec::Error;
+    |
+3   + use core::error::Error;
+    |
+3   + use core::fmt::Error;
+    |
+3   + use frame_support::dispatch::fmt::Error;
+    |
+      and 7 other candidates
+
+error[E0433]: failed to resolve: use of undeclared type `Account`
+   --> pallets/dao-assets/src/functions.rs:419:22
+    |
+419 |             let mut account = Account::<T>::take(id, target).ok_or(Error::<T>::NoAccount)?;
+    |                               ^^^^^^^ use of undeclared type `Account`
+    |
+help: consider importing one of these items
+    |
+3   + use frame_system::Account;
+    |
+3   + use frame_system::offchain::Account;
+    |
+3   + use pallet_balances::Account;
+    |
+
+error[E0433]: failed to resolve: use of undeclared type `Error`
+   --> pallets/dao-assets/src/functions.rs:419:59
+    |
+419 |             let mut account = Account::<T>::take(id, target).ok_or(Error::<T>::NoAccount)?;
+    |                                                                    ^^^^^ use of undeclared type `Error`
+    |
+help: consider importing one of these items
+    |
+3   + use codec::Error;
+    |
+3   + use core::error::Error;
+    |
+3   + use core::fmt::Error;
+    |
+3   + use frame_support::dispatch::fmt::Error;
+    |
+      and 7 other candidates
+
+error[E0433]: failed to resolve: use of undeclared type `Account`
+   --> pallets/dao-assets/src/functions.rs:429:4
+    |
+429 |             Account::<T>::insert(id, target, account);
+    |             ^^^^^^^ use of undeclared type `Account`
+    |
+help: consider importing one of these items
+    |
+3   + use frame_system::Account;
+    |
+3   + use frame_system::offchain::Account;
+    |
+3   + use pallet_balances::Account;
+    |
+
+error[E0433]: failed to resolve: use of undeclared type `Error`
+   --> pallets/dao-assets/src/functions.rs:446:43
+    |
+446 |         let details = Asset::<T>::get(id).ok_or(Error::<T>::Unknown)?;
+    |                                                 ^^^^^ use of undeclared type `Error`
+    |
+help: consider importing one of these items
+    |
+3   + use codec::Error;
+    |
+3   + use core::error::Error;
+    |
+3   + use core::fmt::Error;
+    |
+3   + use frame_support::dispatch::fmt::Error;
+    |
+      and 7 other candidates
+
+error[E0433]: failed to resolve: use of undeclared type `Error`
+   --> pallets/dao-assets/src/functions.rs:447:48
+    |
+447 |         ensure!(details.status == AssetStatus::Live, Error::<T>::AssetNotLive);
+    |                                                      ^^^^^ use of undeclared type `Error`
+    |
+help: consider importing one of these items
+    |
+3   + use codec::Error;
+    |
+3   + use core::error::Error;
+    |
+3   + use core::fmt::Error;
+    |
+3   + use frame_support::dispatch::fmt::Error;
+    |
+      and 7 other candidates
+
+error[E0433]: failed to resolve: use of undeclared type `Account`
+   --> pallets/dao-assets/src/functions.rs:453:3
+    |
+453 |         Account::<T>::try_mutate(id, target.borrow(), |maybe_account| -> DispatchResult {
+    |         ^^^^^^^ use of undeclared type `Account`
+    |
+help: consider importing one of these items
+    |
+3   + use frame_system::Account;
+    |
+3   + use frame_system::offchain::Account;
+    |
+3   + use pallet_balances::Account;
+    |
+
+error[E0433]: failed to resolve: use of undeclared type `Error`
+   --> pallets/dao-assets/src/functions.rs:454:49
+    |
+454 |             let mut account = maybe_account.take().ok_or(Error::<T>::NoAccount)?;
+    |                                                          ^^^^^ use of undeclared type `Error`
+    |
+help: consider importing one of these items
+    |
+3   + use codec::Error;
+    |
+3   + use core::error::Error;
+    |
+3   + use core::fmt::Error;
+    |
+3   + use frame_support::dispatch::fmt::Error;
+    |
+      and 7 other candidates
+
+error[E0433]: failed to resolve: use of undeclared type `Error`
+   --> pallets/dao-assets/src/functions.rs:479:43
+    |
+479 |         let details = Asset::<T>::get(id).ok_or(Error::<T>::Unknown)?;
+    |                                                 ^^^^^ use of undeclared type `Error`
+    |
+help: consider importing one of these items
+    |
+3   + use codec::Error;
+    |
+3   + use core::error::Error;
+    |
+3   + use core::fmt::Error;
+    |
+3   + use frame_support::dispatch::fmt::Error;
+    |
+      and 7 other candidates
+
+error[E0433]: failed to resolve: use of undeclared type `Error`
+   --> pallets/dao-assets/src/functions.rs:480:48
+    |
+480 |         ensure!(details.status == AssetStatus::Live, Error::<T>::AssetNotLive);
+    |                                                      ^^^^^ use of undeclared type `Error`
+    |
+help: consider importing one of these items
+    |
+3   + use codec::Error;
+    |
+3   + use core::error::Error;
+    |
+3   + use core::fmt::Error;
+    |
+3   + use frame_support::dispatch::fmt::Error;
+    |
+      and 7 other candidates
+
+error[E0433]: failed to resolve: use of undeclared type `Account`
+   --> pallets/dao-assets/src/functions.rs:482:3
+    |
+482 |         Account::<T>::try_mutate(id, target.borrow(), |maybe_account| -> DispatchResult {
+    |         ^^^^^^^ use of undeclared type `Account`
+    |
+help: consider importing one of these items
+    |
+3   + use frame_system::Account;
+    |
+3   + use frame_system::offchain::Account;
+    |
+3   + use pallet_balances::Account;
+    |
+
+error[E0433]: failed to resolve: use of undeclared type `Error`
+   --> pallets/dao-assets/src/functions.rs:483:49
+    |
+483 |             let mut account = maybe_account.take().ok_or(Error::<T>::NoAccount)?;
+    |                                                          ^^^^^ use of undeclared type `Error`
+    |
+help: consider importing one of these items
+    |
+3   + use codec::Error;
+    |
+3   + use core::error::Error;
+    |
+3   + use core::fmt::Error;
+    |
+3   + use frame_support::dispatch::fmt::Error;
+    |
+      and 7 other candidates
+
+error[E0433]: failed to resolve: use of undeclared type `Error`
+   --> pallets/dao-assets/src/functions.rs:515:43
+    |
+515 |         let details = Asset::<T>::get(id).ok_or(Error::<T>::Unknown)?;
+    |                                                 ^^^^^ use of undeclared type `Error`
+    |
+help: consider importing one of these items
+    |
+3   + use codec::Error;
+    |
+3   + use core::error::Error;
+    |
+3   + use core::fmt::Error;
+    |
+3   + use frame_support::dispatch::fmt::Error;
+    |
+      and 7 other candidates
+
+error[E0433]: failed to resolve: use of undeclared type `Error`
+   --> pallets/dao-assets/src/functions.rs:516:48
+    |
+516 |         ensure!(details.status == AssetStatus::Live, Error::<T>::AssetNotLive);
+    |                                                      ^^^^^ use of undeclared type `Error`
+    |
+help: consider importing one of these items
+    |
+3   + use codec::Error;
+    |
+3   + use core::error::Error;
+    |
+3   + use core::fmt::Error;
+    |
+3   + use frame_support::dispatch::fmt::Error;
+    |
+      and 7 other candidates
+
+error[E0433]: failed to resolve: use of undeclared type `Error`
+   --> pallets/dao-assets/src/functions.rs:523:47
+    |
+523 |             let details = maybe_details.as_mut().ok_or(Error::<T>::Unknown)?;
+    |                                                        ^^^^^ use of undeclared type `Error`
+    |
+help: consider importing one of these items
+    |
+3   + use codec::Error;
+    |
+3   + use core::error::Error;
+    |
+3   + use core::fmt::Error;
+    |
+3   + use frame_support::dispatch::fmt::Error;
+    |
+      and 7 other candidates
+
+error[E0433]: failed to resolve: use of undeclared type `Account`
+   --> pallets/dao-assets/src/functions.rs:539:29
+    |
+539 |             let mut source_account = Account::<T>::get(id, source).expect("checked in prep; qed");
+    |                                      ^^^^^^^ use of undeclared type `Account`
+    |
+help: consider importing one of these items
+    |
+3   + use frame_system::Account;
+    |
+3   + use frame_system::offchain::Account;
+    |
+3   + use pallet_balances::Account;
+    |
+
+error[E0433]: failed to resolve: use of undeclared type `Account`
+   --> pallets/dao-assets/src/functions.rs:544:5
+    |
+544 |                 Account::<T>::try_get(id, dest).or_else(|_| Self::new_account(dest, details))?;
+    |                 ^^^^^^^ use of undeclared type `Account`
+    |
+help: consider importing one of these items
+    |
+3   + use frame_system::Account;
+    |
+3   + use frame_system::offchain::Account;
+    |
+3   + use pallet_balances::Account;
+    |
+
+error[E0433]: failed to resolve: use of undeclared type `Account`
+   --> pallets/dao-assets/src/functions.rs:549:4
+    |
+549 |             Account::<T>::insert(id, dest, account);
+    |             ^^^^^^^ use of undeclared type `Account`
+    |
+help: consider importing one of these items
+    |
+3   + use frame_system::Account;
+    |
+3   + use frame_system::offchain::Account;
+    |
+3   + use pallet_balances::Account;
+    |
+
+error[E0433]: failed to resolve: use of undeclared type `Account`
+   --> pallets/dao-assets/src/functions.rs:555:5
+    |
+555 |                 Account::<T>::remove(id, source);
+    |                 ^^^^^^^ use of undeclared type `Account`
+    |
+help: consider importing one of these items
+    |
+3   + use frame_system::Account;
+    |
+3   + use frame_system::offchain::Account;
+    |
+3   + use pallet_balances::Account;
+    |
+
+error[E0433]: failed to resolve: use of undeclared type `Account`
+   --> pallets/dao-assets/src/functions.rs:563:4
+    |
+563 |             Account::<T>::insert(id, source, &source_account);
+    |             ^^^^^^^ use of undeclared type `Account`
+    |
+help: consider importing one of these items
+    |
+3   + use frame_system::Account;
+    |
+3   + use frame_system::offchain::Account;
+    |
+3   + use pallet_balances::Account;
+    |
+
+error[E0433]: failed to resolve: use of undeclared type `Event`
+   --> pallets/dao-assets/src/functions.rs:567:23
+    |
+567 |         Self::deposit_event(Event::Transferred {
+    |                             ^^^^^ use of undeclared type `Event`
+    |
+help: consider importing one of these items
+    |
+3   + use frame_system::Event;
+    |
+3   + use pallet_balances::Event;
+    |
+
+error[E0433]: failed to resolve: use of undeclared type `Error`
+   --> pallets/dao-assets/src/functions.rs:587:42
+    |
+587 |         ensure!(!Asset::<T>::contains_key(id), Error::<T>::InUse);
+    |                                                ^^^^^ use of undeclared type `Error`
+    |
+help: consider importing one of these items
+    |
+3   + use codec::Error;
+    |
+3   + use core::error::Error;
+    |
+3   + use core::fmt::Error;
+    |
+3   + use frame_support::dispatch::fmt::Error;
+    |
+      and 7 other candidates
+
+error[E0433]: failed to resolve: use of undeclared type `Error`
+   --> pallets/dao-assets/src/functions.rs:588:35
+    |
+588 |         ensure!(!min_balance.is_zero(), Error::<T>::MinBalanceZero);
+    |                                         ^^^^^ use of undeclared type `Error`
+    |
+help: consider importing one of these items
+    |
+3   + use codec::Error;
+    |
+3   + use core::error::Error;
+    |
+3   + use core::fmt::Error;
+    |
+3   + use frame_support::dispatch::fmt::Error;
+    |
+      and 7 other candidates
+
+error[E0433]: failed to resolve: use of undeclared type `Event`
+   --> pallets/dao-assets/src/functions.rs:602:23
+    |
+602 |         Self::deposit_event(Event::ForceCreated { asset_id: id, owner });
+    |                             ^^^^^ use of undeclared type `Event`
+    |
+help: consider importing one of these items
+    |
+3   + use frame_system::Event;
+    |
+3   + use pallet_balances::Event;
+    |
+
+error[E0433]: failed to resolve: use of undeclared type `Error`
+   --> pallets/dao-assets/src/functions.rs:613:51
+    |
+613 |             let mut details = maybe_details.as_mut().ok_or(Error::<T>::Unknown)?;
+    |                                                            ^^^^^ use of undeclared type `Error`
+    |
+help: consider importing one of these items
+    |
+3   + use codec::Error;
+    |
+3   + use core::error::Error;
+    |
+3   + use core::fmt::Error;
+    |
+3   + use frame_support::dispatch::fmt::Error;
+    |
+      and 7 other candidates
+
+error[E0433]: failed to resolve: use of undeclared type `Error`
+   --> pallets/dao-assets/src/functions.rs:615:43
+    |
+615 |                 ensure!(details.owner == check_owner, Error::<T>::NoPermission);
+    |                                                       ^^^^^ use of undeclared type `Error`
+    |
+help: consider importing one of these items
+    |
+3   + use codec::Error;
+    |
+3   + use core::error::Error;
+    |
+3   + use core::fmt::Error;
+    |
+3   + use frame_support::dispatch::fmt::Error;
+    |
+      and 7 other candidates
+
+error[E0433]: failed to resolve: use of undeclared type `Event`
+   --> pallets/dao-assets/src/functions.rs:620:24
+    |
+620 |             Self::deposit_event(Event::DestructionStarted { asset_id: id });
+    |                                 ^^^^^ use of undeclared type `Event`
+    |
+help: consider importing one of these items
+    |
+3   + use frame_system::Event;
+    |
+3   + use pallet_balances::Event;
+    |
+
+error[E0433]: failed to resolve: use of undeclared type `Error`
+   --> pallets/dao-assets/src/functions.rs:636:47
+    |
+636 |             let details = maybe_details.as_mut().ok_or(Error::<T>::Unknown)?;
+    |                                                        ^^^^^ use of undeclared type `Error`
+    |
+help: consider importing one of these items
+    |
+3   + use codec::Error;
+    |
+3   + use core::error::Error;
+    |
+3   + use core::fmt::Error;
+    |
+3   + use frame_support::dispatch::fmt::Error;
+    |
+      and 7 other candidates
+
+error[E0433]: failed to resolve: use of undeclared type `Error`
+   --> pallets/dao-assets/src/functions.rs:639:55
+    |
+639 |             ensure!(details.status == AssetStatus::Destroying, Error::<T>::IncorrectStatus);
+    |                                                                ^^^^^ use of undeclared type `Error`
+    |
+help: consider importing one of these items
+    |
+3   + use codec::Error;
+    |
+3   + use core::error::Error;
+    |
+3   + use core::fmt::Error;
+    |
+3   + use frame_support::dispatch::fmt::Error;
+    |
+      and 7 other candidates
+
+error[E0433]: failed to resolve: use of undeclared type `Account`
+   --> pallets/dao-assets/src/functions.rs:641:20
+    |
+641 |             for (who, _) in Account::<T>::drain_prefix(id).take(max_items as usize) {
+    |                             ^^^^^^^ use of undeclared type `Account`
+    |
+help: consider importing one of these items
+    |
+3   + use frame_system::Account;
+    |
+3   + use frame_system::offchain::Account;
+    |
+3   + use pallet_balances::Account;
+    |
+
+error[E0433]: failed to resolve: use of undeclared type `Event`
+   --> pallets/dao-assets/src/functions.rs:650:23
+    |
+650 |         Self::deposit_event(Event::AccountsDestroyed {
+    |                             ^^^^^ use of undeclared type `Event`
+    |
+help: consider importing one of these items
+    |
+3   + use frame_system::Event;
+    |
+3   + use pallet_balances::Event;
+    |
+
+error[E0433]: failed to resolve: use of undeclared type `Error`
+   --> pallets/dao-assets/src/functions.rs:668:51
+    |
+668 |             let mut details = maybe_details.as_mut().ok_or(Error::<T>::Unknown)?;
+    |                                                            ^^^^^ use of undeclared type `Error`
+    |
+help: consider importing one of these items
+    |
+3   + use codec::Error;
+    |
+3   + use core::error::Error;
+    |
+3   + use core::fmt::Error;
+    |
+3   + use frame_support::dispatch::fmt::Error;
+    |
+      and 7 other candidates
+
+error[E0433]: failed to resolve: use of undeclared type `Error`
+   --> pallets/dao-assets/src/functions.rs:671:55
+    |
+671 |             ensure!(details.status == AssetStatus::Destroying, Error::<T>::IncorrectStatus);
+    |                                                                ^^^^^ use of undeclared type `Error`
+    |
+help: consider importing one of these items
+    |
+3   + use codec::Error;
+    |
+3   + use core::error::Error;
+    |
+3   + use core::fmt::Error;
+    |
+3   + use frame_support::dispatch::fmt::Error;
+    |
+      and 7 other candidates
+
+error[E0433]: failed to resolve: use of undeclared type `Event`
+   --> pallets/dao-assets/src/functions.rs:681:24
+    |
+681 |             Self::deposit_event(Event::ApprovalsDestroyed {
+    |                                 ^^^^^ use of undeclared type `Event`
+    |
+help: consider importing one of these items
+    |
+3   + use frame_system::Event;
+    |
+3   + use pallet_balances::Event;
+    |
+
+error[E0433]: failed to resolve: use of undeclared type `Error`
+   --> pallets/dao-assets/src/functions.rs:696:51
+    |
+696 |             let mut details = maybe_details.as_mut().ok_or(Error::<T>::Unknown)?;
+    |                                                            ^^^^^ use of undeclared type `Error`
+    |
+help: consider importing one of these items
+    |
+3   + use codec::Error;
+    |
+3   + use core::error::Error;
+    |
+3   + use core::fmt::Error;
+    |
+3   + use frame_support::dispatch::fmt::Error;
+    |
+      and 7 other candidates
+
+error[E0433]: failed to resolve: use of undeclared type `Error`
+   --> pallets/dao-assets/src/functions.rs:697:55
+    |
+697 |             ensure!(details.status == AssetStatus::Destroying, Error::<T>::IncorrectStatus);
+    |                                                                ^^^^^ use of undeclared type `Error`
+    |
+help: consider importing one of these items
+    |
+3   + use codec::Error;
+    |
+3   + use core::error::Error;
+    |
+3   + use core::fmt::Error;
+    |
+3   + use frame_support::dispatch::fmt::Error;
+    |
+      and 7 other candidates
+
+error[E0433]: failed to resolve: use of undeclared type `Error`
+   --> pallets/dao-assets/src/functions.rs:698:35
+    |
+698 |             ensure!(details.accounts == 0, Error::<T>::InUse);
+    |                                            ^^^^^ use of undeclared type `Error`
+    |
+help: consider importing one of these items
+    |
+3   + use codec::Error;
+    |
+3   + use core::error::Error;
+    |
+3   + use core::fmt::Error;
+    |
+3   + use frame_support::dispatch::fmt::Error;
+    |
+      and 7 other candidates
+
+error[E0433]: failed to resolve: use of undeclared type `Error`
+   --> pallets/dao-assets/src/functions.rs:699:36
+    |
+699 |             ensure!(details.approvals == 0, Error::<T>::InUse);
+    |                                             ^^^^^ use of undeclared type `Error`
+    |
+help: consider importing one of these items
+    |
+3   + use codec::Error;
+    |
+3   + use core::error::Error;
+    |
+3   + use core::fmt::Error;
+    |
+3   + use frame_support::dispatch::fmt::Error;
+    |
+      and 7 other candidates
+
+error[E0433]: failed to resolve: use of undeclared type `Metadata`
+   --> pallets/dao-assets/src/functions.rs:701:12
+    |
+701 |             let _ = Metadata::<T>::take(id); // erase metadata
+    |                     ^^^^^^^^ use of undeclared type `Metadata`
+    |
+help: consider importing this struct
+    |
+3   + use std::fs::Metadata;
+    |
+
+error[E0433]: failed to resolve: use of undeclared type `Event`
+   --> pallets/dao-assets/src/functions.rs:703:24
+    |
+703 |             Self::deposit_event(Event::Destroyed { asset_id: id });
+    |                                 ^^^^^ use of undeclared type `Event`
+    |
+help: consider importing one of these items
+    |
+3   + use frame_system::Event;
+    |
+3   + use pallet_balances::Event;
+    |
+
+error[E0433]: failed to resolve: use of undeclared type `Error`
+   --> pallets/dao-assets/src/functions.rs:718:41
+    |
+718 |         let mut d = Asset::<T>::get(id).ok_or(Error::<T>::Unknown)?;
+    |                                               ^^^^^ use of undeclared type `Error`
+    |
+help: consider importing one of these items
+    |
+3   + use codec::Error;
+    |
+3   + use core::error::Error;
+    |
+3   + use core::fmt::Error;
+    |
+3   + use frame_support::dispatch::fmt::Error;
+    |
+      and 7 other candidates
+
+error[E0433]: failed to resolve: use of undeclared type `Error`
+   --> pallets/dao-assets/src/functions.rs:719:42
+    |
+719 |         ensure!(d.status == AssetStatus::Live, Error::<T>::AssetNotLive);
+    |                                                ^^^^^ use of undeclared type `Error`
+    |
+help: consider importing one of these items
+    |
+3   + use codec::Error;
+    |
+3   + use core::error::Error;
+    |
+3   + use core::fmt::Error;
+    |
+3   + use frame_support::dispatch::fmt::Error;
+    |
+      and 7 other candidates
+
+error[E0433]: failed to resolve: use of undeclared type `Event`
+   --> pallets/dao-assets/src/functions.rs:740:23
+    |
+740 |         Self::deposit_event(Event::ApprovedTransfer {
+    |                             ^^^^^ use of undeclared type `Event`
+    |
+help: consider importing one of these items
+    |
+3   + use frame_system::Event;
+    |
+3   + use pallet_balances::Event;
+    |
+
+error[E0433]: failed to resolve: use of undeclared type `Error`
+   --> pallets/dao-assets/src/functions.rs:764:37
+    |
+764 |         let d = Asset::<T>::get(id).ok_or(Error::<T>::Unknown)?;
+    |                                           ^^^^^ use of undeclared type `Error`
+    |
+help: consider importing one of these items
+    |
+3   + use codec::Error;
+    |
+3   + use core::error::Error;
+    |
+3   + use core::fmt::Error;
+    |
+3   + use frame_support::dispatch::fmt::Error;
+    |
+      and 7 other candidates
+
+error[E0433]: failed to resolve: use of undeclared type `Error`
+   --> pallets/dao-assets/src/functions.rs:765:42
+    |
+765 |         ensure!(d.status == AssetStatus::Live, Error::<T>::AssetNotLive);
+    |                                                ^^^^^ use of undeclared type `Error`
+    |
+help: consider importing one of these items
+    |
+3   + use codec::Error;
+    |
+3   + use core::error::Error;
+    |
+3   + use core::fmt::Error;
+    |
+3   + use frame_support::dispatch::fmt::Error;
+    |
+      and 7 other candidates
+
+error[E0433]: failed to resolve: use of undeclared type `Error`
+   --> pallets/dao-assets/src/functions.rs:770:52
+    |
+770 |                 let mut approved = maybe_approved.take().ok_or(Error::<T>::Unapproved)?;
+    |                                                                ^^^^^ use of undeclared type `Error`
+    |
+help: consider importing one of these items
+    |
+3   + use codec::Error;
+    |
+3   + use core::error::Error;
+    |
+3   + use core::fmt::Error;
+    |
+3   + use frame_support::dispatch::fmt::Error;
+    |
+      and 7 other candidates
+
+error[E0433]: failed to resolve: use of undeclared type `Error`
+   --> pallets/dao-assets/src/functions.rs:772:49
+    |
+772 |                     approved.amount.checked_sub(&amount).ok_or(Error::<T>::Unapproved)?;
+    |                                                                ^^^^^ use of undeclared type `Error`
+    |
+help: consider importing one of these items
+    |
+3   + use codec::Error;
+    |
+3   + use core::error::Error;
+    |
+3   + use core::fmt::Error;
+    |
+3   + use frame_support::dispatch::fmt::Error;
+    |
+      and 7 other candidates
+
+error[E0433]: failed to resolve: use of undeclared type `Error`
+   --> pallets/dao-assets/src/functions.rs:804:40
+    |
+804 |             name.clone().try_into().map_err(|_| Error::<T>::BadMetadata)?;
+    |                                                 ^^^^^ use of undeclared type `Error`
+    |
+help: consider importing one of these items
+    |
+3   + use codec::Error;
+    |
+3   + use core::error::Error;
+    |
+3   + use core::fmt::Error;
+    |
+3   + use frame_support::dispatch::fmt::Error;
+    |
+      and 7 other candidates
+
+error[E0433]: failed to resolve: use of undeclared type `Error`
+   --> pallets/dao-assets/src/functions.rs:806:42
+    |
+806 |             symbol.clone().try_into().map_err(|_| Error::<T>::BadMetadata)?;
+    |                                                   ^^^^^ use of undeclared type `Error`
+    |
+help: consider importing one of these items
+    |
+3   + use codec::Error;
+    |
+3   + use core::error::Error;
+    |
+3   + use core::fmt::Error;
+    |
+3   + use frame_support::dispatch::fmt::Error;
+    |
+      and 7 other candidates
+
+error[E0433]: failed to resolve: use of undeclared type `Error`
+   --> pallets/dao-assets/src/functions.rs:808:37
+    |
+808 |         let d = Asset::<T>::get(id).ok_or(Error::<T>::Unknown)?;
+    |                                           ^^^^^ use of undeclared type `Error`
+    |
+help: consider importing one of these items
+    |
+3   + use codec::Error;
+    |
+3   + use core::error::Error;
+    |
+3   + use core::fmt::Error;
+    |
+3   + use frame_support::dispatch::fmt::Error;
+    |
+      and 7 other candidates
+
+error[E0433]: failed to resolve: use of undeclared type `Error`
+   --> pallets/dao-assets/src/functions.rs:809:42
+    |
+809 |         ensure!(d.status == AssetStatus::Live, Error::<T>::AssetNotLive);
+    |                                                ^^^^^ use of undeclared type `Error`
+    |
+help: consider importing one of these items
+    |
+3   + use codec::Error;
+    |
+3   + use core::error::Error;
+    |
+3   + use core::fmt::Error;
+    |
+3   + use frame_support::dispatch::fmt::Error;
+    |
+      and 7 other candidates
+
+error[E0433]: failed to resolve: use of undeclared type `Error`
+   --> pallets/dao-assets/src/functions.rs:810:29
+    |
+810 |         ensure!(from == &d.owner, Error::<T>::NoPermission);
+    |                                   ^^^^^ use of undeclared type `Error`
+    |
+help: consider importing one of these items
+    |
+3   + use codec::Error;
+    |
+3   + use core::error::Error;
+    |
+3   + use core::fmt::Error;
+    |
+3   + use frame_support::dispatch::fmt::Error;
+    |
+      and 7 other candidates
+
+error[E0433]: failed to resolve: use of undeclared type `Metadata`
+   --> pallets/dao-assets/src/functions.rs:812:3
+    |
+812 |         Metadata::<T>::try_mutate_exists(id, |metadata| {
+    |         ^^^^^^^^ use of undeclared type `Metadata`
+    |
+help: consider importing this struct
+    |
+3   + use std::fs::Metadata;
+    |
+
+error[E0433]: failed to resolve: use of undeclared type `Event`
+   --> pallets/dao-assets/src/functions.rs:816:24
+    |
+816 |             Self::deposit_event(Event::MetadataSet { asset_id: id, name, symbol, decimals });
+    |                                 ^^^^^ use of undeclared type `Event`
+    |
+help: consider importing one of these items
+    |
+3   + use frame_system::Event;
+    |
+3   + use pallet_balances::Event;
+    |
+
+error[E0433]: failed to resolve: use of undeclared type `Error`
+   --> pallets/dao-assets/src/functions.rs:823:47
+    |
+823 |             let details = maybe_details.as_mut().ok_or(Error::<T>::Unknown)?;
+    |                                                        ^^^^^ use of undeclared type `Error`
+    |
+help: consider importing one of these items
+    |
+3   + use codec::Error;
+    |
+3   + use core::error::Error;
+    |
+3   + use core::fmt::Error;
+    |
+3   + use frame_support::dispatch::fmt::Error;
+    |
+      and 7 other candidates
+
+error[E0433]: failed to resolve: use of undeclared type `Error`
+   --> pallets/dao-assets/src/functions.rs:824:49
+    |
+824 |             ensure!(details.status == AssetStatus::Live, Error::<T>::AssetNotLive);
+    |                                                          ^^^^^ use of undeclared type `Error`
+    |
+help: consider importing one of these items
+    |
+3   + use codec::Error;
+    |
+3   + use core::error::Error;
+    |
+3   + use core::fmt::Error;
+    |
+3   + use frame_support::dispatch::fmt::Error;
+    |
+      and 7 other candidates
+
+error[E0405]: cannot find trait `Config` in this scope
+ --> pallets/dao-assets/src/types.rs:9:36
+  |
+9 | pub type AssetBalanceOf<T> = <T as Config>::Balance;
+  |                                    ^^^^^^ not found in this scope
+  |
+help: consider importing one of these items
+  |
+3 + use frame_system::Config;
+  |
+3 + use pallet_balances::Config;
+  |
+
+error[E0405]: cannot find trait `Config` in this scope
+  --> pallets/dao-assets/src/types.rs:13:39
+   |
+13 | pub type DepositBalanceOf<T> = <<T as Config>::Currency as Currency<AccountIdOf<T>>>::Balance;
+   |                                       ^^^^^^ not found in this scope
+   |
+help: consider importing one of these items
+   |
+3  + use frame_system::Config;
+   |
+3  + use pallet_balances::Config;
+   |
+
+warning: unused imports: `AtLeast32BitUnsigned`, `EnsureOriginWithArg`, `pallet_prelude::DispatchResultWithPostInfo`
+  --> pallets/dao-assets/src/lib.rs:30:2
+   |
+30 |     pallet_prelude::DispatchResultWithPostInfo,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+33 |             AtLeast32BitUnsigned, Bounded, CheckedAdd, CheckedSub, Saturating, StaticLookup, Zero,
+   |             ^^^^^^^^^^^^^^^^^^^^
+...
+39 |         Currency, EnsureOriginWithArg, ReservableCurrency,
+   |                   ^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` on by default
+
+warning: unused import: `scale_info::TypeInfo`
+  --> pallets/dao-assets/src/lib.rs:44:5
+   |
+44 | use scale_info::TypeInfo;
+   |     ^^^^^^^^^^^^^^^^^^^^
+
+error[E0433]: failed to resolve: use of undeclared type `Asset`
+  --> pallets/dao-assets/src/functions.rs:53:3
+   |
+53 |         Asset::<T>::get(id).map(|x| x.supply)
+   |         ^^^^^ use of undeclared type `Asset`
+
+error[E0433]: failed to resolve: use of undeclared type `SupplyHistory`
+  --> pallets/dao-assets/src/functions.rs:60:24
+   |
+60 |         Self::search_history(SupplyHistory::<T>::get(id), block)
+   |                              ^^^^^^^^^^^^^ use of undeclared type `SupplyHistory`
+
+error[E0433]: failed to resolve: use of undeclared type `AccountHistory`
+  --> pallets/dao-assets/src/functions.rs:71:24
+   |
+71 |         Self::search_history(AccountHistory::<T>::get(id, who.borrow()), block)
+   |                              ^^^^^^^^^^^^^^ use of undeclared type `AccountHistory`
+
+error[E0433]: failed to resolve: use of undeclared type `SupplyHistory`
+  --> pallets/dao-assets/src/functions.rs:96:38
+   |
+96 |         let history = Self::update_history(SupplyHistory::<T>::get(id).unwrap_or_default(), supply);
+   |                                            ^^^^^^^^^^^^^ use of undeclared type `SupplyHistory`
+
+error[E0433]: failed to resolve: use of undeclared type `SupplyHistory`
+  --> pallets/dao-assets/src/functions.rs:99:3
+   |
+99 |         SupplyHistory::<T>::insert(id, history);
+   |         ^^^^^^^^^^^^^ use of undeclared type `SupplyHistory`
+
+error[E0433]: failed to resolve: use of undeclared type `AccountHistory`
+   --> pallets/dao-assets/src/functions.rs:105:25
+    |
+105 |             Self::update_history(AccountHistory::<T>::get(id, who).unwrap_or_default(), balance);
+    |                                  ^^^^^^^^^^^^^^ use of undeclared type `AccountHistory`
+
+error[E0433]: failed to resolve: use of undeclared type `AccountHistory`
+   --> pallets/dao-assets/src/functions.rs:108:3
+    |
+108 |         AccountHistory::<T>::insert(id, who, history);
+    |         ^^^^^^^^^^^^^^ use of undeclared type `AccountHistory`
+
+error[E0433]: failed to resolve: use of undeclared type `AccountHistory`
+   --> pallets/dao-assets/src/functions.rs:148:3
+    |
+148 |         AccountHistory::<T>::remove(id, who);
+    |         ^^^^^^^^^^^^^^ use of undeclared type `AccountHistory`
+
+error[E0433]: failed to resolve: use of undeclared type `Asset`
+   --> pallets/dao-assets/src/functions.rs:165:23
+    |
+165 |         let details = match Asset::<T>::get(id) {
+    |                             ^^^^^ use of undeclared type `Asset`
+
+error[E0433]: failed to resolve: use of undeclared type `Asset`
+   --> pallets/dao-assets/src/functions.rs:190:23
+    |
+190 |         let details = match Asset::<T>::get(id) {
+    |                             ^^^^^ use of undeclared type `Asset`
+
+error[E0433]: failed to resolve: use of undeclared type `Asset`
+   --> pallets/dao-assets/src/functions.rs:226:17
+    |
+226 |         let details = Asset::<T>::get(id).ok_or(Error::<T>::Unknown)?;
+    |                       ^^^^^ use of undeclared type `Asset`
+
+error[E0433]: failed to resolve: use of undeclared type `Asset`
+   --> pallets/dao-assets/src/functions.rs:347:3
+    |
+347 |         Asset::<T>::try_mutate(id, |maybe_details| -> DispatchResult {
+    |         ^^^^^ use of undeclared type `Asset`
+
+error[E0433]: failed to resolve: use of undeclared type `Asset`
+   --> pallets/dao-assets/src/functions.rs:410:17
+    |
+410 |         let details = Asset::<T>::get(id).ok_or(Error::<T>::Unknown)?;
+    |                       ^^^^^ use of undeclared type `Asset`
+
+error[E0433]: failed to resolve: use of undeclared type `Asset`
+   --> pallets/dao-assets/src/functions.rs:415:3
+    |
+415 |         Asset::<T>::try_mutate(id, |maybe_details| -> DispatchResult {
+    |         ^^^^^ use of undeclared type `Asset`
+
+error[E0433]: failed to resolve: use of undeclared type `Asset`
+   --> pallets/dao-assets/src/functions.rs:446:17
+    |
+446 |         let details = Asset::<T>::get(id).ok_or(Error::<T>::Unknown)?;
+    |                       ^^^^^ use of undeclared type `Asset`
+
+error[E0433]: failed to resolve: use of undeclared type `Asset`
+   --> pallets/dao-assets/src/functions.rs:479:17
+    |
+479 |         let details = Asset::<T>::get(id).ok_or(Error::<T>::Unknown)?;
+    |                       ^^^^^ use of undeclared type `Asset`
+
+error[E0433]: failed to resolve: use of undeclared type `Asset`
+   --> pallets/dao-assets/src/functions.rs:515:17
+    |
+515 |         let details = Asset::<T>::get(id).ok_or(Error::<T>::Unknown)?;
+    |                       ^^^^^ use of undeclared type `Asset`
+
+error[E0433]: failed to resolve: use of undeclared type `Asset`
+   --> pallets/dao-assets/src/functions.rs:522:3
+    |
+522 |         Asset::<T>::try_mutate(id, |maybe_details| -> DispatchResult {
+    |         ^^^^^ use of undeclared type `Asset`
+
+error[E0433]: failed to resolve: use of undeclared type `Asset`
+   --> pallets/dao-assets/src/functions.rs:587:12
+    |
+587 |         ensure!(!Asset::<T>::contains_key(id), Error::<T>::InUse);
+    |                  ^^^^^ use of undeclared type `Asset`
+
+error[E0433]: failed to resolve: use of undeclared type `Asset`
+   --> pallets/dao-assets/src/functions.rs:590:3
+    |
+590 |         Asset::<T>::insert(
+    |         ^^^^^ use of undeclared type `Asset`
+
+error[E0433]: failed to resolve: use of undeclared type `Asset`
+   --> pallets/dao-assets/src/functions.rs:612:3
+    |
+612 |         Asset::<T>::try_mutate_exists(id, |maybe_details| -> Result<(), DispatchError> {
+    |         ^^^^^ use of undeclared type `Asset`
+
+error[E0433]: failed to resolve: use of undeclared type `SupplyHistory`
+   --> pallets/dao-assets/src/functions.rs:618:4
+    |
+618 |             SupplyHistory::<T>::remove(id);
+    |             ^^^^^^^^^^^^^ use of undeclared type `SupplyHistory`
+
+error[E0433]: failed to resolve: use of undeclared type `Asset`
+   --> pallets/dao-assets/src/functions.rs:635:3
+    |
+635 |         Asset::<T>::try_mutate_exists(id, |maybe_details| -> Result<(), DispatchError> {
+    |         ^^^^^ use of undeclared type `Asset`
+
+error[E0433]: failed to resolve: use of undeclared type `Asset`
+   --> pallets/dao-assets/src/functions.rs:667:3
+    |
+667 |         Asset::<T>::try_mutate_exists(id, |maybe_details| -> Result<(), DispatchError> {
+    |         ^^^^^ use of undeclared type `Asset`
+
+error[E0433]: failed to resolve: use of undeclared type `Approvals`
+   --> pallets/dao-assets/src/functions.rs:673:34
+    |
+673 |             for ((owner, _), approval) in Approvals::<T>::drain_prefix((id,)) {
+    |                                           ^^^^^^^^^
+    |                                           |
+    |                                           use of undeclared type `Approvals`
+    |                                           help: a struct with a similar name exists: `Approval`
+
+error[E0433]: failed to resolve: use of undeclared type `Asset`
+   --> pallets/dao-assets/src/functions.rs:695:3
+    |
+695 |         Asset::<T>::try_mutate_exists(id, |maybe_details| -> Result<(), DispatchError> {
+    |         ^^^^^ use of undeclared type `Asset`
+
+error[E0433]: failed to resolve: use of undeclared type `Asset`
+   --> pallets/dao-assets/src/functions.rs:718:15
+    |
+718 |         let mut d = Asset::<T>::get(id).ok_or(Error::<T>::Unknown)?;
+    |                     ^^^^^ use of undeclared type `Asset`
+
+error[E0433]: failed to resolve: use of undeclared type `Approvals`
+   --> pallets/dao-assets/src/functions.rs:720:3
+    |
+720 |         Approvals::<T>::try_mutate((id, &owner, &delegate), |maybe_approved| -> DispatchResult {
+    |         ^^^^^^^^^
+    |         |
+    |         use of undeclared type `Approvals`
+    |         help: a struct with a similar name exists: `Approval`
+
+error[E0433]: failed to resolve: use of undeclared type `Asset`
+   --> pallets/dao-assets/src/functions.rs:739:3
+    |
+739 |         Asset::<T>::insert(id, d);
+    |         ^^^^^ use of undeclared type `Asset`
+
+error[E0433]: failed to resolve: use of undeclared type `Asset`
+   --> pallets/dao-assets/src/functions.rs:764:11
+    |
+764 |         let d = Asset::<T>::get(id).ok_or(Error::<T>::Unknown)?;
+    |                 ^^^^^ use of undeclared type `Asset`
+
+error[E0433]: failed to resolve: use of undeclared type `Approvals`
+   --> pallets/dao-assets/src/functions.rs:767:3
+    |
+767 |         Approvals::<T>::try_mutate_exists(
+    |         ^^^^^^^^^
+    |         |
+    |         use of undeclared type `Approvals`
+    |         help: a struct with a similar name exists: `Approval`
+
+error[E0433]: failed to resolve: use of undeclared type `Asset`
+   --> pallets/dao-assets/src/functions.rs:779:6
+    |
+779 |                     Asset::<T>::mutate(id, |maybe_details| {
+    |                     ^^^^^ use of undeclared type `Asset`
+
+error[E0433]: failed to resolve: use of undeclared type `Asset`
+   --> pallets/dao-assets/src/functions.rs:808:11
+    |
+808 |         let d = Asset::<T>::get(id).ok_or(Error::<T>::Unknown)?;
+    |                 ^^^^^ use of undeclared type `Asset`
+
+error[E0433]: failed to resolve: use of undeclared type `Asset`
+   --> pallets/dao-assets/src/functions.rs:822:3
+    |
+822 |         Asset::<T>::try_mutate(id, |maybe_details| {
+    |         ^^^^^ use of undeclared type `Asset`
+
+Some errors have detailed explanations: E0405, E0412, E0432, E0433.
+For more information about an error, try `rustc --explain E0405`.
+warning: `pallet-dao-assets` (lib) generated 2 warnings
+error: could not compile `pallet-dao-assets` (lib) due to 114 previous errors; 2 warnings emitted
+warning: build failed, waiting for other jobs to finish...
+error: failed to run custom build command for `local-runtime v4.0.0-dev (/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/runtime)`
+
+Caused by:
+  process didn't exit successfully: `/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/target/debug/build/local-runtime-a24724dc2a29bf54/build-script-build` (exit status: 1)
+  --- stdout
+  [1;33mInformation that should be included in a bug report.[0m
+  [1;33mExecuting build command:[0m RUSTFLAGS="-C target-cpu=mvp -C target-feature=-sign-ext -C link-arg=--export-table -Clink-arg=--export=__heap_base -C link-arg=--import-memory  " SKIP_WASM_BUILD="" "/home/olaf/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo" "rustc" "--target=wasm32-unknown-unknown" "--manifest-path=/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/target/debug/wbuild/local-runtime/Cargo.toml" "--color=always" "--profile" "release"
+  [1;33mUsing rustc version:[0m rustc 1.73.0-nightly (0d95f9132 2023-07-26)
+
+
+  --- stderr
+  [0m[0m[1m[32m   Compiling[0m pallet-dao-assets v4.0.0-dev (/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets)
+  [0m[1m[33mwarning[0m[0m[1m: unused import: `parse_quote`[0m
+  [0m [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/hookpoints/macros/src/lib.rs:8:2[0m
+  [0m  [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m8[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m    parse_quote, spanned::Spanned, Error, FnArg, Ident, ItemTrait, Result, ReturnType, TraitItem,[0m
+  [0m  [0m[0m[1m[38;5;12m| [0m[0m    [0m[0m[1m[33m^^^^^^^^^^^[0m
+  [0m  [0m[0m[1m[38;5;12m|[0m
+  [0m  [0m[0m[1m[38;5;12m= [0m[0m[1mnote[0m[0m: `#[warn(unused_imports)]` on by default[0m
+
+  [0m[1m[33mwarning[0m[0m[1m: unused variable: `selector`[0m
+  [0m  [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/hookpoints/macros/src/lib.rs:60:6[0m
+  [0m   [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m60[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m    let selector: [u8; 4] = {[0m
+  [0m   [0m[0m[1m[38;5;12m| [0m[0m        [0m[0m[1m[33m^^^^^^^^[0m[0m [0m[0m[1m[33mhelp: if this is intentional, prefix it with an underscore: `_selector`[0m
+  [0m   [0m[0m[1m[38;5;12m|[0m
+  [0m   [0m[0m[1m[38;5;12m= [0m[0m[1mnote[0m[0m: `#[warn(unused_variables)]` on by default[0m
+
+  [0m[0m[1m[33mwarning[0m[1m:[0m `macros` (lib) generated 2 warnings (run `cargo fix --lib -p macros` to apply 2 suggestions)
+  [0m[1m[38;5;9merror[0m[0m[1m: Invalid genesis builder: expected `GenesisBuild<T>` or `GenesisBuild<T, I>`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/lib.rs:236:18[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m236[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m    impl<T: Config> BuildGenesisConfig<T> for GenesisConfig<T> {[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m                    [0m[0m[1m[38;5;9m^^^^^^^^^^^^^^^^^^^^^[0m
+
+  [0m[1m[38;5;9merror[0m[0m[1m: unexpected token[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/lib.rs:236:36[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m236[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m    impl<T: Config> BuildGenesisConfig<T> for GenesisConfig<T> {[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m                                      [0m[0m[1m[38;5;9m^[0m
+
+  [0m[1m[38;5;9merror[E0432][0m[0m[1m: unresolved import `pallet`[0m
+  [0m [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/lib.rs:7:9[0m
+  [0m  [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m7[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0mpub use pallet::*;[0m
+  [0m  [0m[0m[1m[38;5;12m| [0m[0m        [0m[0m[1m[38;5;9m^^^^^^[0m[0m [0m[0m[1m[38;5;9mhelp: a similar path exists: `pallet_balances::pallet`[0m
+
+  [0m[1m[38;5;9merror[E0432][0m[0m[1m: unresolved imports `crate::Approvals`, `crate::Asset`, `crate::Config`, `crate::DebitFlags`, `crate::Metadata`, `crate::Pallet`, `crate::SystemConfig`[0m
+  [0m  [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/impl_fungibles.rs:14:13[0m
+  [0m   [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m14[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0muse crate::{Approvals, Asset, Config, DebitFlags, Metadata, Pallet, SystemConfig};[0m
+  [0m   [0m[0m[1m[38;5;12m| [0m[0m            [0m[0m[1m[38;5;9m^^^^^^^^^[0m[0m  [0m[0m[1m[38;5;9m^^^^^[0m[0m  [0m[0m[1m[38;5;9m^^^^^^[0m[0m  [0m[0m[1m[38;5;9m^^^^^^^^^^[0m[0m  [0m[0m[1m[38;5;9m^^^^^^^^[0m[0m  [0m[0m[1m[38;5;9m^^^^^^[0m[0m  [0m[0m[1m[38;5;9m^^^^^^^^^^^^[0m
+  [0m   [0m[0m[1m[38;5;12m| [0m[0m            [0m[0m[1m[38;5;9m|[0m[0m          [0m[0m[1m[38;5;9m|[0m[0m      [0m[0m[1m[38;5;9m|[0m[0m                   [0m[0m[1m[38;5;9m|[0m[0m         [0m[0m[1m[38;5;9m|[0m
+  [0m   [0m[0m[1m[38;5;12m| [0m[0m            [0m[0m[1m[38;5;9m|[0m[0m          [0m[0m[1m[38;5;9m|[0m[0m      [0m[0m[1m[38;5;9m|[0m[0m                   [0m[0m[1m[38;5;9m|[0m[0m         [0m[0m[1m[38;5;9mno `Pallet` in the root[0m
+  [0m   [0m[0m[1m[38;5;12m| [0m[0m            [0m[0m[1m[38;5;9m|[0m[0m          [0m[0m[1m[38;5;9m|[0m[0m      [0m[0m[1m[38;5;9m|[0m[0m                   [0m[0m[1m[38;5;9mno `Metadata` in the root[0m
+  [0m   [0m[0m[1m[38;5;12m| [0m[0m            [0m[0m[1m[38;5;9m|[0m[0m          [0m[0m[1m[38;5;9m|[0m[0m      [0m[0m[1m[38;5;9mno `Config` in the root[0m
+  [0m   [0m[0m[1m[38;5;12m| [0m[0m            [0m[0m[1m[38;5;9m|[0m[0m          [0m[0m[1m[38;5;9mno `Asset` in the root[0m
+  [0m   [0m[0m[1m[38;5;12m| [0m[0m            [0m[0m[1m[38;5;9mno `Approvals` in the root[0m
+  [0m   [0m[0m[1m[38;5;12m| [0m[0m            [0m[0m[1m[38;5;9mhelp: a similar name exists in the module: `Approval`[0m
+  [0m   [0m[0m[1m[38;5;12m|[0m
+  [0m   [0m[0m[1m[38;5;12m= [0m[0m[1mhelp[0m[0m: consider importing one of these items instead:[0m
+  [0m           frame_system::Config[0m
+  [0m           pallet_balances::Config[0m
+  [0m   [0m[0m[1m[38;5;12m= [0m[0m[1mhelp[0m[0m: consider importing one of these items instead:[0m
+  [0m           frame_system::Pallet[0m
+  [0m           pallet_balances::Pallet[0m
+
+  [0m[1m[38;5;9merror[E0412][0m[0m[1m: cannot find type `Pallet` in this scope[0m
+  [0m [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:9:17[0m
+  [0m  [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m9[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0mimpl<T: Config> Pallet<T> {[0m
+  [0m  [0m[0m[1m[38;5;12m| [0m[0m                [0m[0m[1m[38;5;9m^^^^^^[0m[0m [0m[0m[1m[38;5;9mnot found in this scope[0m
+  [0m  [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;14mhelp[0m[0m: consider importing one of these items[0m
+  [0m  [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m [0m[0m[38;5;10m+ use frame_system::Pallet;[0m
+  [0m  [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m [0m[0m[38;5;10m+ use pallet_balances::Pallet;[0m
+  [0m  [0m[0m[1m[38;5;12m|[0m
+
+  [0m[1m[38;5;9merror[E0405][0m[0m[1m: cannot find trait `Config` in this scope[0m
+  [0m [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:9:9[0m
+  [0m  [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m9[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0mimpl<T: Config> Pallet<T> {[0m
+  [0m  [0m[0m[1m[38;5;12m| [0m[0m        [0m[0m[1m[38;5;9m^^^^^^[0m[0m [0m[0m[1m[38;5;9mnot found in this scope[0m
+  [0m  [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;14mhelp[0m[0m: consider importing one of these items[0m
+  [0m  [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m [0m[0m[38;5;10m+ use frame_system::Config;[0m
+  [0m  [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m [0m[0m[38;5;10m+ use pallet_balances::Config;[0m
+  [0m  [0m[0m[1m[38;5;12m|[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Account`[0m
+  [0m  [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:30:3[0m
+  [0m   [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m30[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m        Account::<T>::get(id, who.borrow()).map(|a| a.balance)[0m
+  [0m   [0m[0m[1m[38;5;12m| [0m[0m        [0m[0m[1m[38;5;9m^^^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Account`[0m
+  [0m   [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;14mhelp[0m[0m: consider importing one of these items[0m
+  [0m   [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m  [0m[0m[38;5;10m+ use frame_system::Account;[0m
+  [0m   [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m  [0m[0m[38;5;10m+ use frame_system::offchain::Account;[0m
+  [0m   [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m  [0m[0m[38;5;10m+ use pallet_balances::Account;[0m
+  [0m   [0m[0m[1m[38;5;12m|[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Account`[0m
+  [0m  [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:38:3[0m
+  [0m   [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m38[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m        Account::<T>::get(id, who.borrow()).map(|a| a.balance + a.reserved)[0m
+  [0m   [0m[0m[1m[38;5;12m| [0m[0m        [0m[0m[1m[38;5;9m^^^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Account`[0m
+  [0m   [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;14mhelp[0m[0m: consider importing one of these items[0m
+  [0m   [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m  [0m[0m[38;5;10m+ use frame_system::Account;[0m
+  [0m   [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m  [0m[0m[38;5;10m+ use frame_system::offchain::Account;[0m
+  [0m   [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m  [0m[0m[38;5;10m+ use pallet_balances::Account;[0m
+  [0m   [0m[0m[1m[38;5;12m|[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Account`[0m
+  [0m  [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:43:3[0m
+  [0m   [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m43[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m        Account::<T>::get(id, who.borrow()).map(|a| a.reserved)[0m
+  [0m   [0m[0m[1m[38;5;12m| [0m[0m        [0m[0m[1m[38;5;9m^^^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Account`[0m
+  [0m   [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;14mhelp[0m[0m: consider importing one of these items[0m
+  [0m   [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m  [0m[0m[38;5;10m+ use frame_system::Account;[0m
+  [0m   [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m  [0m[0m[38;5;10m+ use frame_system::offchain::Account;[0m
+  [0m   [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m  [0m[0m[38;5;10m+ use pallet_balances::Account;[0m
+  [0m   [0m[0m[1m[38;5;12m|[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Account`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:200:23[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m200[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m        let account = match Account::<T>::get(id, who) {[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m                            [0m[0m[1m[38;5;9m^^^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Account`[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;14mhelp[0m[0m: consider importing one of these items[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use frame_system::Account;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use frame_system::offchain::Account;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use pallet_balances::Account;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Error`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:226:43[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m226[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m        let details = Asset::<T>::get(id).ok_or(Error::<T>::Unknown)?;[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m                                                [0m[0m[1m[38;5;9m^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Error`[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;14mhelp[0m[0m: consider importing one of these items[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use codec::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use core::error::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use core::fmt::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use frame_support::dispatch::fmt::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m      and 4 other candidates[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Error`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:227:48[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m227[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m        ensure!(details.status == AssetStatus::Live, Error::<T>::AssetNotLive);[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m                                                     [0m[0m[1m[38;5;9m^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Error`[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;14mhelp[0m[0m: consider importing one of these items[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use codec::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use core::error::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use core::fmt::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use frame_support::dispatch::fmt::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m      and 4 other candidates[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Account`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:229:17[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m229[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m        let account = Account::<T>::get(id, who).ok_or(Error::<T>::NoAccount)?;[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m                      [0m[0m[1m[38;5;9m^^^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Account`[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;14mhelp[0m[0m: consider importing one of these items[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use frame_system::Account;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use frame_system::offchain::Account;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use pallet_balances::Account;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Error`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:229:50[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m229[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m        let account = Account::<T>::get(id, who).ok_or(Error::<T>::NoAccount)?;[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m                                                       [0m[0m[1m[38;5;9m^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Error`[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;14mhelp[0m[0m: consider importing one of these items[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use codec::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use core::error::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use core::fmt::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use frame_support::dispatch::fmt::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m      and 4 other candidates[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Error`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:257:46[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m257[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m        ensure!(f.best_effort || actual >= amount, Error::<T>::BalanceLow);[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m                                                   [0m[0m[1m[38;5;9m^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Error`[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;14mhelp[0m[0m: consider importing one of these items[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use codec::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use core::error::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use core::fmt::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use frame_support::dispatch::fmt::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m      and 4 other candidates[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Event`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:322:23[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m322[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m        Self::deposit_event(Event::Issued {[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m                            [0m[0m[1m[38;5;9m^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Event`[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;14mhelp[0m[0m: consider importing one of these items[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use frame_system::Event;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use pallet_balances::Event;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Error`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:348:47[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m348[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m            let details = maybe_details.as_mut().ok_or(Error::<T>::Unknown)?;[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m                                                       [0m[0m[1m[38;5;9m^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Error`[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;14mhelp[0m[0m: consider importing one of these items[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use codec::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use core::error::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use core::fmt::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use frame_support::dispatch::fmt::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m      and 4 other candidates[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Error`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:349:49[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m349[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m            ensure!(details.status == AssetStatus::Live, Error::<T>::AssetNotLive);[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m                                                         [0m[0m[1m[38;5;9m^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Error`[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;14mhelp[0m[0m: consider importing one of these items[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use codec::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use core::error::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use core::fmt::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use frame_support::dispatch::fmt::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m      and 4 other candidates[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Account`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:352:22[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m352[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m            let mut account = Account::<T>::try_get(id, beneficiary)[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m                              [0m[0m[1m[38;5;9m^^^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Account`[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;14mhelp[0m[0m: consider importing one of these items[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use frame_system::Account;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use frame_system::offchain::Account;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use pallet_balances::Account;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Account`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:357:4[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m357[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m            Account::<T>::insert(id, beneficiary, account);[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m            [0m[0m[1m[38;5;9m^^^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Account`[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;14mhelp[0m[0m: consider importing one of these items[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use frame_system::Account;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use frame_system::offchain::Account;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use pallet_balances::Account;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Error`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:410:43[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m410[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m        let details = Asset::<T>::get(id).ok_or(Error::<T>::Unknown)?;[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m                                                [0m[0m[1m[38;5;9m^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Error`[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;14mhelp[0m[0m: consider importing one of these items[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use codec::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use core::error::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use core::fmt::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use frame_support::dispatch::fmt::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m      and 4 other candidates[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Error`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:411:48[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m411[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m        ensure!(details.status == AssetStatus::Live, Error::<T>::AssetNotLive);[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m                                                     [0m[0m[1m[38;5;9m^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Error`[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;14mhelp[0m[0m: consider importing one of these items[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use codec::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use core::error::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use core::fmt::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use frame_support::dispatch::fmt::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m      and 4 other candidates[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Error`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:416:47[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m416[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m            let details = maybe_details.as_mut().ok_or(Error::<T>::Unknown)?;[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m                                                       [0m[0m[1m[38;5;9m^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Error`[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;14mhelp[0m[0m: consider importing one of these items[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use codec::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use core::error::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use core::fmt::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use frame_support::dispatch::fmt::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m      and 4 other candidates[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Account`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:419:22[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m419[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m            let mut account = Account::<T>::take(id, target).ok_or(Error::<T>::NoAccount)?;[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m                              [0m[0m[1m[38;5;9m^^^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Account`[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;14mhelp[0m[0m: consider importing one of these items[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use frame_system::Account;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use frame_system::offchain::Account;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use pallet_balances::Account;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Error`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:419:59[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m419[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m            let mut account = Account::<T>::take(id, target).ok_or(Error::<T>::NoAccount)?;[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m                                                                   [0m[0m[1m[38;5;9m^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Error`[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;14mhelp[0m[0m: consider importing one of these items[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use codec::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use core::error::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use core::fmt::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use frame_support::dispatch::fmt::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m      and 4 other candidates[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Account`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:429:4[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m429[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m            Account::<T>::insert(id, target, account);[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m            [0m[0m[1m[38;5;9m^^^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Account`[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;14mhelp[0m[0m: consider importing one of these items[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use frame_system::Account;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use frame_system::offchain::Account;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use pallet_balances::Account;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Error`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:446:43[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m446[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m        let details = Asset::<T>::get(id).ok_or(Error::<T>::Unknown)?;[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m                                                [0m[0m[1m[38;5;9m^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Error`[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;14mhelp[0m[0m: consider importing one of these items[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use codec::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use core::error::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use core::fmt::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use frame_support::dispatch::fmt::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m      and 4 other candidates[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Error`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:447:48[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m447[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m        ensure!(details.status == AssetStatus::Live, Error::<T>::AssetNotLive);[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m                                                     [0m[0m[1m[38;5;9m^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Error`[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;14mhelp[0m[0m: consider importing one of these items[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use codec::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use core::error::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use core::fmt::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use frame_support::dispatch::fmt::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m      and 4 other candidates[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Account`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:453:3[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m453[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m        Account::<T>::try_mutate(id, target.borrow(), |maybe_account| -> DispatchResult {[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m        [0m[0m[1m[38;5;9m^^^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Account`[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;14mhelp[0m[0m: consider importing one of these items[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use frame_system::Account;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use frame_system::offchain::Account;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use pallet_balances::Account;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Error`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:454:49[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m454[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m            let mut account = maybe_account.take().ok_or(Error::<T>::NoAccount)?;[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m                                                         [0m[0m[1m[38;5;9m^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Error`[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;14mhelp[0m[0m: consider importing one of these items[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use codec::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use core::error::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use core::fmt::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use frame_support::dispatch::fmt::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m      and 4 other candidates[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Error`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:479:43[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m479[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m        let details = Asset::<T>::get(id).ok_or(Error::<T>::Unknown)?;[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m                                                [0m[0m[1m[38;5;9m^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Error`[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;14mhelp[0m[0m: consider importing one of these items[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use codec::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use core::error::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use core::fmt::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use frame_support::dispatch::fmt::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m      and 4 other candidates[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Error`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:480:48[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m480[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m        ensure!(details.status == AssetStatus::Live, Error::<T>::AssetNotLive);[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m                                                     [0m[0m[1m[38;5;9m^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Error`[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;14mhelp[0m[0m: consider importing one of these items[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use codec::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use core::error::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use core::fmt::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use frame_support::dispatch::fmt::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m      and 4 other candidates[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Account`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:482:3[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m482[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m        Account::<T>::try_mutate(id, target.borrow(), |maybe_account| -> DispatchResult {[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m        [0m[0m[1m[38;5;9m^^^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Account`[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;14mhelp[0m[0m: consider importing one of these items[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use frame_system::Account;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use frame_system::offchain::Account;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use pallet_balances::Account;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Error`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:483:49[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m483[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m            let mut account = maybe_account.take().ok_or(Error::<T>::NoAccount)?;[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m                                                         [0m[0m[1m[38;5;9m^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Error`[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;14mhelp[0m[0m: consider importing one of these items[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use codec::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use core::error::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use core::fmt::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use frame_support::dispatch::fmt::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m      and 4 other candidates[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Error`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:515:43[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m515[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m        let details = Asset::<T>::get(id).ok_or(Error::<T>::Unknown)?;[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m                                                [0m[0m[1m[38;5;9m^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Error`[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;14mhelp[0m[0m: consider importing one of these items[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use codec::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use core::error::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use core::fmt::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use frame_support::dispatch::fmt::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m      and 4 other candidates[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Error`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:516:48[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m516[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m        ensure!(details.status == AssetStatus::Live, Error::<T>::AssetNotLive);[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m                                                     [0m[0m[1m[38;5;9m^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Error`[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;14mhelp[0m[0m: consider importing one of these items[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use codec::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use core::error::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use core::fmt::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use frame_support::dispatch::fmt::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m      and 4 other candidates[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Error`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:523:47[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m523[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m            let details = maybe_details.as_mut().ok_or(Error::<T>::Unknown)?;[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m                                                       [0m[0m[1m[38;5;9m^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Error`[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;14mhelp[0m[0m: consider importing one of these items[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use codec::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use core::error::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use core::fmt::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use frame_support::dispatch::fmt::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m      and 4 other candidates[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Account`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:539:29[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m539[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m            let mut source_account = Account::<T>::get(id, source).expect("checked in prep; qed");[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m                                     [0m[0m[1m[38;5;9m^^^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Account`[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;14mhelp[0m[0m: consider importing one of these items[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use frame_system::Account;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use frame_system::offchain::Account;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use pallet_balances::Account;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Account`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:544:5[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m544[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m                Account::<T>::try_get(id, dest).or_else(|_| Self::new_account(dest, details))?;[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m                [0m[0m[1m[38;5;9m^^^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Account`[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;14mhelp[0m[0m: consider importing one of these items[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use frame_system::Account;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use frame_system::offchain::Account;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use pallet_balances::Account;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Account`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:549:4[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m549[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m            Account::<T>::insert(id, dest, account);[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m            [0m[0m[1m[38;5;9m^^^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Account`[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;14mhelp[0m[0m: consider importing one of these items[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use frame_system::Account;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use frame_system::offchain::Account;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use pallet_balances::Account;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Account`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:555:5[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m555[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m                Account::<T>::remove(id, source);[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m                [0m[0m[1m[38;5;9m^^^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Account`[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;14mhelp[0m[0m: consider importing one of these items[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use frame_system::Account;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use frame_system::offchain::Account;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use pallet_balances::Account;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Account`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:563:4[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m563[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m            Account::<T>::insert(id, source, &source_account);[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m            [0m[0m[1m[38;5;9m^^^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Account`[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;14mhelp[0m[0m: consider importing one of these items[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use frame_system::Account;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use frame_system::offchain::Account;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use pallet_balances::Account;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Event`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:567:23[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m567[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m        Self::deposit_event(Event::Transferred {[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m                            [0m[0m[1m[38;5;9m^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Event`[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;14mhelp[0m[0m: consider importing one of these items[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use frame_system::Event;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use pallet_balances::Event;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Error`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:587:42[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m587[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m        ensure!(!Asset::<T>::contains_key(id), Error::<T>::InUse);[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m                                               [0m[0m[1m[38;5;9m^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Error`[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;14mhelp[0m[0m: consider importing one of these items[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use codec::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use core::error::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use core::fmt::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use frame_support::dispatch::fmt::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m      and 4 other candidates[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Error`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:588:35[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m588[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m        ensure!(!min_balance.is_zero(), Error::<T>::MinBalanceZero);[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m                                        [0m[0m[1m[38;5;9m^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Error`[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;14mhelp[0m[0m: consider importing one of these items[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use codec::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use core::error::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use core::fmt::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use frame_support::dispatch::fmt::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m      and 4 other candidates[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Event`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:602:23[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m602[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m        Self::deposit_event(Event::ForceCreated { asset_id: id, owner });[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m                            [0m[0m[1m[38;5;9m^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Event`[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;14mhelp[0m[0m: consider importing one of these items[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use frame_system::Event;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use pallet_balances::Event;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Error`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:613:51[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m613[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m            let mut details = maybe_details.as_mut().ok_or(Error::<T>::Unknown)?;[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m                                                           [0m[0m[1m[38;5;9m^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Error`[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;14mhelp[0m[0m: consider importing one of these items[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use codec::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use core::error::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use core::fmt::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use frame_support::dispatch::fmt::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m      and 4 other candidates[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Error`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:615:43[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m615[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m                ensure!(details.owner == check_owner, Error::<T>::NoPermission);[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m                                                      [0m[0m[1m[38;5;9m^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Error`[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;14mhelp[0m[0m: consider importing one of these items[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use codec::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use core::error::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use core::fmt::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use frame_support::dispatch::fmt::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m      and 4 other candidates[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Event`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:620:24[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m620[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m            Self::deposit_event(Event::DestructionStarted { asset_id: id });[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m                                [0m[0m[1m[38;5;9m^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Event`[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;14mhelp[0m[0m: consider importing one of these items[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use frame_system::Event;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use pallet_balances::Event;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Error`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:636:47[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m636[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m            let details = maybe_details.as_mut().ok_or(Error::<T>::Unknown)?;[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m                                                       [0m[0m[1m[38;5;9m^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Error`[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;14mhelp[0m[0m: consider importing one of these items[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use codec::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use core::error::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use core::fmt::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use frame_support::dispatch::fmt::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m      and 4 other candidates[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Error`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:639:55[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m639[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m            ensure!(details.status == AssetStatus::Destroying, Error::<T>::IncorrectStatus);[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m                                                               [0m[0m[1m[38;5;9m^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Error`[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;14mhelp[0m[0m: consider importing one of these items[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use codec::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use core::error::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use core::fmt::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use frame_support::dispatch::fmt::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m      and 4 other candidates[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Account`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:641:20[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m641[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m            for (who, _) in Account::<T>::drain_prefix(id).take(max_items as usize) {[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m                            [0m[0m[1m[38;5;9m^^^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Account`[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;14mhelp[0m[0m: consider importing one of these items[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use frame_system::Account;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use frame_system::offchain::Account;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use pallet_balances::Account;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Event`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:650:23[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m650[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m        Self::deposit_event(Event::AccountsDestroyed {[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m                            [0m[0m[1m[38;5;9m^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Event`[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;14mhelp[0m[0m: consider importing one of these items[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use frame_system::Event;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use pallet_balances::Event;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Error`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:668:51[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m668[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m            let mut details = maybe_details.as_mut().ok_or(Error::<T>::Unknown)?;[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m                                                           [0m[0m[1m[38;5;9m^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Error`[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;14mhelp[0m[0m: consider importing one of these items[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use codec::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use core::error::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use core::fmt::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use frame_support::dispatch::fmt::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m      and 4 other candidates[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Error`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:671:55[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m671[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m            ensure!(details.status == AssetStatus::Destroying, Error::<T>::IncorrectStatus);[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m                                                               [0m[0m[1m[38;5;9m^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Error`[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;14mhelp[0m[0m: consider importing one of these items[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use codec::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use core::error::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use core::fmt::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use frame_support::dispatch::fmt::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m      and 4 other candidates[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Event`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:681:24[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m681[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m            Self::deposit_event(Event::ApprovalsDestroyed {[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m                                [0m[0m[1m[38;5;9m^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Event`[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;14mhelp[0m[0m: consider importing one of these items[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use frame_system::Event;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use pallet_balances::Event;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Error`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:696:51[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m696[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m            let mut details = maybe_details.as_mut().ok_or(Error::<T>::Unknown)?;[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m                                                           [0m[0m[1m[38;5;9m^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Error`[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;14mhelp[0m[0m: consider importing one of these items[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use codec::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use core::error::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use core::fmt::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use frame_support::dispatch::fmt::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m      and 4 other candidates[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Error`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:697:55[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m697[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m            ensure!(details.status == AssetStatus::Destroying, Error::<T>::IncorrectStatus);[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m                                                               [0m[0m[1m[38;5;9m^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Error`[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;14mhelp[0m[0m: consider importing one of these items[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use codec::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use core::error::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use core::fmt::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use frame_support::dispatch::fmt::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m      and 4 other candidates[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Error`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:698:35[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m698[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m            ensure!(details.accounts == 0, Error::<T>::InUse);[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m                                           [0m[0m[1m[38;5;9m^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Error`[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;14mhelp[0m[0m: consider importing one of these items[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use codec::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use core::error::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use core::fmt::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use frame_support::dispatch::fmt::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m      and 4 other candidates[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Error`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:699:36[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m699[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m            ensure!(details.approvals == 0, Error::<T>::InUse);[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m                                            [0m[0m[1m[38;5;9m^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Error`[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;14mhelp[0m[0m: consider importing one of these items[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use codec::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use core::error::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use core::fmt::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use frame_support::dispatch::fmt::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m      and 4 other candidates[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Event`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:703:24[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m703[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m            Self::deposit_event(Event::Destroyed { asset_id: id });[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m                                [0m[0m[1m[38;5;9m^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Event`[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;14mhelp[0m[0m: consider importing one of these items[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use frame_system::Event;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use pallet_balances::Event;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Error`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:718:41[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m718[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m        let mut d = Asset::<T>::get(id).ok_or(Error::<T>::Unknown)?;[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m                                              [0m[0m[1m[38;5;9m^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Error`[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;14mhelp[0m[0m: consider importing one of these items[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use codec::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use core::error::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use core::fmt::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use frame_support::dispatch::fmt::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m      and 4 other candidates[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Error`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:719:42[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m719[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m        ensure!(d.status == AssetStatus::Live, Error::<T>::AssetNotLive);[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m                                               [0m[0m[1m[38;5;9m^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Error`[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;14mhelp[0m[0m: consider importing one of these items[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use codec::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use core::error::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use core::fmt::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use frame_support::dispatch::fmt::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m      and 4 other candidates[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Event`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:740:23[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m740[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m        Self::deposit_event(Event::ApprovedTransfer {[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m                            [0m[0m[1m[38;5;9m^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Event`[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;14mhelp[0m[0m: consider importing one of these items[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use frame_system::Event;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use pallet_balances::Event;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Error`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:764:37[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m764[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m        let d = Asset::<T>::get(id).ok_or(Error::<T>::Unknown)?;[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m                                          [0m[0m[1m[38;5;9m^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Error`[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;14mhelp[0m[0m: consider importing one of these items[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use codec::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use core::error::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use core::fmt::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use frame_support::dispatch::fmt::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m      and 4 other candidates[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Error`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:765:42[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m765[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m        ensure!(d.status == AssetStatus::Live, Error::<T>::AssetNotLive);[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m                                               [0m[0m[1m[38;5;9m^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Error`[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;14mhelp[0m[0m: consider importing one of these items[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use codec::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use core::error::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use core::fmt::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use frame_support::dispatch::fmt::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m      and 4 other candidates[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Error`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:770:52[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m770[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m                let mut approved = maybe_approved.take().ok_or(Error::<T>::Unapproved)?;[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m                                                               [0m[0m[1m[38;5;9m^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Error`[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;14mhelp[0m[0m: consider importing one of these items[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use codec::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use core::error::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use core::fmt::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use frame_support::dispatch::fmt::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m      and 4 other candidates[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Error`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:772:49[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m772[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m                    approved.amount.checked_sub(&amount).ok_or(Error::<T>::Unapproved)?;[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m                                                               [0m[0m[1m[38;5;9m^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Error`[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;14mhelp[0m[0m: consider importing one of these items[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use codec::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use core::error::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use core::fmt::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use frame_support::dispatch::fmt::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m      and 4 other candidates[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Error`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:804:40[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m804[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m            name.clone().try_into().map_err(|_| Error::<T>::BadMetadata)?;[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m                                                [0m[0m[1m[38;5;9m^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Error`[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;14mhelp[0m[0m: consider importing one of these items[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use codec::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use core::error::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use core::fmt::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use frame_support::dispatch::fmt::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m      and 4 other candidates[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Error`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:806:42[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m806[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m            symbol.clone().try_into().map_err(|_| Error::<T>::BadMetadata)?;[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m                                                  [0m[0m[1m[38;5;9m^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Error`[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;14mhelp[0m[0m: consider importing one of these items[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use codec::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use core::error::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use core::fmt::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use frame_support::dispatch::fmt::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m      and 4 other candidates[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Error`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:808:37[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m808[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m        let d = Asset::<T>::get(id).ok_or(Error::<T>::Unknown)?;[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m                                          [0m[0m[1m[38;5;9m^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Error`[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;14mhelp[0m[0m: consider importing one of these items[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use codec::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use core::error::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use core::fmt::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use frame_support::dispatch::fmt::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m      and 4 other candidates[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Error`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:809:42[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m809[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m        ensure!(d.status == AssetStatus::Live, Error::<T>::AssetNotLive);[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m                                               [0m[0m[1m[38;5;9m^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Error`[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;14mhelp[0m[0m: consider importing one of these items[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use codec::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use core::error::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use core::fmt::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use frame_support::dispatch::fmt::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m      and 4 other candidates[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Error`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:810:29[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m810[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m        ensure!(from == &d.owner, Error::<T>::NoPermission);[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m                                  [0m[0m[1m[38;5;9m^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Error`[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;14mhelp[0m[0m: consider importing one of these items[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use codec::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use core::error::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use core::fmt::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use frame_support::dispatch::fmt::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m      and 4 other candidates[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Event`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:816:24[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m816[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m            Self::deposit_event(Event::MetadataSet { asset_id: id, name, symbol, decimals });[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m                                [0m[0m[1m[38;5;9m^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Event`[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;14mhelp[0m[0m: consider importing one of these items[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use frame_system::Event;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use pallet_balances::Event;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Error`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:823:47[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m823[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m            let details = maybe_details.as_mut().ok_or(Error::<T>::Unknown)?;[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m                                                       [0m[0m[1m[38;5;9m^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Error`[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;14mhelp[0m[0m: consider importing one of these items[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use codec::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use core::error::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use core::fmt::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use frame_support::dispatch::fmt::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m      and 4 other candidates[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Error`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:824:49[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m824[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m            ensure!(details.status == AssetStatus::Live, Error::<T>::AssetNotLive);[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m                                                         [0m[0m[1m[38;5;9m^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Error`[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;14mhelp[0m[0m: consider importing one of these items[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use codec::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use core::error::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use core::fmt::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m   [0m[0m[38;5;10m+ use frame_support::dispatch::fmt::Error;[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m      and 4 other candidates[0m
+
+  [0m[1m[38;5;9merror[E0405][0m[0m[1m: cannot find trait `Config` in this scope[0m
+  [0m [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/types.rs:9:36[0m
+  [0m  [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m9[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0mpub type AssetBalanceOf<T> = <T as Config>::Balance;[0m
+  [0m  [0m[0m[1m[38;5;12m| [0m[0m                                   [0m[0m[1m[38;5;9m^^^^^^[0m[0m [0m[0m[1m[38;5;9mnot found in this scope[0m
+  [0m  [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;14mhelp[0m[0m: consider importing one of these items[0m
+  [0m  [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m [0m[0m[38;5;10m+ use frame_system::Config;[0m
+  [0m  [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m [0m[0m[38;5;10m+ use pallet_balances::Config;[0m
+  [0m  [0m[0m[1m[38;5;12m|[0m
+
+  [0m[1m[38;5;9merror[E0405][0m[0m[1m: cannot find trait `Config` in this scope[0m
+  [0m  [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/types.rs:13:39[0m
+  [0m   [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m13[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0mpub type DepositBalanceOf<T> = <<T as Config>::Currency as Currency<AccountIdOf<T>>>::Balance;[0m
+  [0m   [0m[0m[1m[38;5;12m| [0m[0m                                      [0m[0m[1m[38;5;9m^^^^^^[0m[0m [0m[0m[1m[38;5;9mnot found in this scope[0m
+  [0m   [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;14mhelp[0m[0m: consider importing one of these items[0m
+  [0m   [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m  [0m[0m[38;5;10m+ use frame_system::Config;[0m
+  [0m   [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m3[0m[0m  [0m[0m[38;5;10m+ use pallet_balances::Config;[0m
+  [0m   [0m[0m[1m[38;5;12m|[0m
+
+  [0m[1m[33mwarning[0m[0m[1m: unused imports: `AtLeast32BitUnsigned`, `EnsureOriginWithArg`, `pallet_prelude::DispatchResultWithPostInfo`[0m
+  [0m  [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/lib.rs:30:2[0m
+  [0m   [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m30[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m    pallet_prelude::DispatchResultWithPostInfo,[0m
+  [0m   [0m[0m[1m[38;5;12m| [0m[0m    [0m[0m[1m[33m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [0m[1m[38;5;12m...[0m
+  [0m[1m[38;5;12m33[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m            AtLeast32BitUnsigned, Bounded, CheckedAdd, CheckedSub, Saturating, StaticLookup, Zero,[0m
+  [0m   [0m[0m[1m[38;5;12m| [0m[0m            [0m[0m[1m[33m^^^^^^^^^^^^^^^^^^^^[0m
+  [0m[1m[38;5;12m...[0m
+  [0m[1m[38;5;12m39[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m        Currency, EnsureOriginWithArg, ReservableCurrency,[0m
+  [0m   [0m[0m[1m[38;5;12m| [0m[0m                  [0m[0m[1m[33m^^^^^^^^^^^^^^^^^^^[0m
+  [0m   [0m[0m[1m[38;5;12m|[0m
+  [0m   [0m[0m[1m[38;5;12m= [0m[0m[1mnote[0m[0m: `#[warn(unused_imports)]` on by default[0m
+
+  [0m[1m[33mwarning[0m[0m[1m: unused import: `scale_info::TypeInfo`[0m
+  [0m  [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/lib.rs:44:5[0m
+  [0m   [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m44[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0muse scale_info::TypeInfo;[0m
+  [0m   [0m[0m[1m[38;5;12m| [0m[0m    [0m[0m[1m[33m^^^^^^^^^^^^^^^^^^^^[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Asset`[0m
+  [0m  [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:53:3[0m
+  [0m   [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m53[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m        Asset::<T>::get(id).map(|x| x.supply)[0m
+  [0m   [0m[0m[1m[38;5;12m| [0m[0m        [0m[0m[1m[38;5;9m^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Asset`[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `SupplyHistory`[0m
+  [0m  [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:60:24[0m
+  [0m   [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m60[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m        Self::search_history(SupplyHistory::<T>::get(id), block)[0m
+  [0m   [0m[0m[1m[38;5;12m| [0m[0m                             [0m[0m[1m[38;5;9m^^^^^^^^^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `SupplyHistory`[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `AccountHistory`[0m
+  [0m  [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:71:24[0m
+  [0m   [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m71[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m        Self::search_history(AccountHistory::<T>::get(id, who.borrow()), block)[0m
+  [0m   [0m[0m[1m[38;5;12m| [0m[0m                             [0m[0m[1m[38;5;9m^^^^^^^^^^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `AccountHistory`[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `SupplyHistory`[0m
+  [0m  [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:96:38[0m
+  [0m   [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m96[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m        let history = Self::update_history(SupplyHistory::<T>::get(id).unwrap_or_default(), supply);[0m
+  [0m   [0m[0m[1m[38;5;12m| [0m[0m                                           [0m[0m[1m[38;5;9m^^^^^^^^^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `SupplyHistory`[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `SupplyHistory`[0m
+  [0m  [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:99:3[0m
+  [0m   [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m99[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m        SupplyHistory::<T>::insert(id, history);[0m
+  [0m   [0m[0m[1m[38;5;12m| [0m[0m        [0m[0m[1m[38;5;9m^^^^^^^^^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `SupplyHistory`[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `AccountHistory`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:105:25[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m105[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m            Self::update_history(AccountHistory::<T>::get(id, who).unwrap_or_default(), balance);[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m                                 [0m[0m[1m[38;5;9m^^^^^^^^^^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `AccountHistory`[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `AccountHistory`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:108:3[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m108[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m        AccountHistory::<T>::insert(id, who, history);[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m        [0m[0m[1m[38;5;9m^^^^^^^^^^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `AccountHistory`[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `AccountHistory`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:148:3[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m148[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m        AccountHistory::<T>::remove(id, who);[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m        [0m[0m[1m[38;5;9m^^^^^^^^^^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `AccountHistory`[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Asset`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:165:23[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m165[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m        let details = match Asset::<T>::get(id) {[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m                            [0m[0m[1m[38;5;9m^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Asset`[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Asset`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:190:23[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m190[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m        let details = match Asset::<T>::get(id) {[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m                            [0m[0m[1m[38;5;9m^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Asset`[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Asset`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:226:17[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m226[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m        let details = Asset::<T>::get(id).ok_or(Error::<T>::Unknown)?;[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m                      [0m[0m[1m[38;5;9m^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Asset`[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Asset`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:347:3[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m347[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m        Asset::<T>::try_mutate(id, |maybe_details| -> DispatchResult {[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m        [0m[0m[1m[38;5;9m^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Asset`[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Asset`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:410:17[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m410[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m        let details = Asset::<T>::get(id).ok_or(Error::<T>::Unknown)?;[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m                      [0m[0m[1m[38;5;9m^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Asset`[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Asset`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:415:3[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m415[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m        Asset::<T>::try_mutate(id, |maybe_details| -> DispatchResult {[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m        [0m[0m[1m[38;5;9m^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Asset`[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Asset`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:446:17[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m446[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m        let details = Asset::<T>::get(id).ok_or(Error::<T>::Unknown)?;[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m                      [0m[0m[1m[38;5;9m^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Asset`[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Asset`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:479:17[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m479[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m        let details = Asset::<T>::get(id).ok_or(Error::<T>::Unknown)?;[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m                      [0m[0m[1m[38;5;9m^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Asset`[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Asset`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:515:17[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m515[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m        let details = Asset::<T>::get(id).ok_or(Error::<T>::Unknown)?;[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m                      [0m[0m[1m[38;5;9m^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Asset`[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Asset`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:522:3[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m522[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m        Asset::<T>::try_mutate(id, |maybe_details| -> DispatchResult {[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m        [0m[0m[1m[38;5;9m^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Asset`[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Asset`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:587:12[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m587[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m        ensure!(!Asset::<T>::contains_key(id), Error::<T>::InUse);[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m                 [0m[0m[1m[38;5;9m^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Asset`[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Asset`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:590:3[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m590[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m        Asset::<T>::insert([0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m        [0m[0m[1m[38;5;9m^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Asset`[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Asset`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:612:3[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m612[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m        Asset::<T>::try_mutate_exists(id, |maybe_details| -> Result<(), DispatchError> {[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m        [0m[0m[1m[38;5;9m^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Asset`[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `SupplyHistory`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:618:4[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m618[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m            SupplyHistory::<T>::remove(id);[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m            [0m[0m[1m[38;5;9m^^^^^^^^^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `SupplyHistory`[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Asset`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:635:3[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m635[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m        Asset::<T>::try_mutate_exists(id, |maybe_details| -> Result<(), DispatchError> {[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m        [0m[0m[1m[38;5;9m^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Asset`[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Asset`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:667:3[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m667[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m        Asset::<T>::try_mutate_exists(id, |maybe_details| -> Result<(), DispatchError> {[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m        [0m[0m[1m[38;5;9m^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Asset`[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Approvals`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:673:34[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m673[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m            for ((owner, _), approval) in Approvals::<T>::drain_prefix((id,)) {[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m                                          [0m[0m[1m[38;5;9m^^^^^^^^^[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m                                          [0m[0m[1m[38;5;9m|[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m                                          [0m[0m[1m[38;5;9muse of undeclared type `Approvals`[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m                                          [0m[0m[1m[38;5;9mhelp: a struct with a similar name exists: `Approval`[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Asset`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:695:3[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m695[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m        Asset::<T>::try_mutate_exists(id, |maybe_details| -> Result<(), DispatchError> {[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m        [0m[0m[1m[38;5;9m^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Asset`[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Metadata`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:701:12[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m701[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m            let _ = Metadata::<T>::take(id); // erase metadata[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m                    [0m[0m[1m[38;5;9m^^^^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Metadata`[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Asset`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:718:15[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m718[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m        let mut d = Asset::<T>::get(id).ok_or(Error::<T>::Unknown)?;[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m                    [0m[0m[1m[38;5;9m^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Asset`[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Approvals`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:720:3[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m720[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m        Approvals::<T>::try_mutate((id, &owner, &delegate), |maybe_approved| -> DispatchResult {[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m        [0m[0m[1m[38;5;9m^^^^^^^^^[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m        [0m[0m[1m[38;5;9m|[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m        [0m[0m[1m[38;5;9muse of undeclared type `Approvals`[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m        [0m[0m[1m[38;5;9mhelp: a struct with a similar name exists: `Approval`[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Asset`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:739:3[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m739[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m        Asset::<T>::insert(id, d);[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m        [0m[0m[1m[38;5;9m^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Asset`[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Asset`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:764:11[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m764[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m        let d = Asset::<T>::get(id).ok_or(Error::<T>::Unknown)?;[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m                [0m[0m[1m[38;5;9m^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Asset`[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Approvals`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:767:3[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m767[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m        Approvals::<T>::try_mutate_exists([0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m        [0m[0m[1m[38;5;9m^^^^^^^^^[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m        [0m[0m[1m[38;5;9m|[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m        [0m[0m[1m[38;5;9muse of undeclared type `Approvals`[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m        [0m[0m[1m[38;5;9mhelp: a struct with a similar name exists: `Approval`[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Asset`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:779:6[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m779[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m                    Asset::<T>::mutate(id, |maybe_details| {[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m                    [0m[0m[1m[38;5;9m^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Asset`[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Asset`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:808:11[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m808[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m        let d = Asset::<T>::get(id).ok_or(Error::<T>::Unknown)?;[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m                [0m[0m[1m[38;5;9m^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Asset`[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Metadata`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:812:3[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m812[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m        Metadata::<T>::try_mutate_exists(id, |metadata| {[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m        [0m[0m[1m[38;5;9m^^^^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Metadata`[0m
+
+  [0m[1m[38;5;9merror[E0433][0m[0m[1m: failed to resolve: use of undeclared type `Asset`[0m
+  [0m   [0m[0m[1m[38;5;12m--> [0m[0m/home/olaf/Documents/olaf/work/practice-substrate/GenesisDAO/genesis-dao-node/pallets/dao-assets/src/functions.rs:822:3[0m
+  [0m    [0m[0m[1m[38;5;12m|[0m
+  [0m[1m[38;5;12m822[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m        Asset::<T>::try_mutate(id, |maybe_details| {[0m
+  [0m    [0m[0m[1m[38;5;12m| [0m[0m        [0m[0m[1m[38;5;9m^^^^^[0m[0m [0m[0m[1m[38;5;9muse of undeclared type `Asset`[0m
+
+  [0m[1mSome errors have detailed explanations: E0405, E0412, E0432, E0433.[0m
+  [0m[1mFor more information about an error, try `rustc --explain E0405`.[0m
+  [0m[0m[1m[33mwarning[0m[1m:[0m `pallet-dao-assets` (lib) generated 2 warnings
+  [0m[0m[1m[31merror[0m[1m:[0m could not compile `pallet-dao-assets` (lib) due to 114 previous errors; 2 warnings emitted

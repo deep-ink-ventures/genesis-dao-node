@@ -32,7 +32,6 @@ pub mod pallet {
 		/// Maximum callback identifier length
 		#[pallet::constant]
 		type MaxLengthId: Get<u32>;
-
 	}
 
 	#[pallet::storage]
@@ -55,8 +54,12 @@ pub mod pallet {
 	pub enum Event<T: Config> {
 		/// Event documentation should end with an array that provides descriptive names for event
 		/// parameters. [something, who]
-		GlobalCallbackRegistered { who: T::AccountId },
-		SpecificCallbackRegistered { who: T::AccountId },
+		GlobalCallbackRegistered {
+			who: T::AccountId,
+		},
+		SpecificCallbackRegistered {
+			who: T::AccountId,
+		},
 	}
 
 	// Errors inform users that something went wrong.

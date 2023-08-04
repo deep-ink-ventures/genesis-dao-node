@@ -30,7 +30,7 @@ pub use types::*;
 mod governance_types;
 use governance_types::*;
 
-use pallet_contracts::{Determinism, Pallet as Contracts};
+use pallet_contracts::{CollectEvents, DebugInfo, Determinism, Pallet as Contracts};
 use pallet_dao_assets::{AssetBalanceOf, Pallet as Assets};
 use pallet_dao_core::{
 	AccountIdOf, CurrencyOf, DaoIdOf, DepositBalanceOf, Error as DaoError, Pallet as Core,
@@ -38,13 +38,14 @@ use pallet_dao_core::{
 use pallet_hookpoints::Pallet as HookPoints;
 
 pub mod weights;
+use frame_system::pallet_prelude::BlockNumberFor;
 use weights::WeightInfo;
 
 type ProposalSlotOf<T> = ProposalSlot<DaoIdOf<T>, <T as frame_system::Config>::AccountId>;
 type ProposalOf<T> = Proposal<
 	DaoIdOf<T>,
 	<T as frame_system::Config>::AccountId,
-	<T as frame_system::Config>::BlockNumber,
+	BlockNumberFor<T>,
 	AssetBalanceOf<T>,
 	pallet_dao_core::MetadataOf<T>,
 >;
@@ -392,12 +393,6 @@ pub mod pallet {
 				HookPoints::<T>::specific_callbacks(&dao.owner, on_voting_calc)
 					.or_else(|| HookPoints::<T>::callbacks(&dao.owner));
 
-			// enable debug in debug mode and disable in release mode
-			#[cfg(debug_assertions)]
-			let debug = true;
-			#[cfg(not(debug_assertions))]
-			let debug = false;
-
 			let callback_result: Result<_, DispatchError> =
 				callback.map_or(Ok(token_balance), |contract| {
 					// the selector for "GenesisDAO::calculate_voting_power"
@@ -407,11 +402,12 @@ pub mod pallet {
 					let contract_exec_result = Contracts::<T>::bare_call(
 						voter.clone(),
 						contract,
-						0_u32.into(),              // value to transfer
+						0_u32.into(),                     // value to transfer
 						Weight::from_all(10_000_000_000), // gas limit
-						Some(0_u32.into()),        // storage deposit limit
+						Some(0_u32.into()),               // storage deposit limit
 						data,
-						debug,
+						DebugInfo::Skip,
+						CollectEvents::Skip,
 						Determinism::Enforced,
 					);
 					// check debug message

@@ -3,7 +3,9 @@
 // > cargo build --release --features runtime-benchmarks --features local-node
 //
 // Weight Creation:
-// > ./target/release/genesis-dao benchmark pallet --chain dev --pallet pallet_dao_core --extrinsic '*' --steps 20 --repeat 10 --output pallets/dao-core/src/weights.rs --template ./benchmarking/frame-weight-template.hbs
+// > ./target/release/genesis-dao benchmark pallet --chain dev --pallet pallet_dao_core --extrinsic
+// > '*' --steps 20 --repeat 10 --output pallets/dao-core/src/weights.rs --template
+// > ./benchmarking/frame-weight-template.hbs
 //
 #![cfg(feature = "runtime-benchmarks")]
 
@@ -15,14 +17,15 @@ use crate::Pallet as DaoCore;
 
 /// Creates a DAO for the given caller
 /// - `caller`: AccountId of the dao creator
-fn setup_dao<T: Config>(caller: T::AccountId) -> Vec<u8>{
+fn setup_dao<T: Config>(caller: T::AccountId) -> Vec<u8> {
 	let dao_id: Vec<u8> = b"GDAO".to_vec();
 
 	DaoCore::<T>::create_dao(
 		RawOrigin::Signed(caller).into(),
 		dao_id.clone(),
-		b"Genesis DAO".to_vec()
-	).expect("error on dao creation");
+		b"Genesis DAO".to_vec(),
+	)
+	.expect("error on dao creation");
 	dao_id
 }
 
@@ -31,8 +34,13 @@ fn setup_dao<T: Config>(caller: T::AccountId) -> Vec<u8>{
 fn setup_caller<T: Config>() -> T::AccountId {
 	let caller: T::AccountId = whitelisted_caller();
 	let units: u32 = 1_000_000_000u32;
-	<T as Config>::Currency::issue(<T as Config>::Currency::minimum_balance() * units.into() * 1_000_000u32.into());
-	<T as Config>::Currency::make_free_balance_be(&caller, <T as Config>::Currency::minimum_balance() * units.into() * 1_000_000u32.into());
+	<T as Config>::Currency::issue(
+		<T as Config>::Currency::minimum_balance() * units.into() * 1_000_000u32.into(),
+	);
+	<T as Config>::Currency::make_free_balance_be(
+		&caller,
+		<T as Config>::Currency::minimum_balance() * units.into() * 1_000_000u32.into(),
+	);
 	caller
 }
 
@@ -43,11 +51,11 @@ fn assert_last_event<T: Config>(generic_event: <T as Config>::RuntimeEvent) {
 }
 
 benchmarks! {
-  	create_dao {
+	  create_dao {
 		let owner = setup_caller::<T>();
 		let dao_id: Vec<u8> = b"GDAO".to_vec();
 	}: _(RawOrigin::Signed(owner.clone()), dao_id.clone(), b"Genesis DAO".to_vec())
-  	verify {
+	  verify {
 		let dao_id: BoundedVec<_, _> = dao_id.try_into().expect("fits");
 		assert_last_event::<T>(Event::DaoCreated { owner,  dao_id }.into());
 	}
@@ -56,7 +64,7 @@ benchmarks! {
 		let caller = setup_caller::<T>();
 		let dao_id = setup_dao::<T>(caller.clone());
 	}: _(RawOrigin::Signed(caller.clone()), dao_id.clone())
-  	verify {
+	  verify {
 		let dao_id: BoundedVec<_, _> = dao_id.try_into().expect("fits");
 		assert_last_event::<T>(Event::DaoDestroyed { dao_id }.into());
 	}
@@ -66,7 +74,7 @@ benchmarks! {
 		let dao_id = setup_dao::<T>(caller.clone());
 		let supply:  T::Balance = 1000u32.into();
 	}: _(RawOrigin::Signed(caller.clone()), dao_id.clone(), supply)
-  	verify {
+	  verify {
 		let asset_id = DaoCore::<T>::load_dao(dao_id.clone()).unwrap().asset_id.unwrap();
 		let dao_id: BoundedVec<_, _> = dao_id.try_into().expect("fits");
 		assert_last_event::<T>(Event::DaoTokenIssued { dao_id, supply, asset_id	}.into());

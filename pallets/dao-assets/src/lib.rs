@@ -50,7 +50,7 @@ type AccountIdLookupOf<T> = <<T as frame_system::Config>::Lookup as StaticLookup
 #[frame_support::pallet]
 pub mod pallet {
 	use super::*;
-	use frame_support::pallet_prelude::*;
+	use frame_support::{pallet_prelude::*, sp_runtime, traits::BuildGenesisConfig};
 	use frame_system::pallet_prelude::*;
 
 	/// The current storage version.
@@ -207,6 +207,7 @@ pub mod pallet {
 		BoundedBTreeMap<BlockNumberFor<T>, AssetBalanceOf<T>, T::HistoryHorizon>,
 	>;
 
+	#[derive(frame_support::DefaultNoBound)]
 	#[pallet::genesis_config]
 	pub struct GenesisConfig<T: Config> {
 		/// Genesis assets: id, owner, is_sufficient, min_balance
@@ -219,19 +220,8 @@ pub mod pallet {
 		pub accounts: Vec<(T::AssetId, T::AccountId, T::Balance)>,
 	}
 
-	#[cfg(feature = "std")]
-	impl<T: Config> Default for GenesisConfig<T> {
-		fn default() -> Self {
-			Self {
-				assets: Default::default(),
-				metadata: Default::default(),
-				accounts: Default::default(),
-			}
-		}
-	}
-
 	#[pallet::genesis_build]
-	impl<T: Config> GenesisBuild<T> for GenesisConfig<T> {
+	impl<T: Config> BuildGenesisConfig for GenesisConfig<T> {
 		fn build(&self) {
 			for (id, owner, min_balance) in &self.assets {
 				assert!(!Asset::<T>::contains_key(id), "Asset id already in use");
