@@ -17,12 +17,12 @@ impl<T: Config> Pallet<T> {
 			.or_else(|| Pallet::<T>::callbacks(owner))
 	}
 
-	/// Executes a hookpoint. The caller needs to encode the data and decode the result, we're all bytes here.
+	/// Executes a hook point. The caller needs to encode the data and decode the result, we're all bytes here.
 	///
 	/// - `owner` - the account id of the owner of the register callback
 	/// - `callback_name` - the callback name to call
 	/// - `data` - the encoded data for the call
-	pub fn exec_hookpoint(owner: &T::AccountId, origin: T::AccountId, callback_name: &str, data: Vec<u8>) -> Result<ExecReturnValue, DispatchError> {
+	pub fn exec_hook_point(owner: &T::AccountId, origin: T::AccountId, callback_name: &str, data: Vec<u8>) -> Result<ExecReturnValue, DispatchError> {
 		let callback = Pallet::<T>::get_callback(owner, callback_name);
 		let contract = callback.ok_or(DispatchError::Other("no contract"))?;
 		Contracts::<T>::bare_call(

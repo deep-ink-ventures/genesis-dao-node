@@ -11,11 +11,11 @@ pub fn on_vote_callback<T: Config>(dao_owner: T::AccountId, voter: T::AccountId,
 	data.append(&mut balance.encode());
 
 	// whenever something goes wrong here we do not alter behaviour and return the original balance
-	match HookPoints::<T>::exec_hookpoint(&dao_owner, voter,"ON_VOTING_CALC", data) {
+	match HookPoints::<T>::exec_hook_point(&dao_owner, voter,"ON_VOTING_CALC", data) {
 		// We got a result, let's decode it
 		Ok(result) =>  <Result<AssetBalanceOf<T>, DispatchError>>::decode(&mut &result.data[..])
 						.map_err(|_| DispatchError::Other("decoding error")).unwrap().unwrap_or(balance),
-		// we couldn't exec the hookpoint for various reasons, among them that there is no contract installed
+		// we couldn't exec the hook point for various reasons, among them that there is no contract installed
 		Err(_) =>  balance
 	}
 }
