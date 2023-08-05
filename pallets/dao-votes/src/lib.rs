@@ -27,8 +27,6 @@ mod test_utils;
 mod types;
 pub use types::*;
 
-mod governance_types;
-use governance_types::*;
 
 use pallet_contracts::{CollectEvents, DebugInfo, Determinism, Pallet as Contracts};
 use pallet_dao_assets::{AssetBalanceOf, Pallet as Assets};
@@ -305,10 +303,12 @@ pub mod pallet {
 				.asset_id
 				.expect("asset has been issued");
 
-			// determine whether proposal has required votes and set status accordingly
-			match governance.voting {
-				Voting::Majority { minimum_majority_per_1024 } => {
-					if proposal.in_favor > proposal.against && {
+			// per default you just need to have more people in your favour than against ...
+			if proposal.in_favor > proposal.against && {
+				match governance.voting {
+					// we ship a majority vote implementation as default, that is requiring a threshold
+					// to be exceeded for a proposal to pass
+					Voting::Majority { minimum_majority_per_1024 } => {
 						let token_supply = Assets::<T>::total_historical_supply(
 							asset_id.into(),
 							proposal.birth_block,
@@ -319,13 +319,16 @@ pub mod pallet {
 							minimum_majority_per_1024.into();
 						// check for the required majority
 						proposal.in_favor - proposal.against >= required_majority
-					} {
-						proposal.status = ProposalStatus::Accepted;
-					} else {
-						proposal.status = ProposalStatus::Rejected;
 					}
-				},
+					// the custom voting mechanism allows for the interception with a hookpoint for custom logic.
+					Voting::Custom => true
+				}
+			} {
+				proposal.status = ProposalStatus::Accepted;
+			} else {
+				proposal.status = ProposalStatus::Rejected;
 			}
+
 			// unreserve proposal deposit
 			CurrencyOf::<T>::unreserve(&sender, <T as Config>::ProposalDeposit::get());
 
