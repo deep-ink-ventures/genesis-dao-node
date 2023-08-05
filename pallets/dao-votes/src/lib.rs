@@ -7,6 +7,7 @@ use frame_support::{
 	storage::bounded_vec::BoundedVec,
 	traits::ReservableCurrency,
 };
+
 pub use pallet::*;
 
 #[cfg(feature = "runtime-benchmarks")]
@@ -24,22 +25,22 @@ mod test_utils;
 mod types;
 pub use types::*;
 
-mod governance_types;
-use governance_types::*;
-
 use pallet_dao_assets::{AssetBalanceOf, Pallet as Assets};
 use pallet_dao_core::{
 	AccountIdOf, CurrencyOf, DaoIdOf, DepositBalanceOf, Error as DaoError, Pallet as Core,
 };
 
 pub mod weights;
+mod hooks;
+
+use frame_system::pallet_prelude::BlockNumberFor;
 use weights::WeightInfo;
 
 type ProposalSlotOf<T> = ProposalSlot<DaoIdOf<T>, <T as frame_system::Config>::AccountId>;
 type ProposalOf<T> = Proposal<
 	DaoIdOf<T>,
 	<T as frame_system::Config>::AccountId,
-	<T as frame_system::Config>::BlockNumber,
+	BlockNumberFor<T>,
 	AssetBalanceOf<T>,
 	pallet_dao_core::MetadataOf<T>,
 >;
@@ -52,6 +53,7 @@ pub mod pallet {
 	use super::*;
 	use frame_support::pallet_prelude::*;
 	use frame_system::pallet_prelude::*;
+	use crate::hooks::on_vote_callback;
 
 	#[pallet::storage]
 	pub(super) type Governances<T: Config> =
@@ -78,7 +80,9 @@ pub mod pallet {
 	pub struct Pallet<T>(_);
 
 	#[pallet::config]
-	pub trait Config: frame_system::Config + pallet_dao_core::Config {
+	pub trait Config:
+		frame_system::Config + pallet_dao_core::Config + pallet_hookpoints::Config
+	{
 		type RuntimeEvent: From<Event<Self>> + IsType<<Self as frame_system::Config>::RuntimeEvent>;
 
 		#[pallet::constant]
@@ -297,10 +301,12 @@ pub mod pallet {
 				.asset_id
 				.expect("asset has been issued");
 
-			// determine whether proposal has required votes and set status accordingly
-			match governance.voting {
-				Voting::Majority { minimum_majority_per_1024 } => {
-					if proposal.in_favor > proposal.against && {
+			// per default you just need to have more people in your favour than against ...
+			if proposal.in_favor > proposal.against && {
+				match governance.voting {
+					// we ship a majority vote implementation as default, that is requiring a threshold
+					// to be exceeded for a proposal to pass
+					Voting::Majority { minimum_majority_per_1024 } => {
 						let token_supply = Assets::<T>::total_historical_supply(
 							asset_id.into(),
 							proposal.birth_block,
@@ -311,13 +317,16 @@ pub mod pallet {
 							minimum_majority_per_1024.into();
 						// check for the required majority
 						proposal.in_favor - proposal.against >= required_majority
-					} {
-						proposal.status = ProposalStatus::Accepted;
-					} else {
-						proposal.status = ProposalStatus::Rejected;
 					}
-				},
+					// the custom voting mechanism allows for the interception with a hookpoint for custom logic.
+					Voting::Custom => true
+				}
+			} {
+				proposal.status = ProposalStatus::Accepted;
+			} else {
+				proposal.status = ProposalStatus::Rejected;
 			}
+
 			// unreserve proposal deposit
 			CurrencyOf::<T>::unreserve(&sender, <T as Config>::ProposalDeposit::get());
 
@@ -341,7 +350,7 @@ pub mod pallet {
 			proposal_id: T::ProposalId,
 			in_favor: Option<bool>,
 		) -> DispatchResult {
-			let voter = ensure_signed(origin)?;
+			let voter: <T as frame_system::Config>::AccountId = ensure_signed(origin)?;
 
 			// check that a proposal exists with the given id
 			let mut proposal =
@@ -364,41 +373,45 @@ pub mod pallet {
 			);
 
 			let vote = <Votes<T>>::get(proposal_id, &voter);
-			if vote != in_favor {
-				<Votes<T>>::set(proposal_id, &voter, in_favor);
-				let asset_id = Core::<T>::get_dao(&proposal.dao_id)
-					.expect("DAO exists")
-					.asset_id
-					.expect("asset has been issued");
-				let token_balance = Assets::<T>::total_historical_balance(
-					asset_id.into(),
-					&voter,
-					proposal.birth_block,
-				)
-				.expect("history exists");
-				// undo old vote
-				match vote {
-					Some(true) => {
-						proposal.in_favor -= token_balance;
-					},
-					Some(false) => {
-						proposal.against -= token_balance;
-					},
-					None => {},
-				}
-				// count new vote
-				match in_favor {
-					Some(true) => {
-						proposal.in_favor += token_balance;
-					},
-					Some(false) => {
-						proposal.against += token_balance;
-					},
-					None => {},
-				}
-				// record updated proposal counts
-				<Proposals<T>>::insert(proposal_id, proposal);
+			if vote == in_favor {
+				// vote already stored
+				return Ok(())
 			}
+
+			<Votes<T>>::set(proposal_id, &voter, in_favor);
+			let dao = Core::<T>::get_dao(&proposal.dao_id).expect("DAO exists");
+			let asset_id = dao.asset_id.expect("asset has been issued");
+			let token_balance = Assets::<T>::total_historical_balance(
+				asset_id.into(),
+				&voter,
+				proposal.birth_block,
+			)
+			.expect("history exists");
+
+			let voting_power = on_vote_callback::<T>(dao.owner, voter.clone(), token_balance);
+
+			// undo old vote
+			match vote {
+				Some(true) => {
+					proposal.in_favor -= voting_power;
+				},
+				Some(false) => {
+					proposal.against -= voting_power;
+				},
+				None => {},
+			}
+			// count new vote
+			match in_favor {
+				Some(true) => {
+					proposal.in_favor += voting_power;
+				},
+				Some(false) => {
+					proposal.against += voting_power;
+				},
+				None => {},
+			}
+			// record updated proposal counts
+			<Proposals<T>>::insert(proposal_id, proposal);
 
 			Self::deposit_event(Event::<T>::VoteCast { proposal_id, voter, in_favor });
 			Ok(())

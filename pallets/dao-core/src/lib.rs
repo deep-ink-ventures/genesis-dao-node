@@ -27,23 +27,16 @@ pub use frame_support::{
 	},
 	weights::Weight,
 };
-use pallet_dao_assets::{Pallet as Assets};
+use pallet_dao_assets::Pallet as Assets;
 
 pub type AccountIdOf<T> = <T as frame_system::Config>::AccountId;
 pub type CurrencyOf<T> = <T as Config>::Currency;
-pub type DepositBalanceOf<T> =
-	<CurrencyOf<T> as Currency<<T as frame_system::Config>::AccountId>>::Balance;
+pub type DepositBalanceOf<T> = <CurrencyOf<T> as Currency<AccountIdOf<T>>>::Balance;
 type AssetIdOf<T> = <T as Config>::AssetId;
 pub type DaoIdOf<T> = BoundedVec<u8, <T as Config>::MaxLengthId>;
 type DaoNameOf<T> = BoundedVec<u8, <T as Config>::MaxLengthName>;
 pub type MetadataOf<T> = BoundedVec<u8, <T as Config>::MaxLengthMetadata>;
-type DaoOf<T> = Dao<
-	DaoIdOf<T>,
-	<T as frame_system::Config>::AccountId,
-	DaoNameOf<T>,
-	AssetIdOf<T>,
-	MetadataOf<T>,
->;
+type DaoOf<T> = Dao<DaoIdOf<T>, AccountIdOf<T>, DaoNameOf<T>, AssetIdOf<T>, MetadataOf<T>>;
 
 pub mod weights;
 use weights::WeightInfo;
@@ -63,7 +56,9 @@ pub mod pallet {
 	pub struct Pallet<T>(_);
 
 	#[pallet::config]
-	pub trait Config: frame_system::Config + pallet_dao_assets::Config {
+	pub trait Config:
+		frame_system::Config + pallet_dao_assets::Config
+	{
 		type RuntimeEvent: From<Event<Self>> + IsType<<Self as frame_system::Config>::RuntimeEvent>;
 
 		type Currency: ReservableCurrency<Self::AccountId>;
@@ -338,7 +333,7 @@ pub mod pallet {
 				let dao = maybe_dao.as_mut().ok_or(Error::<T>::DaoDoesNotExist)?;
 				ensure!(dao.owner == sender, Error::<T>::DaoSignerNotOwner);
 				if dao.owner == new_owner {
-					return Ok(());
+					return Ok(())
 				}
 				// also change asset owner if token was issued
 				if let Some(asset_id) = dao.asset_id {

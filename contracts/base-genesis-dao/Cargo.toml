@@ -1,0 +1,33 @@
+[package]
+name = "base_genesis_dao_contracts"
+version = "0.1.0"
+authors = ["Deep Ink Ventures <alg@deep-ink.ventures>"]
+edition = "2021"
+
+[dependencies]
+ink = { version = "4.2", default-features = false }
+ink_prelude = { version = "4.2", default-features = false }
+#ink_primitives = { version = "4.2", default-features = false }
+
+scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
+scale-info = { version = "2.6", default-features = false, features = ["derive"], optional = true }
+
+genesis-dao-traits = { package = "genesis-dao-contract-traits", default-features = false, path = "../genesis-dao-traits" }
+
+[dev-dependencies]
+ink_e2e = "4.2.0"
+
+[lib]
+path = "lib.rs"
+
+[features]
+default = ["std"]
+std = [
+	"ink/std",
+	"ink_prelude/std",
+#	"ink_primitives/std",
+	"scale/std",
+	"scale-info/std",
+]
+ink-as-dependency = []
+e2e-tests = []
