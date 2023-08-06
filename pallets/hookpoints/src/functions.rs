@@ -64,10 +64,19 @@ impl<T: Config> Pallet<T> {
 		Ok(contract_instantiate_result.result?.account_id)
 	}
 
+	/// Create a new hook point ready for execution
+	///
+	/// - `owner` - the owner of the contract
+	/// - `origin` - the sender of the transaction
+	/// - `mod_name` - the module name of the ink contract
+	/// - `callback` - the actual callback configuration (see below)
 	pub fn create(owner: T::AccountId, origin: T::AccountId, mod_name: &str, callback: Callback) -> HookPoint<T::AccountId> {
 		HookPoint::<T::AccountId>::new(owner, origin, mod_name, callback)
 	}
 
+	/// A callback, configure it by adding args
+	///
+	/// - `func_name` - the name of the func in the ink contract (as well the register callback)
 	pub fn callback(func_name: &str) -> Callback {
        Callback::new(func_name)
    }
