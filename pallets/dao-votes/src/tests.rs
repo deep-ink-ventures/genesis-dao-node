@@ -324,9 +324,8 @@ fn on_vote_calculation_callback_works() {
 			Code::Upload(code),
 			data,
 			salt,
-			//Debug::UnsafeDebug,
-			//CollectEvents::UnsafeCollect,
-			true,
+			pallet_contracts::DebugInfo::UnsafeDebug,
+			pallet_contracts::CollectEvents::UnsafeCollect,
 		);
 		// check debug message
 		assert_eq!(String::from_utf8_lossy(&contract_instantiate_result.debug_message), "");

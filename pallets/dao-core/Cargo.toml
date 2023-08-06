@@ -26,6 +26,7 @@ sp-std = { version = "8.0.0", default-features = false, git = "https://github.co
 pallet-balances = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "release-v1.0.0-cumulus" }
 pallet-contracts = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "release-v1.0.0-cumulus" }
 pallet-dao-assets = { version = "4.0.0-dev", default-features = false, path = "../dao-assets" }
+pallet-timestamp = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "release-v1.0.0-cumulus" }
 
 [dev-dependencies]
 sp-core = { version = "21.0.0", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "release-v1.0.0-cumulus" }
@@ -43,6 +44,7 @@ std = [
 	"sp-runtime/std",
 	"pallet-balances/std",
 	"pallet-contracts/std",
+	"pallet-timestamp/std",
 	"pallet-dao-assets/std",
 ]
 runtime-benchmarks = [
