@@ -5215,16 +5215,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "macros"
-version = "0.1.0"
-dependencies = [
- "blake2",
- "proc-macro2",
- "quote",
- "syn 2.0.28",
-]
-
-[[package]]
 name = "maplit"
 version = "1.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -6221,6 +6211,7 @@ dependencies = [
  "pallet-balances",
  "pallet-contracts",
  "pallet-dao-assets",
+ "pallet-timestamp",
  "parity-scale-codec",
  "scale-info",
  "sp-core 21.0.0",
@@ -6236,7 +6227,6 @@ dependencies = [
  "frame-benchmarking",
  "frame-support",
  "frame-system",
- "macros",
  "pallet-balances",
  "pallet-contracts",
  "pallet-contracts-primitives",
