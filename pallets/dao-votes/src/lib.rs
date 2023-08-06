@@ -2,8 +2,6 @@
 
 use sp_std::prelude::*;
 
-#[cfg(debug_assertions)]
-use frame_support::assert_ok;
 use frame_support::{
 	sp_runtime::traits::{One, Saturating, Zero},
 	storage::bounded_vec::BoundedVec,
@@ -27,17 +25,14 @@ mod test_utils;
 mod types;
 pub use types::*;
 
-mod governance_types;
-use governance_types::*;
-
-use pallet_contracts::{CollectEvents, DebugInfo, Determinism, Pallet as Contracts};
 use pallet_dao_assets::{AssetBalanceOf, Pallet as Assets};
 use pallet_dao_core::{
 	AccountIdOf, CurrencyOf, DaoIdOf, DepositBalanceOf, Error as DaoError, Pallet as Core,
 };
-use pallet_hookpoints::Pallet as HookPoints;
 
 pub mod weights;
+mod hooks;
+
 use frame_system::pallet_prelude::BlockNumberFor;
 use weights::WeightInfo;
 
@@ -58,6 +53,7 @@ pub mod pallet {
 	use super::*;
 	use frame_support::pallet_prelude::*;
 	use frame_system::pallet_prelude::*;
+	use crate::hooks::on_vote_callback;
 
 	#[pallet::storage]
 	pub(super) type Governances<T: Config> =
@@ -305,10 +301,12 @@ pub mod pallet {
 				.asset_id
 				.expect("asset has been issued");
 
-			// determine whether proposal has required votes and set status accordingly
-			match governance.voting {
-				Voting::Majority { minimum_majority_per_1024 } => {
-					if proposal.in_favor > proposal.against && {
+			// per default you just need to have more people in your favour than against ...
+			if proposal.in_favor > proposal.against && {
+				match governance.voting {
+					// we ship a majority vote implementation as default, that is requiring a threshold
+					// to be exceeded for a proposal to pass
+					Voting::Majority { minimum_majority_per_1024 } => {
 						let token_supply = Assets::<T>::total_historical_supply(
 							asset_id.into(),
 							proposal.birth_block,
@@ -319,13 +317,16 @@ pub mod pallet {
 							minimum_majority_per_1024.into();
 						// check for the required majority
 						proposal.in_favor - proposal.against >= required_majority
-					} {
-						proposal.status = ProposalStatus::Accepted;
-					} else {
-						proposal.status = ProposalStatus::Rejected;
 					}
-				},
+					// the custom voting mechanism allows for the interception with a hookpoint for custom logic.
+					Voting::Custom => true
+				}
+			} {
+				proposal.status = ProposalStatus::Accepted;
+			} else {
+				proposal.status = ProposalStatus::Rejected;
 			}
+
 			// unreserve proposal deposit
 			CurrencyOf::<T>::unreserve(&sender, <T as Config>::ProposalDeposit::get());
 
@@ -387,40 +388,7 @@ pub mod pallet {
 			)
 			.expect("history exists");
 
-			// hookpoints
-			let on_voting_calc: BoundedVec<_, _> = b"ON_VOTING_CALC".to_vec().try_into().unwrap();
-			let callback: Option<_> =
-				HookPoints::<T>::specific_callbacks(&dao.owner, on_voting_calc)
-					.or_else(|| HookPoints::<T>::callbacks(&dao.owner));
-
-			let callback_result: Result<_, DispatchError> =
-				callback.map_or(Ok(token_balance), |contract| {
-					// the selector for "GenesisDAO::calculate_voting_power"
-					let mut data = 0xa68e4cba_u32.to_be_bytes().to_vec();
-					data.append(&mut voter.encode()); // argument AccountId
-					data.append(&mut token_balance.encode()); // argument u128
-					let contract_exec_result = Contracts::<T>::bare_call(
-						voter.clone(),
-						contract,
-						0_u32.into(),                     // value to transfer
-						Weight::from_all(10_000_000_000), // gas limit
-						Some(0_u32.into()),               // storage deposit limit
-						data,
-						DebugInfo::Skip,
-						CollectEvents::Skip,
-						Determinism::Enforced,
-					);
-					// check debug message
-					#[cfg(debug_assertions)]
-					assert_eq!(String::from_utf8_lossy(&contract_exec_result.debug_message), "");
-					let result = contract_exec_result.result?;
-					<Result<AssetBalanceOf<T>, _>>::decode(&mut &result.data[..])
-						.map_err(|_| DispatchError::Other("decoding error"))?
-				});
-			// show errors in debug mode, but ignore in release mode
-			#[cfg(debug_assertions)]
-			assert_ok!(callback_result);
-			let voting_power = callback_result.unwrap_or(token_balance);
+			let voting_power = on_vote_callback::<T>(dao.owner, voter.clone(), token_balance);
 
 			// undo old vote
 			match vote {

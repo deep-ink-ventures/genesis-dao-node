@@ -1,6 +1,7 @@
 use crate::{mock::*, Error, Event};
 use frame_support::{assert_noop, assert_ok, BoundedVec};
 
+
 #[test]
 fn register_global_callback() {
 	new_test_ext().execute_with(|| {

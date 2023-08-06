@@ -57,12 +57,11 @@ pub mod pallet {
 
 	#[pallet::config]
 	pub trait Config:
-		frame_system::Config + pallet_contracts::Config + pallet_dao_assets::Config
+		frame_system::Config + pallet_dao_assets::Config
 	{
 		type RuntimeEvent: From<Event<Self>> + IsType<<Self as frame_system::Config>::RuntimeEvent>;
 
 		type Currency: ReservableCurrency<Self::AccountId>;
-		//+ IsType<<Self as pallet_contracts::Config>::Currency>;
 
 		type AssetId: IsType<<Self as pallet_dao_assets::Config>::AssetId>
 			+ Member

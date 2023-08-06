@@ -1,10 +1,7 @@
 use crate::{mock::*, test_utils::*, types::*, Config, Error, ProposalSlots, Proposals, Votes};
-use frame_support::{assert_noop, assert_ok, pallet_prelude::Weight, traits::TypedGet};
-use pallet_contracts::{chain_extension::SysConfig, Pallet as Contracts};
-use pallet_contracts_primitives::Code;
+use frame_support::{assert_noop, assert_ok, traits::TypedGet};
 use pallet_dao_core::{CurrencyOf, Error as DaoError};
 use pallet_hookpoints::Pallet as Hookpoints;
-use sp_runtime::traits::Hash;
 
 #[test]
 fn can_create_a_proposal() {
@@ -302,41 +299,15 @@ fn on_vote_calculation_callback_works() {
 		assert_ok!(Assets::transfer(origin.clone(), asset_id, voter.clone(), 50));
 		assert_eq!(<Proposals<Test>>::get(prop_id).unwrap().in_favor, 0);
 
-		// install voting contract
-		let contract_path =
-			"../../contracts/base-genesis-dao/target/ink/base_genesis_dao_contracts.wasm";
-		let code = std::fs::read(contract_path).unwrap();
-		// the selector for constructor "new"
+		let contract_path = "../../contracts/base-genesis-dao/target/ink/base_genesis_dao_contracts.wasm";
 		let mut data = 0x9bae9d5e_u32.to_be_bytes().to_vec();
 		data.append(&mut "DAO".encode()); // argument DaoId
-		let salt = vec![];
-		let code_hash = <Test as SysConfig>::Hashing::hash(&code);
-		let contract_account =
-			Contracts::<Test>::contract_address(&sender, &code_hash, &data, &salt);
-		// test that there is no contract at this account yet
-		assert_eq!(Contracts::<Test>::code_hash(&contract_account), None);
-		// instantiate a contract from code
-		let contract_instantiate_result = Contracts::<Test>::bare_instantiate(
+		let contract_account = Hookpoints::<Test>::install(
 			sender,
-			0,
-			Weight::MAX,
-			Some(100),
-			Code::Upload(code),
+			std::fs::read(contract_path).unwrap(),
 			data,
-			salt,
-			pallet_contracts::DebugInfo::UnsafeDebug,
-			pallet_contracts::CollectEvents::UnsafeCollect,
-		);
-		// check debug message
-		assert_eq!(String::from_utf8_lossy(&contract_instantiate_result.debug_message), "");
-		// there is no error
-		assert_ok!(&contract_instantiate_result.result);
-		let instantiate_return_value = contract_instantiate_result.result.unwrap();
-		// check that we use the correct contract id (by comparing two methods)
-		assert_eq!(contract_account, instantiate_return_value.account_id);
-		// check whether there is a code hash for the account
-		// if there is no code hash, then there is no contract code
-		assert_eq!(Contracts::<Test>::code_hash(&contract_account), Some(code_hash));
+			vec![]
+		).expect("code deployed");
 
 		// register callback
 		assert_ok!(Hookpoints::<Test>::register_specific_callback(
