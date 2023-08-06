@@ -1,9 +1,10 @@
+use codec::Decode;
 use frame_support::BoundedVec;
 use super::*;
 use frame_support::weights::Weight;
 use frame_support::pallet_prelude::DispatchError;
 use pallet_contracts::{CollectEvents, DebugInfo, Determinism, Pallet as Contracts};
-use pallet_contracts_primitives::{ExecReturnValue, Code};
+use pallet_contracts_primitives::Code;
 
 impl<T: Config> Pallet<T> {
 
@@ -17,15 +18,17 @@ impl<T: Config> Pallet<T> {
 			.or_else(|| Pallet::<T>::callbacks(owner))
 	}
 
-	/// Executes a hook point. The caller needs to encode the data and decode the result, we're all bytes here.
+	/// Executes a hook point. The caller needs to encode the data, we're all bytes here.
 	///
 	/// - `owner` - the account id of the owner of the register callback
 	/// - `callback_name` - the callback name to call
 	/// - `data` - the encoded data for the call
-	pub fn exec_hook_point(owner: &T::AccountId, origin: T::AccountId, callback_name: &str, data: Vec<u8>) -> Result<ExecReturnValue, DispatchError> {
+	pub fn exec_hook_point<R>(owner: &T::AccountId, origin: T::AccountId, callback_name: &str, data: Vec<u8>) -> Result<R, DispatchError>
+	where R: Decode
+	{
 		let callback = Pallet::<T>::get_callback(owner, callback_name);
 		let contract = callback.ok_or(DispatchError::Other("no contract"))?;
-		Contracts::<T>::bare_call(
+		let data = Contracts::<T>::bare_call(
 			origin,
 			contract,
 			0_u32.into(),
@@ -35,7 +38,10 @@ impl<T: Config> Pallet<T> {
 			DebugInfo::Skip,
 			CollectEvents::Skip,
 			Determinism::Enforced,
-		).result
+		).result?.data;
+		<Result<R, DispatchError>>::decode(&mut &data[..])
+			.map_err(|_| DispatchError::Other("decoding error"))
+			.unwrap()
 	}
 
 	/// Installs an ink! contract.
