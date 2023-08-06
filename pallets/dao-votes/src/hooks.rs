@@ -9,9 +9,8 @@ pub fn on_vote_callback<T: Config>(dao_owner: T::AccountId, voter: T::AccountId,
 			voter.clone(),
 			"GenesisDAO",
 			HP::<T>::callback("calculate_voting_power")
-				.add_arg::<T::AccountId>(voter.clone())
+				.add_arg::<T::AccountId>(voter)
 				.add_arg::<T::Balance>(balance)
 		)
 	).unwrap_or(balance)
-
 }
