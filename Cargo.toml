@@ -1,16 +1,11 @@
 [workspace]
 members = [
-	"node",
-	"runtime",
-	"integration-wrapper",
-	]
-default-members = [
-	"node",
-	"runtime",
-	]
-exclude = [
-	"contracts/genesis-dao-traits",
-	"contracts/base-genesis-dao",
-	]
+    "node/solo",
+    "node/para",
+    "runtime/solo", 
+    "runtime/para", 
+    "integration-wrapper"
+]
+exclude = ["contracts/genesis-dao-traits", "contracts/base-genesis-dao"]
 [profile.release]
 panic = "unwind"

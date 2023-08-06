@@ -1,4 +1,4 @@
-use local_runtime::{
+use solochain_runtime::{
 	AccountId, AuraConfig, BalancesConfig, GrandpaConfig, RuntimeGenesisConfig, Signature,
 	SudoConfig, SystemConfig, DOT, WASM_BINARY,
 };
