@@ -313,7 +313,7 @@ fn on_vote_calculation_callback_works() {
 		assert_ok!(Hookpoints::<Test>::register_specific_callback(
 			origin,
 			contract_account,
-			"ON_VOTING_CALC".into(),
+			"calculate_voting_power".into(),
 		));
 
 		let vote = true;
