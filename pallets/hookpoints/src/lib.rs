@@ -1,5 +1,7 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
+extern crate core;
+
 use sp_std::prelude::*;
 
 pub use pallet::*;
@@ -13,6 +15,7 @@ mod tests;
 #[cfg(feature = "runtime-benchmarks")]
 mod benchmarking;
 mod functions;
+mod builder;
 
 #[frame_support::pallet(dev_mode)]
 pub mod pallet {

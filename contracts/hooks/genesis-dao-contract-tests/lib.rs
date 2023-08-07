@@ -1,7 +1,7 @@
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
 #[ink::contract]
-mod base_genesis_dao {
+mod genesis_dao_contract_tests {
 
 	use ink_prelude::vec::Vec;
 
@@ -9,11 +9,11 @@ mod base_genesis_dao {
 	/// Add new fields to the below struct in order
 	/// to add new static storage fields to your contract.
 	#[ink(storage)]
-	pub struct BaseGenesisDao {
+	pub struct GenesisDaoContractTests {
 		dao_id: Vec<u8>,
 	}
 
-	impl BaseGenesisDao {
+	impl GenesisDaoContractTests {
 		/// Constructor that initializes the `bool` value to the given `init_value`.
 		#[ink(constructor)]
 		pub fn new(dao_id: Vec<u8>) -> Self {
@@ -21,7 +21,7 @@ mod base_genesis_dao {
 		}
 	}
 
-	impl genesis_dao_traits::GenesisDAO for BaseGenesisDao {
+	impl genesis_dao_contract_traits::GenesisDAO for GenesisDaoContractTests {
 		#[ink(message)]
 		fn calculate_voting_power(&self, _voter: AccountId, voting_power: u128) -> u128 {
 			2 * voting_power
@@ -33,13 +33,13 @@ mod base_genesis_dao {
 		/// Imports all the definitions from the outer scope so we can use them here.
 		use super::*;
 
-		use genesis_dao_traits::GenesisDAO;
+		use genesis_dao_contract_traits::GenesisDAO;
 
 		/// We test a simple use case of our contract.
 		#[ink::test]
 		fn it_works() {
-			let base_dao_contracts = BaseGenesisDao::new(b"TEST".to_vec());
-			assert_eq!(base_dao_contracts.calculate_voting_power([0; 32].into(), 3), 6);
+			let contract = GenesisDaoContractTests::new(b"TEST".to_vec());
+			assert_eq!(contract.calculate_voting_power([0; 32].into(), 3), 6);
 		}
 	}
 
@@ -53,7 +53,7 @@ mod base_genesis_dao {
 		/// Imports all the definitions from the outer scope so we can use them here.
 		use super::*;
 
-		use genesis_dao_traits::GenesisDAO;
+		use genesis_dao_contract_traits::GenesisDAO;
 
 		/// A helper function used for calling contract messages.
 		use ink_e2e::build_message;
@@ -65,7 +65,7 @@ mod base_genesis_dao {
 		#[ink_e2e::test]
 		async fn it_works(mut client: ink_e2e::Client<C, E>) -> E2EResult<()> {
 			// Given
-			let constructor = BaseGenesisDaoRef::new(b"TEST".to_vec());
+			let constructor = GenesisDaoContractTestsRef::new(b"TEST".to_vec());
 
 			// When
 			let contract_account_id = client
@@ -76,7 +76,7 @@ mod base_genesis_dao {
 
 			// Then
 			let calculate_voting_power =
-				build_message::<BaseGenesisDaoRef>(contract_account_id.clone())
+				build_message::<GenesisDaoContractTestsRef>(contract_account_id.clone())
 					.call(|contract| contract.calculate_voting_power([0; 32].into(), 3));
 			let get_result =
 				client.call_dry_run(&ink_e2e::alice(), &calculate_voting_power, 0, None).await;
