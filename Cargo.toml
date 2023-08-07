@@ -11,6 +11,7 @@ default-members = [
 exclude = [
 	"contracts/genesis-dao-traits",
 	"contracts/base-genesis-dao",
+	"pallets/hookpoints/contract"
 	]
 [profile.release]
 panic = "unwind"

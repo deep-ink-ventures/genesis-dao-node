@@ -9,6 +9,7 @@ use frame_support::{
 	parameter_types,
 	traits::{ConstBool, ConstU128, ConstU32, ConstU64},
 };
+use sp_core::crypto::AccountId32;
 
 type Block = frame_system::mocking::MockBlock<Test>;
 pub(crate) type Balance = u128;
@@ -16,7 +17,7 @@ pub(crate) type Balance = u128;
 /// Index of a transaction in the chain.
 pub type Nonce = u32;
 // Account ID
-pub type AccountId = u64;
+pub type AccountId = AccountId32;
 
 // Configure a mock runtime to test the pallet.
 frame_support::construct_runtime!(
@@ -146,7 +147,19 @@ impl pallet_hookpoints::Config for Test {
 	type MaxLengthId = ConstU32<64>;
 }
 
-// Build genesis storage according to the mock runtime.
+pub const ALICE: AccountId32 = AccountId32::new([1u8; 32]);
+pub const CONTRACT: AccountId32 = AccountId32::new([2u8; 32]);
+
 pub fn new_test_ext() -> sp_io::TestExternalities {
-	frame_system::GenesisConfig::<Test>::default().build_storage().unwrap().into()
+	let mut t = frame_system::GenesisConfig::<Test>::default().build_storage().unwrap();
+	pallet_balances::GenesisConfig::<Test> {
+		balances: vec![(ALICE, 1_000_000_000_000), (CONTRACT, 1_000_000_000_000)],
+	}
+	.assimilate_storage(&mut t)
+	.unwrap();
+
+	let mut ext = sp_io::TestExternalities::new(t);
+	ext.execute_with(|| System::set_block_number(1));
+	ext
 }
+
