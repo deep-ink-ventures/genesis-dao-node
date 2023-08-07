@@ -5,7 +5,7 @@ use frame_support::weights::Weight;
 use frame_support::pallet_prelude::DispatchError;
 use pallet_contracts::{CollectEvents, DebugInfo, Determinism, Pallet as Contracts};
 use pallet_contracts_primitives::Code;
-use crate::builder::{Callback, HookPoint};
+use crate::builder::HookPoint;
 
 impl<T: Config> Pallet<T> {
 
@@ -13,8 +13,8 @@ impl<T: Config> Pallet<T> {
 	///
 	/// - `owner` - the account id of the owner of the register callback
 	/// - `callback_name` - the callback name to call
-	pub fn get_callback(owner: &T::AccountId, callback_name: &str) -> Option<T::AccountId> {
-		let call: BoundedVec<_, _> = callback_name.as_bytes().to_vec().try_into().unwrap();
+	pub fn get_callback(owner: &T::AccountId, callback_name: Vec<u8>) -> Option<T::AccountId> {
+		let call: BoundedVec<_, _> = callback_name.try_into().unwrap();
 		Pallet::<T>::specific_callbacks(owner, call)
 			.or_else(|| Pallet::<T>::callbacks(owner))
 	}
@@ -26,7 +26,7 @@ impl<T: Config> Pallet<T> {
 	pub fn execute<R>(hook_point: HookPoint<T::AccountId>) -> Result<R, DispatchError>
 	where R: Decode
 	{
-		let callback = Pallet::<T>::get_callback(&hook_point.owner, hook_point.callback.name.as_str());
+		let callback = Pallet::<T>::get_callback(&hook_point.owner, hook_point.callback);
 		let contract = callback.ok_or(DispatchError::Other("no contract"))?;
 		let data = Contracts::<T>::bare_call(
 			hook_point.origin,
@@ -34,7 +34,7 @@ impl<T: Config> Pallet<T> {
 			0_u32.into(),
 			Weight::from_all(10_000_000_000),
 			Some(0_u32.into()),
-			hook_point.callback.data,
+			hook_point.data,
 			DebugInfo::Skip,
 			CollectEvents::Skip,
 			Determinism::Enforced,
@@ -66,18 +66,11 @@ impl<T: Config> Pallet<T> {
 
 	/// Create a new hook point ready for execution
 	///
+	/// - `callback` - FQ callback name
 	/// - `owner` - the owner of the contract
 	/// - `origin` - the sender of the transaction
-	/// - `mod_name` - the module name of the ink contract
 	/// - `callback` - the actual callback configuration (see below)
-	pub fn create(owner: T::AccountId, origin: T::AccountId, mod_name: &str, callback: Callback) -> HookPoint<T::AccountId> {
-		HookPoint::<T::AccountId>::new(owner, origin, mod_name, callback)
+	pub fn create(callback: &str, owner: T::AccountId, origin: T::AccountId) -> HookPoint<T::AccountId> {
+		HookPoint::<T::AccountId>::new(callback, owner, origin)
 	}
-
-	/// A callback, configure it by adding args
-	///
-	/// - `func_name` - the name of the func in the ink contract (as well the register callback)
-	pub fn callback(func_name: &str) -> Callback {
-       Callback::new(func_name)
-   }
 }
