@@ -15,7 +15,6 @@ mod tests;
 #[cfg(feature = "runtime-benchmarks")]
 mod benchmarking;
 mod functions;
-mod builder;
 
 #[frame_support::pallet(dev_mode)]
 pub mod pallet {
