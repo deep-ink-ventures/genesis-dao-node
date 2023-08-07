@@ -11,4 +11,4 @@ RUN rustup target add wasm32-unknown-unknown
 RUN cargo build --release
 
 EXPOSE 9944
-CMD [ "./target/release/genesis-dao-solochain", "--dev", "--ws-external"]
+CMD [ "./target/release/genesis-dao-solochain", "--dev", "--rpc-external"]
