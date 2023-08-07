@@ -6,6 +6,9 @@ members = [
     "runtime/para", 
     "integration-wrapper"
 ]
-exclude = ["contracts/genesis-dao-traits", "contracts/base-genesis-dao"]
+exclude = [
+    "contracts/hooks/genesis-dao-contract-tests",
+    "contracts/hooks/genesis-dao-contract-traits",
+]
 [profile.release]
 panic = "unwind"

@@ -1,7 +1,5 @@
 use crate::{mock::*, Error, Event};
 use frame_support::{assert_noop, assert_ok, BoundedVec};
-use crate::builder::HookPoint;
-
 
 #[test]
 fn register_global_callback() {

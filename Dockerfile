@@ -8,7 +8,7 @@ RUN rustup install nightly-2023-08-04-x86_64-unknown-linux-gnu
 RUN rustup default nightly-2023-08-04-x86_64-unknown-linux-gnu
 RUN rustup target add wasm32-unknown-unknown
 
-RUN cargo build --release --features local-node
+RUN cargo build --release
 
 EXPOSE 9944
-CMD [ "./target/release/genesis-dao", "--dev", "--ws-external"]
+CMD [ "./target/release/genesis-dao-solochain", "--dev", "--ws-external"]
