@@ -143,7 +143,7 @@ impl pallet_contracts::Config for Test {
 
 impl pallet_hookpoints::Config for Test {
 	type RuntimeEvent = RuntimeEvent;
-	type MaxLengthId = ConstU32<32>;
+	type MaxLengthId = ConstU32<64>;
 }
 
 // Build genesis storage according to the mock runtime.

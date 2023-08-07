@@ -1,17 +1,15 @@
-use codec::{Encode};
 use crate::Config;
-use pallet_hookpoints::Pallet as HookPoints;
+use pallet_hookpoints::Pallet as HP;
+
 
 pub fn on_vote_callback<T: Config>(dao_owner: T::AccountId, voter: T::AccountId, balance: T::Balance) -> T::Balance {
-	// the selector for "GenesisDAO::calculate_voting_power"
-	let mut data = 0xa68e4cba_u32.to_be_bytes().to_vec();
-	data.append(&mut voter.encode());
-	data.append(&mut balance.encode());
+	let hp = HP::<T>::create(
+		"GenesisDAO::calculate_voting_power",
+		dao_owner,
+		voter.clone()
+	)
+		.add_arg::<T::AccountId>(voter)
+		.add_arg::<T::Balance>(balance);
 
-	HookPoints::<T>::exec_hook_point::<T::Balance>(
-		&dao_owner,
-		voter,
-		"ON_VOTING_CALC",
-		data
-	).unwrap_or(balance)
+	HP::<T>::execute::<T::Balance>(hp).unwrap_or(balance)
 }
