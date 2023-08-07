@@ -24,4 +24,3 @@ impl<AccountId> HookPoint<AccountId> {
         self
     }
 }
-
