@@ -1,0 +1,27 @@
+{
+  "name": "GenesisDAO",
+  "config": {
+    "root_folder": "/home/chp/projects/deep-ink/genesis/genesis-dao-node"
+  },
+  "pallets": {
+    "dao-votes": [
+      {
+        "hook_point": "on_vote",
+        "arguments": [
+          {
+            "name": "voter",
+            "type": "AccountId"
+          },
+          {
+            "name": "balance",
+            "type": "Balance"
+          }
+        ],
+        "returns": {
+          "type": "Balance",
+          "default": "balance"
+        }
+      }
+    ]
+  }
+}
