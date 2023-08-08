@@ -1,5 +1,9 @@
+use std::collections::HashMap;
 use crate::builder::mapper::ink_to_substrate;
-use crate::config::models::Configuration;
+use crate::config::models::Definitions;
+use std::fs;
+use std::io::Write;
+use std::path::PathBuf;
 
 fn generate_function_signature(name: &str, arguments: &[(String, String)], return_type: &str) -> String {
     let args = arguments.iter()
@@ -19,7 +23,7 @@ fn generate_function_body(name: &str, hook_point: &str, arguments: &[(String, St
 	)"#, name, hook_point);
 
     let mut args = arguments.iter()
-        .map(|(arg_name, arg_type)| format!("\n\t\t.add_argument<{}>({})", arg_type, arg_name))
+        .map(|(arg_name, arg_type)| format!("\n\t\t.add_arg::<{}>({})", ink_to_substrate(arg_type), arg_name))
         .collect::<Vec<String>>()
         .join("");
     args.push_str(";");
@@ -36,8 +40,8 @@ fn generate_hooks_rs(funcs: Vec<String>) -> String {
 
 }
 
-pub fn create_hooks(config: Configuration) {
-    let mut hooks: Vec<String> = vec![];
+pub fn create_hooks(config: Definitions) -> HashMap<String, String> {
+    let mut pallet_to_hooks: HashMap<String, String> = HashMap::new();
 
     for (pallet_name, pallet_functions) in config.pallets {
         let mut funcs: Vec<String> = vec![];
@@ -59,9 +63,10 @@ pub fn create_hooks(config: Configuration) {
 
             funcs.push(format!("{}\n{{ {}\n}}", function_signature, function_body));
         }
-        hooks.push(generate_hooks_rs(funcs));
 
+        let mut content = String::from("use crate::Config;\nuse pallet_hookpoints::Pallet as HP;\n\n");
+        content.push_str(&funcs.join("\n\n"));
+        pallet_to_hooks.insert(pallet_name, content);
     }
-
-    println!("{}", hooks.join("\n\n"));
+    pallet_to_hooks
 }
