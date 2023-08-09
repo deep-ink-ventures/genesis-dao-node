@@ -1,11 +1,6 @@
-use std::{env, fs};
+use std::fs;
 use std::collections::HashMap;
-use std::io::Write;
-use std::ops::Deref;
 use std::path::{PathBuf};
-use crate::builder::hooks::create_hooks;
-use crate::config::models::Definitions;
-use crate::interactive::select_pallet;
 
 pub struct Substrate {
     pub(crate) root_folder: String,

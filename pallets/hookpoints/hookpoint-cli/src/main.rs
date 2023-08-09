@@ -2,16 +2,17 @@ mod config;
 mod builder;
 pub(crate) mod substrate;
 mod interactive;
+mod utils;
 
 use clap::{Parser, Subcommand};
-use std::{env, fs};
+use std::fs;
 use std::io::Write;
 use ctrlc;
 
 use config::models::Definitions;
 use builder::hooks::create_hooks;
 use substrate::Substrate;
-use crate::interactive::select_pallet;
+use crate::config::models::Config;
 
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
@@ -23,10 +24,9 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Commands {
-    New {},
     Generate {
         #[clap(short, long)]
-        config: String,
+        config: Option<String>,
     }
 }
 
@@ -39,17 +39,35 @@ fn main() {
     let cli = Cli::parse();
 
     match &cli.command {
-        Some(Commands::New {}) => {
+        None => {
             let substrate = Substrate::new(Some(&String::from("/home/chp/projects/deep-ink/genesis/genesis-dao-node")));
+
 
             println!("\nWelcome to the hookpoint configuration wizard!");
             println!("\nYou can always abort the process by pressing Ctrl+C and manually change hookpoints.json.");
-            println!("\nLet's start to configure your hookpoints!");
+            let name = interactive::set_name();
+            let mut definitions = Definitions::new(
+                name,
+                substrate.pallets.keys().map(|pallet| (pallet.clone(), Vec::new())).collect(),
+                Config::new(substrate.root_folder)
+            );
+            definitions.write_to_file();
 
-            let pallet_name = select_pallet(substrate.pallets.keys().cloned().collect());
+            println!("\n\n");
+            let pallet_name = interactive::select_pallet(substrate.pallets.keys().cloned().collect());
+            let pallet_function = interactive::add_hook();
+
+            definitions.add_pallet_function(pallet_name, pallet_function);
+            definitions.write_to_file();
+
         }
+
         Some(Commands::Generate { config }) => {
-            let json_content = fs::read_to_string(config).expect("JSON config required");
+            let config_file: String = match config {
+                Some(config) => config.to_string(),
+                None => "hookpoints.json".to_string()
+            };
+            let json_content = fs::read_to_string(config_file).expect("config not found, specify correct path with -c");
             let definitions: Definitions = serde_json::from_str(&json_content).expect("Failed to parse JSON definitions");
             let substrate = Substrate::new(Some(&definitions.config.root_folder));
 
@@ -60,6 +78,5 @@ fn main() {
                 file.write_all(content.as_bytes()).expect("Unable to write file");
             });
         }
-        None => {}
     }
 }
