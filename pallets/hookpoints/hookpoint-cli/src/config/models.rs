@@ -4,7 +4,6 @@ use serde::{Serialize, Deserialize};
 pub struct Definitions {
     pub(crate) name: String,
     pub(crate) pallets: std::collections::HashMap<String, Vec<PalletFunction>>,
-    pub(crate) config: Config,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -28,17 +27,11 @@ pub struct ReturnValue {
     pub(crate) type_: String,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
-pub struct Config {
-    pub(crate) root_folder: String,
-}
-
 impl Definitions {
-    pub(crate) fn new(name: String, pallets: std::collections::HashMap<String, Vec<PalletFunction>>, config: Config) -> Self {
+    pub(crate) fn new(name: String, pallets: std::collections::HashMap<String, Vec<PalletFunction>>) -> Self {
         Definitions {
             name,
             pallets,
-            config,
         }
     }
 
@@ -53,14 +46,6 @@ impl Definitions {
             pallet_functions.push(pallet_function);
         } else {
             self.pallets.insert(pallet_name, vec![pallet_function]);
-        }
-    }
-}
-
-impl Config {
-    pub(crate) fn new(root_folder: String) -> Self {
-        Config {
-            root_folder
         }
     }
 }

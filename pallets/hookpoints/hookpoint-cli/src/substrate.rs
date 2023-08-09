@@ -3,7 +3,6 @@ use std::collections::HashMap;
 use std::path::{PathBuf};
 
 pub struct Substrate {
-    pub(crate) root_folder: String,
     pub(crate) pallets: HashMap<String, PathBuf>
 }
 
@@ -14,7 +13,6 @@ impl Substrate {
             None => std::env::current_dir().expect("unable to get current directory")
         };
         Substrate {
-            root_folder: root_folder.clone().into_os_string().into_string().unwrap(),
             pallets: get_pallets(&mut root_folder).expect("pallets folder not found")
         }
     }
