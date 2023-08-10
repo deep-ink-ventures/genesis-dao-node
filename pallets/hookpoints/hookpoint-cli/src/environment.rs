@@ -1,6 +1,7 @@
 use std::fs;
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
+use crate::config::models::Definitions;
 
 pub(crate) fn get_pallets<P: AsRef<Path>>(substrate_dir: &Option<P>) -> std::io::Result<HashMap<String, PathBuf>> {
     let dir = match substrate_dir {
@@ -17,4 +18,15 @@ pub(crate) fn get_pallets<P: AsRef<Path>>(substrate_dir: &Option<P>) -> std::io:
         }
     }
     Ok(dirs)
+}
+
+pub(crate) fn load_definitions<P: AsRef<Path>>(substrate_dir: &Option<P>) -> std::io::Result<Definitions> {
+    let dir = match substrate_dir {
+        None => std::env::current_dir()?,
+        Some(ref substrate_dir) => PathBuf::from(substrate_dir.as_ref()),
+    };
+    let config_path = dir.join("hookpoints.json");
+    let content = fs::read_to_string(config_path)?;
+    let definitions: Definitions = serde_json::from_str(&content)?;
+    Ok(definitions)
 }

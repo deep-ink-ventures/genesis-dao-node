@@ -5,6 +5,7 @@ mod environment;
 
 #[cfg(test)]
 mod tests;
+mod utils;
 
 use clap::{Parser, Subcommand};
 use std::fs;
@@ -52,21 +53,26 @@ fn main() {
             println!("\nWelcome to the hookpoint configuration wizard!");
             println!("\nYou can always abort the process by pressing Ctrl+C and manually change hookpoints.json.");
 
+            let definition_result = environment::load_definitions(substrate_dir);
             let pallets = environment::get_pallets(substrate_dir).expect("Unable to load pallets from substrate directory");
-            let name = interactive::set_name();
-            let mut definitions = Definitions::new(
-                name,
-                pallets.keys().map(|pallet| (pallet.clone(), Vec::new())).collect(),
-            );
-            definitions.write_to_file();
 
-            println!("\nI created a hookpoints.js file in your substrate root!\n");
+            let mut definitions = match { definition_result } {
+                Ok(definitions) => definitions,
+                Err(_) => {
+                    let name = interactive::set_name();
+                    println!("\nI am creating a hookpoints.js file in your substrate root!\n");
+                    Definitions::new(
+                        name,
+                        pallets.keys().map(|pallet| (pallet.clone(), Vec::new())).collect()
+                    )
+                }
+            };
 
             loop {
                 let pallet_name = interactive::select_pallet(pallets.keys().cloned().collect());
                 let pallet_function = interactive::add_hook();
                 definitions.add_pallet_function(pallet_name, pallet_function);
-                definitions.write_to_file();
+                definitions.write_to_file(substrate_dir);
                 println!("\nSaved. Add another hook or end with CTRL+C.\n");
             }
         }

@@ -1,6 +1,7 @@
 use crate::builder::hooks::create_hooks;
 use crate::builder::mapper::{ink_to_substrate, substrate_to_ink};
-use crate::config::models::{Definitions, FunctionArgument, PalletFunction, ReturnValue};
+use crate::builder::contracts::create_contracts_toml;
+use crate::config::models::{Definitions, FunctionArgument, InkDependencies, PalletFunction, ReturnValue};
 
 #[test]
 fn test_ink_to_substrate() {
@@ -34,18 +35,19 @@ fn test_create_hooks() {
             FunctionArgument {
                 name: "arg2".to_string(),
                 type_: "AccountId".to_string(),
-            }
+            },
         ],
         returns: Some(ReturnValue {
             default: "DefaultReturn".to_string(),
             type_: "Balance".to_string(),
-        })
+        }),
     };
     let mut pallets = std::collections::HashMap::new();
     pallets.insert("TestPallet".to_string(), vec![pallet_function]);
     let config = Definitions {
         name: "TestConfig".to_string(),
         pallets,
+        ink_dependencies: InkDependencies::default()
     };
 
     let hooks = create_hooks(config);
@@ -77,13 +79,14 @@ fn test_create_hooks_no_returns_no_args() {
     let pallet_function = PalletFunction {
         hook_point: "test_hook_point_no_args".to_string(),
         arguments: vec![],
-        returns: None
+        returns: None,
     };
     let mut pallets = std::collections::HashMap::new();
     pallets.insert("TestPalletNoArgs".to_string(), vec![pallet_function]);
     let config = Definitions {
         name: "TestConfig".to_string(),
         pallets,
+        ink_dependencies: InkDependencies::default()
     };
 
     let hooks = create_hooks(config);
@@ -104,4 +107,21 @@ fn test_create_hooks_no_returns_no_args() {
 
     // Verify the function body for executing HP (no return type)
     assert!(content.contains("HP::<T>::execute::<()>(hp)"));
+}
+
+fn test_create_contracts_toml() {
+    let definitions = Definitions {
+        name: "TestProject".to_string(),
+        pallets: std::collections::HashMap::new(),
+        ink_dependencies: InkDependencies::default()
+    };
+
+    let toml_output = create_contracts_toml(&definitions);
+
+    // Now, check if the TOML contains the expected values
+    assert!(toml_output.contains(r#"name = "test-project""#));
+    assert!(toml_output.contains(r#"ink = { version = "4.2", default-features = false }"#));
+    assert!(toml_output.contains(r#"ink-primitives = { version = "4.2", default-features = false }"#));
+    assert!(toml_output.contains(r#"scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }"#));
+    assert!(toml_output.contains(r#"scale-info = { version = "2.6", default-features = false, features = ["derive"], optional = true }"#));
 }
