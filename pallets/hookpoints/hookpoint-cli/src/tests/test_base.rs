@@ -6,16 +6,16 @@ use tempfile::tempdir;
 use crate::config::models::InkDependencies;
 use crate::environment::{get_pallets, load_definitions};
 use crate::interactive::{CAMEL_CASE_REGEX, SNAKE_CASE_REGEX};
-use crate::utils::camel_case_to_kebap;
+use crate::utils::camel_case_to_kebab;
 
 #[test]
 fn test_camel_case_to_kebap() {
-    assert_eq!(camel_case_to_kebap("CamelCaseString"), "camel-case-string");
-    assert_eq!(camel_case_to_kebap("Simple"), "simple");
-    assert_eq!(camel_case_to_kebap("MultipleUppercaseLETTERS"), "multiple-uppercase-letters");
-    assert_eq!(camel_case_to_kebap("WithNumbers123"), "with-numbers123");
-    assert_eq!(camel_case_to_kebap("Already-kebap"), "already-kebap");
-    assert_eq!(camel_case_to_kebap(""), "");
+    assert_eq!(camel_case_to_kebab("CamelCaseString"), "camel-case-string");
+    assert_eq!(camel_case_to_kebab("Simple"), "simple");
+    assert_eq!(camel_case_to_kebab("MultipleUppercaseLETTERS"), "multiple-uppercase-letters");
+    assert_eq!(camel_case_to_kebab("WithNumbers123"), "with-numbers123");
+    assert_eq!(camel_case_to_kebab("Already-kebap"), "already-kebap");
+    assert_eq!(camel_case_to_kebab(""), "");
 }
 
 #[test]

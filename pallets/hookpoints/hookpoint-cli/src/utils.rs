@@ -1,4 +1,4 @@
-pub fn camel_case_to_kebap(s: &str) -> String {
+pub fn camel_case_to_kebab(s: &str) -> String {
     let mut kebap = String::new();
     let chars: Vec<char> = s.chars().collect();
 
