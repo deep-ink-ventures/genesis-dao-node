@@ -2,6 +2,7 @@ use crate::builder::hooks::create_hooks;
 use crate::builder::mapper::{ink_to_substrate, substrate_to_ink};
 use crate::builder::contracts::create_contracts_toml;
 use crate::config::models::{Definitions, FunctionArgument, InkDependencies, PalletFunction, ReturnValue};
+use crate::utils::camel_case_to_kebab;
 
 #[test]
 fn test_ink_to_substrate() {
@@ -109,6 +110,7 @@ fn test_create_hooks_no_returns_no_args() {
     assert!(content.contains("HP::<T>::execute::<()>(hp)"));
 }
 
+#[test]
 fn test_create_contracts_toml() {
     let definitions = Definitions {
         name: "TestProject".to_string(),
@@ -116,12 +118,12 @@ fn test_create_contracts_toml() {
         ink_dependencies: InkDependencies::default()
     };
 
-    let toml_output = create_contracts_toml(&definitions);
+    let toml_output = create_contracts_toml(&definitions).expect("to parse toml");
 
     // Now, check if the TOML contains the expected values
-    assert!(toml_output.contains(r#"name = "test-project""#));
-    assert!(toml_output.contains(r#"ink = { version = "4.2", default-features = false }"#));
-    assert!(toml_output.contains(r#"ink-primitives = { version = "4.2", default-features = false }"#));
-    assert!(toml_output.contains(r#"scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }"#));
-    assert!(toml_output.contains(r#"scale-info = { version = "2.6", default-features = false, features = ["derive"], optional = true }"#));
+    assert!(toml_output.contains(&format!(r#"name = "{}""#, camel_case_to_kebab(&definitions.name))));
+    assert!(toml_output.contains(&format!(r#"ink = {{ version = "{}", default-features = false }}"#, definitions.ink_dependencies.ink_version)));
+    assert!(toml_output.contains(&format!(r#"ink-primitives = {{ version = "{}", default-features = false }}"#, definitions.ink_dependencies.ink_primitives_version)));
+    assert!(toml_output.contains(&format!(r#"scale = {{ package = "parity-scale-codec", version = "{}", default-features = false, features = ["derive"] }}"#, definitions.ink_dependencies.scale_version)));
+    assert!(toml_output.contains(&format!(r#"scale-info = {{ version = "{}", default-features = false, features = ["derive"], optional = true }}"#, definitions.ink_dependencies.scale_info_version)));
 }
