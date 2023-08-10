@@ -100,7 +100,6 @@ pub fn add_hook() -> PalletFunction {
             }
             1 => {
                 // Step 2.2a: Select a return value from ink_primitives
-
                 let return_type = Select::with_theme(&ColorfulTheme::default())
                     .with_prompt("Choose a return type:")
                     .default(0)

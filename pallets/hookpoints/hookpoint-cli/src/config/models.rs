@@ -1,26 +1,26 @@
 use serde::{Serialize, Deserialize};
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct Definitions {
     pub(crate) name: String,
     pub(crate) pallets: std::collections::HashMap<String, Vec<PalletFunction>>,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct PalletFunction {
     pub(crate) hook_point: String,
     pub(crate) arguments: Vec<FunctionArgument>,
     pub(crate) returns: Option<ReturnValue>,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct FunctionArgument {
     pub(crate) name: String,
     #[serde(rename = "type")]
     pub(crate) type_: String,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct ReturnValue {
     pub(crate) default: String,
     #[serde(rename = "type")]

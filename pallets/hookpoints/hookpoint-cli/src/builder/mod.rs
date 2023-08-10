@@ -1,2 +1,2 @@
 pub mod hooks;
-mod mapper;
+pub(crate) mod mapper;
