@@ -58,13 +58,15 @@ pub fn add_hook() -> PalletFunction {
         "u8", "u16", "u32", "u64", "u128", "i8", "i16", "i32", "i64", "i128", "bool", "char", "str",
         "AccountId", "Balance",
     ];
+    let no_default_values = vec!["AccountId"];
+
     loop {
 
         // Step 2: select to either add a function argument, set a return value or continue
         let selection = Select::with_theme(&ColorfulTheme::default())
             .with_prompt("Choose an option:")
             .default(0)
-            .items(&["Add a function argument", "Set a return value", "... create new hook point"])
+            .items(&["Add a function argument", "Set a return value", "Save & create another hook ..."])
             .interact()
             .unwrap();
 
@@ -83,7 +85,7 @@ pub fn add_hook() -> PalletFunction {
                             }
                         }
                     }).interact_text().unwrap();
-                // Step 2.1b: ask for a type by selecting from INK_PRIMITIVES
+                // Step 2.1b: ask for a type by selecting from ink_primitives
                 let arg_type = Select::with_theme(&ColorfulTheme::default())
                     .with_prompt("Choose a type:")
                     .default(0)
@@ -97,7 +99,7 @@ pub fn add_hook() -> PalletFunction {
                 });
             }
             1 => {
-                // Step 2.2a: Select a return value from INK_PRIMITIVES
+                // Step 2.2a: Select a return value from ink_primitives
 
                 let return_type = Select::with_theme(&ColorfulTheme::default())
                     .with_prompt("Choose a return type:")
@@ -106,18 +108,23 @@ pub fn add_hook() -> PalletFunction {
                     .interact()
                     .unwrap();
 
-                // Step 2.2b: Ask for a default return value, can be INK_PRIMITIVES or one arguments
-                let mut combined = arguments.iter().map(|arg| arg.name.as_str()).collect::<Vec<&str>>();
-                combined.extend(ink_primitives.clone());
+                // Step 2.2b: Ask for a default return value, either default to return type or one of the arguments
+                let mut arguments_with_return_type: Vec<&str> = arguments.iter()
+                    .filter(|arg| arg.type_ == ink_primitives[return_type.clone()])
+                    .filter(|arg| !no_default_values.contains(&arg.type_.as_str()))
+                    .map(|arg| arg.name.as_str())
+                    .collect();
+                arguments_with_return_type.push(ink_primitives[return_type.clone()]);
+
                 let return_default = Select::with_theme(&ColorfulTheme::default())
                     .with_prompt("Choose a default return value:")
                     .default(0)
-                    .items(&combined)
+                    .items(&arguments_with_return_type)
                     .interact()
                     .unwrap();
                 returns = Some(ReturnValue {
                     type_: ink_primitives[return_type].to_string(),
-                    default: combined[return_default].to_string(),
+                    default: arguments_with_return_type[return_default].to_string(),
                 });
             }
             _ => break

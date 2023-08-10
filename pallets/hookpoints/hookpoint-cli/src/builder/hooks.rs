@@ -3,12 +3,15 @@ use crate::builder::mapper::ink_to_substrate;
 use crate::config::models::{Definitions, ReturnValue};
 
 fn generate_function_signature(name: &str, arguments: &[(String, String)], returns: &Option<ReturnValue>) -> String {
-    let args = arguments.iter()
+    let mut args = arguments.iter()
         .map(|(arg_name, arg_type)| format!("{}: {}", arg_name, ink_to_substrate(arg_type)))
         .collect::<Vec<String>>()
         .join(", ");
+    if arguments.len() > 0 {
+        args.insert_str(0, ", ");
+    }
 
-    let mut func_sig = format!("pub fn {}<T: Config>(owner: T::AccountId, signer: T::AccountId, {})", name, args);
+    let mut func_sig = format!("pub fn {}<T: Config>(owner: T::AccountId, signer: T::AccountId{})", name, args);
     if let Some(r) = returns {
         func_sig.push_str(format!(" -> {}", ink_to_substrate(r.type_.as_str())).as_str());
     }
@@ -28,15 +31,17 @@ fn generate_function_body(name: &str, hook_point: &str, arguments: &[(String, St
         .map(|(arg_name, arg_type)| format!("\n\t\t.add_arg::<{}>({})", ink_to_substrate(arg_type), arg_name))
         .collect::<Vec<String>>()
         .join("");
+    if arguments.len() > 0 {
+        args.insert_str(0, " ");
+    }
     args.push_str(";");
-
 
     let execute = match returns {
         None => String::from("\n\n\tHP::<T>::execute::<()>(hp)"),
         Some(r) => format!("\n\n\tHP::<T>::execute::<{}>(hp).unwrap_or({})", ink_to_substrate(r.type_.as_str()), r.default)
     };
 
-    format!("{} {}{}", hp_def, args, execute)
+    format!("{}{}{}", hp_def, args, execute)
 }
 
 

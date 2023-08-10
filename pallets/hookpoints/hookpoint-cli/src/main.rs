@@ -35,7 +35,7 @@ fn main() {
         println!("\nGoodbye! Checkout hookpoints.rs!\n");
     }).expect("Error setting Ctrl-C handler");
 
-    let substrate = Substrate::new(Some(&String::from("/Users/chp/Projects/deep-ink/genesis-dao/node")));
+    let substrate = Substrate::new(Some(&String::from("/home/chp/projects/deep-ink/genesis/genesis-dao-node")));
     let cli = Cli::parse();
 
     match &cli.command {
@@ -49,12 +49,15 @@ fn main() {
             );
             definitions.write_to_file();
 
-            println!("\n\n");
-            let pallet_name = interactive::select_pallet(substrate.pallets.keys().cloned().collect());
-            let pallet_function = interactive::add_hook();
+            println!("\nI created a hookpoints.js file in your substrate root!\n");
 
-            definitions.add_pallet_function(pallet_name, pallet_function);
-            definitions.write_to_file();
+            loop {
+                let pallet_name = interactive::select_pallet(substrate.pallets.keys().cloned().collect());
+                let pallet_function = interactive::add_hook();
+                definitions.add_pallet_function(pallet_name, pallet_function);
+                definitions.write_to_file();
+                println!("\nSaved. Add another hook or end with CTRL+C.\n");
+            }
 
         }
 
