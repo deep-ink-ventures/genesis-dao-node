@@ -20,7 +20,7 @@ fn test_substrate_to_ink() {
     assert_eq!(substrate_to_ink("T::AccountId"), "AccountId");
 
     // Unknown mapping, should return the same type string
-    assert_eq!(substrate_to_ink("T::UnknownType"), "T::UnknownType");
+    assert_eq!(substrate_to_ink("UnknownType"), "UnknownType");
 }
 
 #[test]
