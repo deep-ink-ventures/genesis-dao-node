@@ -1,8 +1,8 @@
+use std::collections::HashMap;
 use crate::builder::hooks::create_hooks;
-use crate::builder::mapper::{ink_to_substrate, substrate_to_ink};
-use crate::builder::contracts::create_contracts_toml;
+use crate::builder::mapper::{ink_to_substrate};
+use crate::builder::contracts::{generate_contract_boilerplate_toml, generate_contract_trait_toml, generate_ink_trait};
 use crate::config::models::{Definitions, FunctionArgument, InkDependencies, PalletFunction, ReturnValue};
-use crate::utils::camel_case_to_kebab;
 
 #[test]
 fn test_ink_to_substrate() {
@@ -12,16 +12,6 @@ fn test_ink_to_substrate() {
 
     // Unknown mapping, should return the same type string
     assert_eq!(ink_to_substrate("UnknownType"), "UnknownType");
-}
-
-#[test]
-fn test_substrate_to_ink() {
-    // Known reverse mappings
-    assert_eq!(substrate_to_ink("T::Balance"), "Balance");
-    assert_eq!(substrate_to_ink("T::AccountId"), "AccountId");
-
-    // Unknown mapping, should return the same type string
-    assert_eq!(substrate_to_ink("UnknownType"), "UnknownType");
 }
 
 #[test]
@@ -48,7 +38,7 @@ fn test_create_hooks() {
     let config = Definitions {
         name: "TestConfig".to_string(),
         pallets,
-        ink_dependencies: InkDependencies::default()
+        ink_dependencies: InkDependencies::default(),
     };
 
     let hooks = create_hooks(config);
@@ -87,7 +77,7 @@ fn test_create_hooks_no_returns_no_args() {
     let config = Definitions {
         name: "TestConfig".to_string(),
         pallets,
-        ink_dependencies: InkDependencies::default()
+        ink_dependencies: InkDependencies::default(),
     };
 
     let hooks = create_hooks(config);
@@ -110,20 +100,175 @@ fn test_create_hooks_no_returns_no_args() {
     assert!(content.contains("HP::<T>::execute::<()>(hp)"));
 }
 
+
 #[test]
-fn test_create_contracts_toml() {
-    let definitions = Definitions {
-        name: "TestProject".to_string(),
-        pallets: std::collections::HashMap::new(),
-        ink_dependencies: InkDependencies::default()
+fn test_generate_ink_trait() {
+    let mut pallets: HashMap<String, Vec<PalletFunction>> = HashMap::new();
+
+    // Sample pallet functions
+    let func_no_args_no_return = PalletFunction {
+        hook_point: "func_a".to_string(),
+        arguments: vec![],
+        returns: None,
     };
 
-    let toml_output = create_contracts_toml(&definitions).expect("to parse toml");
+    let func_only_args = PalletFunction {
+        hook_point: "func_b".to_string(),
+        arguments: vec![
+            FunctionArgument {
+                name: "arg1".to_string(),
+                type_: "u32".to_string(),
+            }
+        ],
+        returns: None,
+    };
 
-    // Now, check if the TOML contains the expected values
-    assert!(toml_output.contains(&format!(r#"name = "{}""#, camel_case_to_kebab(&definitions.name))));
-    assert!(toml_output.contains(&format!(r#"ink = {{ version = "{}", default-features = false }}"#, definitions.ink_dependencies.ink_version)));
-    assert!(toml_output.contains(&format!(r#"ink-primitives = {{ version = "{}", default-features = false }}"#, definitions.ink_dependencies.ink_primitives_version)));
-    assert!(toml_output.contains(&format!(r#"scale = {{ package = "parity-scale-codec", version = "{}", default-features = false, features = ["derive"] }}"#, definitions.ink_dependencies.scale_version)));
-    assert!(toml_output.contains(&format!(r#"scale-info = {{ version = "{}", default-features = false, features = ["derive"], optional = true }}"#, definitions.ink_dependencies.scale_info_version)));
+    let func_only_return = PalletFunction {
+        hook_point: "func_c".to_string(),
+        arguments: vec![],
+        returns: Some(ReturnValue {
+            default: "0".to_string(),
+            type_: "u32".to_string(),
+        }),
+    };
+
+    let func_args_and_return = PalletFunction {
+        hook_point: "func_d".to_string(),
+        arguments: vec![
+            FunctionArgument {
+                name: "account".to_string(),
+                type_: "AccountId".to_string(),
+            }
+        ],
+        returns: Some(ReturnValue {
+            default: "0".to_string(),
+            type_: "Balance".to_string(),
+        }),
+    };
+
+    pallets.insert("sample_pallet".to_string(), vec![
+        func_no_args_no_return,
+        func_only_args,
+        func_only_return,
+        func_args_and_return,
+    ]);
+
+    let definitions = Definitions {
+        name: "SampleContract".to_string(),
+        ink_dependencies: InkDependencies::default(),
+        pallets,
+    };
+
+    let trait_def = generate_ink_trait(&definitions);
+    let expected = r##"#![cfg_attr(not(feature = "std"), no_std, no_main)]
+
+use ink_primitives::{AccountId};
+
+#[ink::trait_definition]
+pub trait SampleContract {
+
+    /// hook point for `func_a` pallet
+    #[ink(message)]
+    fn func_a();
+
+    /// hook point for `func_b` pallet
+    #[ink(message)]
+    fn func_b(arg1: u32);
+
+    /// hook point for `func_c` pallet
+    #[ink(message)]
+    fn func_c() -> u32;
+
+    /// hook point for `func_d` pallet
+    #[ink(message)]
+    fn func_d(account: AccountId) -> Balance;
+}"##;
+
+    assert_eq!(trait_def, expected);
+}
+
+#[test]
+fn test_generate_contract_trait_toml() {
+    let definitions = Definitions {
+        name: "GenesisDao".to_string(),
+        pallets: std::collections::HashMap::new(),
+        ink_dependencies: InkDependencies::default(),
+    };
+
+    let output = generate_contract_trait_toml(&definitions).unwrap();
+    let ink_deps = InkDependencies::default();
+    let expected_output = format!(r#"[package]
+name = "genesis-dao-contract-trait"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+ink = {{ version = "{}", default-features = false }}
+scale = {{ package = "parity-scale-codec", version = "{}", default-features = false, features = ["derive"] }}
+scale-info = {{ version = "{}", default-features = false, features = ["derive"], optional = true }}
+
+[lib]
+path = "lib.rs"
+
+[features]
+default = ["std"]
+std = [
+    "ink/std",
+    "scale/std",
+    "scale-info/std",
+]
+ink-as-dependency = []
+
+[workspace]
+"#, ink_deps.ink_version, ink_deps.scale_version, ink_deps.scale_info_version);
+
+    assert_eq!(output, expected_output);
+}
+
+#[test]
+fn test_generate_contract_boilerplate_toml() {
+    let definitions = Definitions {
+        name: "GenesisDao".to_string(),
+        pallets: std::collections::HashMap::new(),
+        ink_dependencies: InkDependencies::default(),
+    };
+
+    let output = generate_contract_boilerplate_toml(&definitions);
+    let ink_deps = &definitions.ink_dependencies;
+
+    let expected_output = format!(r#"[package]
+name = "genesis-dao-contract-boilerplate"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+ink = {{ version = "{}", default-features = false }}
+ink_prelude = {{ version = "{}", default-features = false }}
+scale = {{ package = "parity-scale-codec", version = "{}", default-features = false, features = ["derive"] }}
+scale-info = {{ version = "{}", default-features = false, features = ["derive"], optional = true }}
+
+genesis-dao-contract-trait = {{ package = "genesis-dao-contract-trait", default-features = false, path = "../genesis-dao-contract-trait" }}
+
+[dev-dependencies]
+ink_e2e = "{}"
+
+[lib]
+path = "lib.rs"
+
+[features]
+default = ["std"]
+std = [
+    "ink/std",
+    "ink_prelude/std",
+    "scale/std",
+    "scale-info/std",
+]
+ink-as-dependency = []
+e2e-tests = []
+
+[workspace]
+"#, ink_deps.ink_version, ink_deps.ink_primitives_version, ink_deps.scale_version, ink_deps.scale_info_version, ink_deps.ink_version);
+
+
+    assert_eq!(output.unwrap(), expected_output);
 }

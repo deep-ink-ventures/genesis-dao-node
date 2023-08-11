@@ -9,10 +9,8 @@ default-members = [
 	"runtime",
 	]
 exclude = [
-	"contracts/genesis-dao-traits",
-	"contracts/base-genesis-dao",
-	"pallets/hookpoints/contract",
-	"pallets/hookpoints/hookpoint-cli"
-	]
+	"contracts/**",
+]
+
 [profile.release]
 panic = "unwind"
