@@ -193,4 +193,3 @@ fn execute_callback() {
         assert_eq!(result.unwrap(), 84);
     });
 }
-
