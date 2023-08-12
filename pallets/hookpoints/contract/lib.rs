@@ -5,18 +5,23 @@ mod contract {
 
     #[ink(storage)]
     pub struct Contract {
-        multiplier: u32,
+        value: u128,
     }
 
     impl Contract {
         #[ink(constructor)]
-        pub fn new(multiplier: u32) -> Self {
-            Self { multiplier }
+        pub fn new(init_value: u128) -> Self {
+            Self { value: init_value }
         }
 
         #[ink(message)]
-        pub fn multiply(&mut self, value: u32) -> u32{
-            value * self.multiplier
+        pub fn multiply(&mut self, by: u128) -> u128 {
+            self.value * by
+        }
+
+        #[ink(message)]
+        pub fn get(&self) -> u128 {
+            self.value
         }
     }
 }

@@ -36,7 +36,7 @@ pub fn generate_contract_boilerplate_toml(definitions: &Definitions) -> Result<S
 
     let toml_string = format!(
         r#"[package]
-name = "{}-contract-boilerplate"
+name = "{}-contract"
 version = "0.1.0"
 edition = "2021"
 authors = ["add your name here"]

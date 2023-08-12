@@ -1,18 +1,20 @@
 [package]
-name = "contract"
+name = "genesis-dao-contract"
 version = "0.1.0"
-description = "This contract is merely for testing purposes of the hookpoints pallet."
-authors = ["chp <chp@deep-ink.ventures>"]
 edition = "2021"
+authors = ["add your name here"]
 
 [dependencies]
-ink = { version = "4.2.0", default-features = false }
-
+ink = { version = "4.2", default-features = false }
+ink_prelude = { version = "4.2", default-features = false }
+ink_primitives = { version = "4.2", default-features = false }
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
 scale-info = { version = "2.6", default-features = false, features = ["derive"], optional = true }
 
+genesis-dao-contract-trait = { package = "genesis-dao-contract-trait", default-features = false, path = "../genesis-dao-contract-trait" }
+
 [dev-dependencies]
-ink_e2e = "4.2.0"
+ink_e2e = "4.2"
 
 [lib]
 path = "lib.rs"
@@ -21,6 +23,7 @@ path = "lib.rs"
 default = ["std"]
 std = [
     "ink/std",
+    "ink_prelude/std",
     "scale/std",
     "scale-info/std",
 ]

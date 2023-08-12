@@ -1,7 +1,0 @@
-[package]
-name = "dao-contract-traits"
-version = "0.1.0"
-edition = "2021"
-
-[dependencies]
-ink = { version = "4.0.1", default-features = false }

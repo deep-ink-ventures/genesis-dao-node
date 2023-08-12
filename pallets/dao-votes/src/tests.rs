@@ -299,7 +299,7 @@ fn on_vote_calculation_callback_works() {
 		assert_ok!(Assets::transfer(origin.clone(), asset_id, voter.clone(), 50));
 		assert_eq!(<Proposals<Test>>::get(prop_id).unwrap().in_favor, 0);
 
-		let contract_path = "../../contracts/hooks/genesis-dao-contract-tests/target/ink/genesis_dao_contract_tests.wasm";
+		let contract_path = "../../contracts/hooks/genesis-dao-contract-tests/target/ink/genesis_dao_contract.wasm";
 		let mut data = 0x9bae9d5e_u32.to_be_bytes().to_vec();
 		data.append(&mut "DAO".encode()); // argument DaoId
 		let contract_account = Hookpoints::<Test>::install(
@@ -313,7 +313,7 @@ fn on_vote_calculation_callback_works() {
 		assert_ok!(Hookpoints::<Test>::register_specific_callback(
 			origin,
 			contract_account,
-			"GenesisDAO::calculate_voting_power".into(),
+			"GenesisDao::on_vote".into(),
 		));
 
 		let vote = true;

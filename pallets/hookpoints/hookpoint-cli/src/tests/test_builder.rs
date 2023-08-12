@@ -163,6 +163,8 @@ fn test_generate_ink_trait() {
     let expected = r##"#![cfg_attr(not(feature = "std"), no_std, no_main)]
 use ink_primitives::AccountId;
 
+type Balance = <ink::env::DefaultEnvironment as ink::env::Environment>::Balance;
+
 #[ink::trait_definition]
 pub trait SampleContract {
 
@@ -236,6 +238,8 @@ fn test_generate_ink_trait_ink_primitives_inclusion() {
         pallets: pallets.clone(),
     };
     assert!(!generate_ink_trait(&definitions).contains("ink_primitives"));
+    // lets test that balance hasn't been injected here:
+    assert!(!generate_ink_trait(&definitions).contains("type Balance = <ink::env::DefaultEnvironment as ink::env::Environment>::Balance;"));
 
     // Scenario 2: Only AccountId
     pallets.insert("sample_pallet".to_string(), vec![func_with_account_id.clone()]);
@@ -262,7 +266,7 @@ fn test_generate_ink_trait_ink_primitives_inclusion() {
         ink_dependencies: InkDependencies::default(),
         pallets,
     };
-    assert!(generate_ink_trait(&definitions).contains("type Balance = <ink::env::DefaultEnvironment as ink::env::Environment>::Balance;i"));
+    assert!(generate_ink_trait(&definitions).contains("type Balance = <ink::env::DefaultEnvironment as ink::env::Environment>::Balance;"));
 
 }
 
@@ -370,7 +374,7 @@ fn test_generate_contract_boilerplate_toml() {
     let ink_deps = &definitions.ink_dependencies;
 
     let expected_output = format!(r#"[package]
-name = "genesis-dao-contract-boilerplate"
+name = "genesis-dao-contract"
 version = "0.1.0"
 edition = "2021"
 authors = ["add your name here"]
