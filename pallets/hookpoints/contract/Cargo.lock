@@ -520,6 +520,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "21a53c0a4d288377e7415b53dcfc3c04da5cdc2cc95c8d5ac178b58f0b861ad6"
 
 [[package]]
+name = "contract"
+version = "0.1.0"
+dependencies = [
+ "ink",
+ "ink_e2e",
+ "parity-scale-codec",
+ "scale-info",
+]
+
+[[package]]
 name = "contract-build"
 version = "2.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1127,28 +1137,6 @@ checksum = "85649ca51fd72272d7821adaf274ad91c288277713d9c18820d8499a7ff69e9a"
 dependencies = [
  "typenum",
  "version_check",
-]
-
-[[package]]
-name = "genesis-dao-contract"
-version = "0.1.0"
-dependencies = [
- "genesis-dao-contract-trait",
- "ink",
- "ink_e2e",
- "ink_prelude",
- "ink_primitives",
- "parity-scale-codec",
- "scale-info",
-]
-
-[[package]]
-name = "genesis-dao-contract-trait"
-version = "0.1.0"
-dependencies = [
- "ink",
- "ink_primitives",
- "parity-scale-codec",
 ]
 
 [[package]]

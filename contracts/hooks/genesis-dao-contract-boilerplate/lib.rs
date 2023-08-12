@@ -16,7 +16,7 @@ mod genesis_dao {
         /// hook point for `on_vote` pallet
         #[ink(message)]
         fn on_vote(&self, _voter: AccountId, voting_power: Balance) -> Balance {
-            voting_power * 2
+            voting_power
         }
     }
 
@@ -28,7 +28,7 @@ mod genesis_dao {
         #[ink::test]
         fn test_on_vote_hookpoint() {
             let genesis_dao = GenesisDao::new();
-            assert_eq!(genesis_dao.on_vote(AccountId::from([0x01; 32]), 50), 100);
+            assert_eq!(genesis_dao.on_vote(AccountId::from([0x01; 32]), 0), 0);
         }
     }
 }

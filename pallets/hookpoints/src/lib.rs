@@ -1,7 +1,4 @@
 #![cfg_attr(not(feature = "std"), no_std)]
-
-extern crate core;
-
 use sp_std::prelude::*;
 
 pub use pallet::*;
@@ -14,6 +11,7 @@ mod tests;
 
 #[cfg(feature = "runtime-benchmarks")]
 mod benchmarking;
+
 mod functions;
 mod builder;
 
@@ -27,10 +25,9 @@ pub mod pallet {
 	#[pallet::pallet]
 	pub struct Pallet<T>(_);
 
-	/// Configure the pallet by specifying the parameters and types on which it depends.
 	#[pallet::config]
 	pub trait Config: frame_system::Config + pallet_contracts::Config {
-		/// Because this pallet emits events, it depends on the runtime's definition of an event.
+
 		type RuntimeEvent: From<Event<Self>> + IsType<<Self as frame_system::Config>::RuntimeEvent>;
 
 		/// Maximum callback identifier length

@@ -53,7 +53,7 @@ pub mod pallet {
 	use super::*;
 	use frame_support::pallet_prelude::*;
 	use frame_system::pallet_prelude::*;
-	use crate::hooks::on_vote_callback;
+	use crate::hooks::on_vote;
 
 	#[pallet::storage]
 	pub(super) type Governances<T: Config> =
@@ -388,8 +388,12 @@ pub mod pallet {
 			)
 			.expect("history exists");
 
-			let voting_power = on_vote_callback::<T>(dao.owner, voter.clone(), token_balance);
-
+			let voting_power = on_vote::<T>(
+				dao.owner.clone(),
+				voter.clone(),
+				voter.clone(),
+				token_balance,
+			);
 			// undo old vote
 			match vote {
 				Some(true) => {

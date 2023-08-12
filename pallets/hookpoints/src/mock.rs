@@ -1,22 +1,29 @@
 use crate as pallet_hookpoints;
-use sp_core::H256;
-use sp_runtime::{
-	traits::{BlakeTwo256, IdentityLookup},
-	BuildStorage,
-};
-
 use frame_support::{
 	parameter_types,
 	traits::{ConstBool, ConstU128, ConstU32, ConstU64},
 };
+use frame_system as system;
+
+use sp_core::H256;
+
+use sp_runtime::{
+	traits::{BlakeTwo256, IdentityLookup},
+	AccountId32, BuildStorage,
+};
 
 type Block = frame_system::mocking::MockBlock<Test>;
+
 pub(crate) type Balance = u128;
 
 /// Index of a transaction in the chain.
 pub type Nonce = u32;
 // Account ID
-pub type AccountId = u64;
+pub type AccountId = AccountId32;
+
+parameter_types! {
+	pub const ExistentialDeposit: Balance = 1;
+}
 
 // Configure a mock runtime to test the pallet.
 frame_support::construct_runtime!(
@@ -29,7 +36,7 @@ frame_support::construct_runtime!(
 	}
 );
 
-impl frame_system::Config for Test {
+impl system::Config for Test {
 	type BaseCallFilter = frame_support::traits::Everything;
 	type Block = Block;
 	type BlockWeights = ();
@@ -46,13 +53,13 @@ impl frame_system::Config for Test {
 	type DbWeight = ();
 	type Version = ();
 	type PalletInfo = PalletInfo;
+	type AccountData = pallet_balances::AccountData<Balance>;
 	type OnNewAccount = ();
 	type OnKilledAccount = ();
 	type SystemWeightInfo = ();
 	type SS58Prefix = ();
 	type OnSetCode = ();
 	type MaxConsumers = ConstU32<2>;
-	type AccountData = pallet_balances::AccountData<Balance>;
 }
 
 impl pallet_timestamp::Config for Test {
@@ -62,7 +69,6 @@ impl pallet_timestamp::Config for Test {
 	type MinimumPeriod = ConstU64<0>;
 	type WeightInfo = ();
 }
-
 
 impl pallet_balances::Config for Test {
 	type MaxLocks = ConstU32<50>;
@@ -146,7 +152,21 @@ impl pallet_hookpoints::Config for Test {
 	type MaxLengthId = ConstU32<64>;
 }
 
+pub const ALICE: AccountId32 = AccountId32::new([1u8; 32]);
+pub const BOB: AccountId32 = AccountId32::new([2u8; 32]);
+pub const CONTRACT: AccountId32 = AccountId32::new([3u8; 32]);
+pub const CALLBACK_NAME: &str = "test_callback";
+
 // Build genesis storage according to the mock runtime.
 pub fn new_test_ext() -> sp_io::TestExternalities {
-	frame_system::GenesisConfig::<Test>::default().build_storage().unwrap().into()
+	let mut t = frame_system::GenesisConfig::<Test>::default().build_storage().unwrap();
+	pallet_balances::GenesisConfig::<Test> {
+		balances: vec![(ALICE, 1_000_000_000_000), (BOB, 1_000_000_000_000)],
+	}
+	.assimilate_storage(&mut t)
+	.unwrap();
+
+	let mut ext = sp_io::TestExternalities::new(t);
+	ext.execute_with(|| System::set_block_number(1));
+	ext
 }

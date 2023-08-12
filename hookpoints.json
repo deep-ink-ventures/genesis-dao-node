@@ -1,0 +1,35 @@
+{
+  "name": "GenesisDao",
+  "ink_dependencies": {
+    "ink_version": "4.2",
+    "ink_primitives_version": "4.2",
+    "scale_version": "3",
+    "scale_info_version": "2.6"
+  },
+  "pallets": {
+    "dao-core": [],
+    "hookpoints": [],
+    "dao-votes": [
+      {
+        "hook_point": "on_vote",
+        "arguments": [
+          {
+            "name": "voter",
+            "type": "AccountId"
+          },
+          {
+            "name": "voting_power",
+            "type": "Balance"
+          }
+        ],
+        "returns": {
+          "default": "voting_power",
+          "type": "Balance"
+        }
+      }
+    ],
+    "base_dao_contracts": [],
+    "dao-assets": [],
+    "dao-contract-traits": []
+  }
+}
