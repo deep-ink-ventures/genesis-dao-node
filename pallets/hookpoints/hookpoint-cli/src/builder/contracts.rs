@@ -240,6 +240,54 @@ fn generate_function_body(func: &PalletFunction) -> String {
     )
 }
 
+fn generate_ink_test_functions(definitions: &Definitions) -> String {
+    let tests: Vec<String> = definitions
+        .pallets
+        .iter()
+        .flat_map(|(_, pallet_functions)| {
+            pallet_functions
+                .iter()
+                .map(|function| generate_test_function(function, &definitions.name))
+                .collect::<Vec<_>>()
+        })
+        .collect();
+
+    tests.join("\n")
+}
+
+fn generate_test_function(func: &PalletFunction, contract_name: &str) -> String {
+    let contract_instance = format!(
+        "let {} = {}::new();",
+        camel_to_snake(contract_name),
+        contract_name
+    );
+
+    let arguments: Vec<String> = func
+        .arguments
+        .iter()
+        .map(|arg| get_default_for_ink_type(&arg.type_))
+        .collect();
+
+    let expected_return = if let Some(ret_val) = &func.returns {
+        get_default_for_ink_type(&ret_val.type_)
+    } else {
+        "()".to_string()
+    };
+
+    format!(
+        r##"
+        #[ink::test]
+        fn test_{hook_point}_hookpoint() {{
+            {contract_instance}
+            assert_eq!({contract_snake_name}.{hook_point}({arguments}), {expected_return});
+        }}"##,
+        hook_point = func.hook_point,
+        contract_instance = contract_instance,
+        contract_snake_name = camel_to_snake(contract_name),
+        arguments = arguments.join(", "),
+        expected_return = expected_return
+    )
+}
 
 pub fn generate_ink_boilerplate_contract(definitions: &Definitions) -> String {
     let functions = generate_contract_functions(definitions);
@@ -269,10 +317,12 @@ mod {contract_name_lower} {{
     mod tests {{
         use super::*;
         use {contract_name_lower}_contract_trait::{contract_name} as Trait;
+        {ink_test_functions}
     }}
 }}"##,
         contract_name = contract_name,
         contract_name_lower = contract_name_lower,
-        functions = functions
+        functions = functions,
+        ink_test_functions = generate_ink_test_functions(&definitions)
     )
 }

@@ -500,7 +500,7 @@ fn test_generate_ink_boilerplate_contract() {
 
     let boilerplate_contract = generate_ink_boilerplate_contract(&definitions);
 
-     // Check for the correct module name
+    // Check for the correct module name
     assert!(boilerplate_contract.contains("mod sample_contract {"));
 
     // Check for the correct struct declaration
@@ -531,4 +531,40 @@ fn test_generate_ink_boilerplate_contract() {
             AccountId::from([0x01; 32])
         }"));
 
+      // Assertions to ensure the presence of the test functions
+    assert!(boilerplate_contract.contains(r"#[ink::test]
+        fn test_func_a_hookpoint() {
+            let sample_contract = SampleContract::new();
+            assert_eq!(sample_contract.func_a(), ());
+        }"));
+
+    assert!(boilerplate_contract.contains(r"#[ink::test]
+        fn test_func_b_hookpoint() {
+            let sample_contract = SampleContract::new();
+            assert_eq!(sample_contract.func_b(AccountId::from([0x01; 32]), Hash::default(), 0), AccountId::from([0x01; 32]));
+        }"));
+
+    assert!(boilerplate_contract.contains(r"#[ink::test]
+        fn test_func_c_hookpoint() {
+            let sample_contract = SampleContract::new();
+            assert_eq!(sample_contract.func_c(0, Hash::default()), vec![]);
+        }"));
+
+    assert!(boilerplate_contract.contains(r"#[ink::test]
+        fn test_func_d_hookpoint() {
+            let sample_contract = SampleContract::new();
+            assert_eq!(sample_contract.func_d(), 0);
+        }"));
+
+    assert!(boilerplate_contract.contains(r"#[ink::test]
+        fn test_func_e_hookpoint() {
+            let sample_contract = SampleContract::new();
+            assert_eq!(sample_contract.func_e(0, Hash::default()), ());
+        }"));
+
+    assert!(boilerplate_contract.contains(r"#[ink::test]
+        fn test_func_e_hookpoint() {
+            let sample_contract = SampleContract::new();
+            assert_eq!(sample_contract.func_e(AccountId::from([0x01; 32]), Hash::default(), 0), AccountId::from([0x01; 32]));
+        }"));
 }
