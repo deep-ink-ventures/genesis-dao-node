@@ -216,6 +216,17 @@ fn test_generate_ink_trait_ink_primitives_inclusion() {
         returns: None,
     };
 
+    let func_with_balance = PalletFunction {
+        hook_point: "func_d".to_string(),
+        arguments: vec![
+            FunctionArgument {
+                name: "balance_val".to_string(),
+                type_: "Balance".to_string(),
+            }
+        ],
+        returns: None,
+    };
+
     // Scenario 1: No ink primtives types
     let mut pallets = HashMap::new();
     pallets.insert("sample_pallet".to_string(), vec![func_no_special_type.clone()]);
@@ -240,9 +251,19 @@ fn test_generate_ink_trait_ink_primitives_inclusion() {
     let definitions = Definitions {
         name: "SampleContract".to_string(),
         ink_dependencies: InkDependencies::default(),
-        pallets,
+        pallets: pallets.clone(),
     };
     assert!(generate_ink_trait(&definitions).contains("use ink_primitives::{AccountId, Hash};"));
+
+    // Scenario 4: Both AccountId and Hash
+    pallets.insert("sample_pallet".to_string(), vec![func_with_balance.clone()]);
+    let definitions = Definitions {
+        name: "SampleContract".to_string(),
+        ink_dependencies: InkDependencies::default(),
+        pallets,
+    };
+    assert!(generate_ink_trait(&definitions).contains("type Balance = <ink::env::DefaultEnvironment as ink::env::Environment>::Balance;i"));
+
 }
 
 

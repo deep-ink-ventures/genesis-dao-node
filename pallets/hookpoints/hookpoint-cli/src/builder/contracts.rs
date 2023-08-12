@@ -124,11 +124,15 @@ pub fn generate_ink_trait(definitions: &Definitions) -> String {
         }
     }
 
-    let import_string = match ink_primitives.len() {
+    let mut import_string = match ink_primitives.len() {
         0 => String::new(),
         1 => format!("use ink_primitives::{};\n", ink_primitives[0]),
         _ => format!("use ink_primitives::{{{}}};\n", ink_primitives.join(", ")),
     };
+
+    if definitions.contains_type(&["Balance"]) {
+        import_string.push_str("\ntype Balance = <ink::env::DefaultEnvironment as ink::env::Environment>::Balance;\n");
+    }
 
     format!(r##"#![cfg_attr(not(feature = "std"), no_std, no_main)]
 {imports}

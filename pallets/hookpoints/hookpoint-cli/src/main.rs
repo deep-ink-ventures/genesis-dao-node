@@ -124,16 +124,26 @@ fn main() {
             if !path.exists() {
                 fs::create_dir_all(&path).expect("Unable to create boilerplate folder");
             }
+            let test_path = root.join(format!("contracts/hooks/{}-contract-tests", camel_case_to_kebab(&definitions.name)));
+            if !test_path.exists() {
+                fs::create_dir_all(&test_path).expect("Unable to create tests folder");
+            }
 
             // Write to Cargo.toml
             let boilerplate_toml = generate_contract_boilerplate_toml(&definitions).expect("invalid toml generated");
             let mut boilerplate_toml_file = fs::File::create(path.join("Cargo.toml")).expect("Unable to create toml file");
             boilerplate_toml_file.write_all(boilerplate_toml.as_bytes()).expect("Unable to write toml file");
 
+            let mut test_toml_file = fs::File::create(test_path.join("Cargo.toml")).expect("Unable to create toml file");
+            test_toml_file.write_all(boilerplate_toml.as_bytes()).expect("Unable to write toml file");
+
             // Write to lib.rs
             let contract_content = generate_ink_boilerplate_contract(&definitions);
             let mut lib_file = fs::File::create(path.join("lib.rs")).expect("Unable to create the contract lib.rs");
             lib_file.write_all(contract_content.as_bytes()).expect("unable to write the contract lib.rs");
+
+            let mut test_lib_file = fs::File::create(test_path.join("lib.rs")).expect("Unable to create the contract lib.rs");
+            test_lib_file.write_all(contract_content.as_bytes()).expect("unable to write the contract lib.rs");
         }
 
         None => ()
