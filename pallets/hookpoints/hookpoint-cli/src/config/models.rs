@@ -4,42 +4,42 @@ use serde::{Serialize, Deserialize};
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct Definitions {
-    pub(crate) name: String,
-    pub(crate) ink_dependencies: InkDependencies,
-    pub(crate) pallets: std::collections::HashMap<String, Vec<PalletFunction>>,
+    pub name: String,
+    pub ink_dependencies: InkDependencies,
+    pub pallets: std::collections::HashMap<String, Vec<PalletFunction>>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct InkDependencies {
-    pub(crate) ink_version: String,
-    pub(crate) ink_primitives_version: String,
-    pub(crate) scale_version: String,
-    pub(crate) scale_info_version: String,
+    pub ink_version: String,
+    pub ink_primitives_version: String,
+    pub scale_version: String,
+    pub scale_info_version: String,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct PalletFunction {
-    pub(crate) hook_point: String,
-    pub(crate) arguments: Vec<FunctionArgument>,
-    pub(crate) returns: Option<ReturnValue>,
+    pub hook_point: String,
+    pub arguments: Vec<FunctionArgument>,
+    pub returns: Option<ReturnValue>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct FunctionArgument {
-    pub(crate) name: String,
+    pub name: String,
     #[serde(rename = "type")]
-    pub(crate) type_: String,
+    pub type_: String,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct ReturnValue {
-    pub(crate) default: String,
+    pub default: String,
     #[serde(rename = "type")]
-    pub(crate) type_: String,
+    pub type_: String,
 }
 
 impl Definitions {
-    pub(crate) fn new(name: String, pallets: std::collections::HashMap<String, Vec<PalletFunction>>) -> Self {
+    pub fn new(name: String, pallets: std::collections::HashMap<String, Vec<PalletFunction>>) -> Self {
         Definitions {
             name,
             pallets,
@@ -47,7 +47,7 @@ impl Definitions {
         }
     }
 
-    pub(crate) fn write_to_file<P: AsRef<Path>>(&self, substrate_dir: &Option<P>) {
+    pub fn write_to_file<P: AsRef<Path>>(&self, substrate_dir: &Option<P>) {
         let dir = match substrate_dir {
             None => std::env::current_dir().unwrap(),
             Some(dir) => PathBuf::from(dir.as_ref()),
@@ -57,17 +57,45 @@ impl Definitions {
         std::fs::write(config_path, content).unwrap();
     }
 
-    pub(crate) fn add_pallet_function(&mut self, pallet_name: String, pallet_function: PalletFunction) {
+    pub fn add_pallet_function(&mut self, pallet_name: String, pallet_function: PalletFunction) {
         if let Some(pallet_functions) = self.pallets.get_mut(&pallet_name) {
             pallet_functions.push(pallet_function);
         } else {
             self.pallets.insert(pallet_name, vec![pallet_function]);
         }
     }
+
+     pub fn extract_types(&self) -> Vec<String> {
+        let mut types = Vec::new();
+
+        for functions in self.pallets.values() {
+            for func in functions {
+                for arg in &func.arguments {
+                    types.push(arg.type_.clone());
+                }
+
+                if let Some(ret_val) = &func.returns {
+                    types.push(ret_val.type_.clone());
+                }
+            }
+        }
+
+        types
+    }
+
+    pub fn contains_type(&self, target: &[&str]) -> bool {
+        let types = self.extract_types();
+        for t in types {
+            if target.contains(&t.as_str()) {
+                return true;
+            }
+        }
+        false
+    }
 }
 
 impl InkDependencies {
-    pub(crate) fn default() -> Self {
+    pub fn default() -> Self {
         InkDependencies {
             ink_version: "4.2".to_string(),
             ink_primitives_version: "4.2".to_string(),

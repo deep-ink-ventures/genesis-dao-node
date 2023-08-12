@@ -14,7 +14,7 @@ use ctrlc;
 
 use config::models::Definitions;
 use builder::hooks::create_hooks;
-use crate::builder::contracts::{generate_contract_boilerplate_toml, generate_contract_trait_toml, generate_ink_trait};
+use crate::builder::contracts::{generate_contract_boilerplate_toml, generate_contract_trait_toml, generate_ink_boilerplate_contract, generate_ink_trait};
 use crate::environment::get_substrate_dir;
 use crate::utils::camel_case_to_kebab;
 
@@ -129,6 +129,11 @@ fn main() {
             let boilerplate_toml = generate_contract_boilerplate_toml(&definitions).expect("invalid toml generated");
             let mut boilerplate_toml_file = fs::File::create(path.join("Cargo.toml")).expect("Unable to create toml file");
             boilerplate_toml_file.write_all(boilerplate_toml.as_bytes()).expect("Unable to write toml file");
+
+            // Write to lib.rs
+            let contract_content = generate_ink_boilerplate_contract(&definitions);
+            let mut lib_file = fs::File::create(path.join("lib.rs")).expect("Unable to create the contract lib.rs");
+            lib_file.write_all(contract_content.as_bytes()).expect("unable to write the contract lib.rs");
         }
 
         None => ()

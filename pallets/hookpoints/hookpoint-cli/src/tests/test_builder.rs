@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use crate::builder::hooks::create_hooks;
 use crate::builder::mapper::{ink_to_substrate};
-use crate::builder::contracts::{generate_contract_boilerplate_toml, generate_contract_trait_toml, generate_ink_trait};
+use crate::builder::contracts::{generate_contract_boilerplate_toml, generate_contract_trait_toml, generate_ink_boilerplate_contract, generate_ink_trait};
 use crate::config::models::{Definitions, FunctionArgument, InkDependencies, PalletFunction, ReturnValue};
 
 #[test]
@@ -161,37 +161,96 @@ fn test_generate_ink_trait() {
 
     let trait_def = generate_ink_trait(&definitions);
     let expected = r##"#![cfg_attr(not(feature = "std"), no_std, no_main)]
-
-use ink_primitives::{AccountId};
+use ink_primitives::AccountId;
 
 #[ink::trait_definition]
 pub trait SampleContract {
 
     /// hook point for `func_a` pallet
     #[ink(message)]
-    fn func_a();
+    fn func_a(&self);
 
     /// hook point for `func_b` pallet
     #[ink(message)]
-    fn func_b(arg1: u32);
+    fn func_b(&self, arg1: u32);
 
     /// hook point for `func_c` pallet
     #[ink(message)]
-    fn func_c() -> u32;
+    fn func_c(&self) -> u32;
 
     /// hook point for `func_d` pallet
     #[ink(message)]
-    fn func_d(account: AccountId) -> Balance;
+    fn func_d(&self, account: AccountId) -> Balance;
 }"##;
 
     assert_eq!(trait_def, expected);
 }
 
 #[test]
+fn test_generate_ink_trait_ink_primitives_inclusion() {
+    let func_no_special_type = PalletFunction {
+        hook_point: "func_a".to_string(),
+        arguments: vec![],
+        returns: None,
+    };
+
+    let func_with_account_id = PalletFunction {
+        hook_point: "func_b".to_string(),
+        arguments: vec![
+            FunctionArgument {
+                name: "account".to_string(),
+                type_: "AccountId".to_string(),
+            }
+        ],
+        returns: None,
+    };
+
+    let func_with_hash = PalletFunction {
+        hook_point: "func_c".to_string(),
+        arguments: vec![
+            FunctionArgument {
+                name: "hash_val".to_string(),
+                type_: "Hash".to_string(),
+            }
+        ],
+        returns: None,
+    };
+
+    // Scenario 1: No ink primtives types
+    let mut pallets = HashMap::new();
+    pallets.insert("sample_pallet".to_string(), vec![func_no_special_type.clone()]);
+    let definitions = Definitions {
+        name: "SampleContract".to_string(),
+        ink_dependencies: InkDependencies::default(),
+        pallets: pallets.clone(),
+    };
+    assert!(!generate_ink_trait(&definitions).contains("ink_primitives"));
+
+    // Scenario 2: Only AccountId
+    pallets.insert("sample_pallet".to_string(), vec![func_with_account_id.clone()]);
+    let definitions = Definitions {
+        name: "SampleContract".to_string(),
+        ink_dependencies: InkDependencies::default(),
+        pallets: pallets.clone(),
+    };
+    assert!(generate_ink_trait(&definitions).contains("use ink_primitives::AccountId;"));
+
+    // Scenario 3: Both AccountId and Hash
+    pallets.insert("sample_pallet".to_string(), vec![func_with_account_id.clone(), func_with_hash.clone()]);
+    let definitions = Definitions {
+        name: "SampleContract".to_string(),
+        ink_dependencies: InkDependencies::default(),
+        pallets,
+    };
+    assert!(generate_ink_trait(&definitions).contains("use ink_primitives::{AccountId, Hash};"));
+}
+
+
+#[test]
 fn test_generate_contract_trait_toml() {
     let definitions = Definitions {
         name: "GenesisDao".to_string(),
-        pallets: std::collections::HashMap::new(),
+        pallets: HashMap::new(),
         ink_dependencies: InkDependencies::default(),
     };
 
@@ -226,6 +285,59 @@ ink-as-dependency = []
 }
 
 #[test]
+fn test_generate_contract_trait_toml_with_ink_primitives() {
+    // Create a pallet function that uses the AccountId type
+    let pallet_function = PalletFunction {
+        hook_point: "hook_point".to_string(),
+        arguments: vec![FunctionArgument {
+            name: "arg1".to_string(),
+            type_: "AccountId".to_string(),
+        }],
+        returns: None,
+    };
+
+    let mut pallets = std::collections::HashMap::new();
+    pallets.insert("TestPallet".to_string(), vec![pallet_function]);
+
+    let definitions = Definitions {
+        name: "GenesisDao".to_string(),
+        pallets,
+        ink_dependencies: InkDependencies::default(),
+    };
+
+    let output = generate_contract_trait_toml(&definitions).unwrap();
+    let ink_deps = InkDependencies::default();
+    let expected_output = format!(r#"[package]
+name = "genesis-dao-contract-trait"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+ink = {{ version = "{}", default-features = false }}
+ink_primitives = {{ version = "{}", default-features = false }}
+scale = {{ package = "parity-scale-codec", version = "{}", default-features = false, features = ["derive"] }}
+scale-info = {{ version = "{}", default-features = false, features = ["derive"], optional = true }}
+
+[lib]
+path = "lib.rs"
+
+[features]
+default = ["std"]
+std = [
+    "ink/std",
+    "scale/std",
+    "scale-info/std",
+]
+ink-as-dependency = []
+
+[workspace]
+"#, ink_deps.ink_version, ink_deps.ink_version, ink_deps.scale_version, ink_deps.scale_info_version);
+
+    assert_eq!(output, expected_output);
+}
+
+
+#[test]
 fn test_generate_contract_boilerplate_toml() {
     let definitions = Definitions {
         name: "GenesisDao".to_string(),
@@ -240,6 +352,7 @@ fn test_generate_contract_boilerplate_toml() {
 name = "genesis-dao-contract-boilerplate"
 version = "0.1.0"
 edition = "2021"
+authors = ["add your name here"]
 
 [dependencies]
 ink = {{ version = "{}", default-features = false }}
@@ -271,4 +384,151 @@ e2e-tests = []
 
 
     assert_eq!(output.unwrap(), expected_output);
+}
+
+#[test]
+fn test_generate_ink_boilerplate_contract() {
+    let mut pallets: HashMap<String, Vec<PalletFunction>> = HashMap::new();
+
+    // Defining pallet functions based on the given scenarios
+    let func_no_args_no_return = PalletFunction {
+        hook_point: "func_a".to_string(),
+        arguments: vec![],
+        returns: None,
+    };
+
+    let func_account_id_return = PalletFunction {
+        hook_point: "func_b".to_string(),
+        arguments: vec![
+            FunctionArgument {
+                name: "account".to_string(),
+                type_: "AccountId".to_string(),
+            },
+            FunctionArgument {
+                name: "hash_val".to_string(),
+                type_: "Hash".to_string(),
+            },
+            FunctionArgument {
+                name: "value".to_string(),
+                type_: "u128".to_string(),
+            },
+        ],
+        returns: Some(ReturnValue {
+            default: "account".to_string(),
+            type_: "AccountId".to_string(),
+        }),
+    };
+
+    let func_vec_u8_return = PalletFunction {
+        hook_point: "func_c".to_string(),
+        arguments: vec![
+            FunctionArgument {
+                name: "arg1".to_string(),
+                type_: "u32".to_string(),
+            },
+            FunctionArgument {
+                name: "arg2".to_string(),
+                type_: "Hash".to_string(),
+            },
+        ],
+        returns: Some(ReturnValue {
+            default: "Vec<u8>".to_string(),
+            type_: "Vec<u8>".to_string(),
+        }),
+    };
+
+    let func_u32_return = PalletFunction {
+        hook_point: "func_d".to_string(),
+        arguments: vec![],
+        returns: Some(ReturnValue {
+            default: "u32".to_string(),
+            type_: "u32".to_string(),
+        }),
+    };
+
+    let func_no_return = PalletFunction {
+        hook_point: "func_e".to_string(),
+        arguments: vec![
+            FunctionArgument {
+                name: "arg1".to_string(),
+                type_: "u64".to_string(),
+            },
+            FunctionArgument {
+                name: "arg2".to_string(),
+                type_: "Hash".to_string(),
+            },
+        ],
+        returns: None,
+    };
+
+    let func_account_id_default_return = PalletFunction {
+        hook_point: "func_e".to_string(),
+        arguments: vec![
+            FunctionArgument {
+                name: "account".to_string(),
+                type_: "AccountId".to_string(),
+            },
+            FunctionArgument {
+                name: "hash_val".to_string(),
+                type_: "Hash".to_string(),
+            },
+            FunctionArgument {
+                name: "value".to_string(),
+                type_: "u128".to_string(),
+            },
+        ],
+        returns: Some(ReturnValue {
+            default: "AccountId".to_string(),
+            type_: "AccountId".to_string(),
+        }),
+    };
+
+    pallets.insert("sample_pallet".to_string(), vec![
+        func_no_args_no_return,
+        func_account_id_return,
+        func_vec_u8_return,
+        func_u32_return,
+        func_no_return,
+        func_account_id_default_return
+    ]);
+
+    let definitions = Definitions {
+        name: "SampleContract".to_string(),
+        ink_dependencies: InkDependencies::default(),
+        pallets,
+    };
+
+    let boilerplate_contract = generate_ink_boilerplate_contract(&definitions);
+
+     // Check for the correct module name
+    assert!(boilerplate_contract.contains("mod sample_contract {"));
+
+    // Check for the correct struct declaration
+    assert!(boilerplate_contract.contains("pub struct SampleContract {}"));
+
+    // Check for the correct trait implementation
+    assert!(boilerplate_contract.contains("impl sample_contract_contract_trait::SampleContract for SampleContract {"));
+
+
+    // Assertions to ensure the presence of the entire function bodies
+    assert!(boilerplate_contract.contains(r"fn func_a(&self) {
+            // do nothing
+        }"));
+
+    assert!(boilerplate_contract.contains(r" fn func_b(&self, account: AccountId, _hash_val: Hash, _value: u128) -> AccountId {
+            account
+        }"));
+
+    assert!(boilerplate_contract.contains(r"fn func_c(&self, _arg1: u32, _arg2: Hash) -> Vec<u8> {
+            vec![]
+        }"));
+
+    assert!(boilerplate_contract.contains(r"fn func_d(&self) -> u32 {
+            0
+        }"));
+
+    assert!(boilerplate_contract.contains(r"fn func_e(&self, _account: AccountId, _hash_val: Hash, _value: u128) -> AccountId {
+            AccountId::from([0x01; 32])
+        }"));
+
 }

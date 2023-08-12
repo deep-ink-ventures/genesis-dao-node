@@ -1,16 +1,17 @@
+use std::collections::HashMap;
 use serde_json::json;
 use std::fs::File;
 use std::io::Read;
 use tempfile::tempdir;
 use std::path::PathBuf;
-use crate::config::models::{Definitions, InkDependencies, PalletFunction};
+use crate::config::models::{Definitions, FunctionArgument, InkDependencies, PalletFunction, ReturnValue};
 
 #[test]
 fn test_definitions_serialization() {
     let definitions = Definitions {
         name: "TestName".to_string(),
         pallets: std::collections::HashMap::new(),
-        ink_dependencies: InkDependencies::default()
+        ink_dependencies: InkDependencies::default(),
     };
 
     let serialized = serde_json::to_string(&definitions).unwrap();
@@ -55,7 +56,7 @@ fn test_write_to_file_in_specified_directory() {
     let definitions = Definitions {
         name: "TestName".to_string(),
         pallets: std::collections::HashMap::new(),
-        ink_dependencies: InkDependencies::default()
+        ink_dependencies: InkDependencies::default(),
     };
 
     definitions.write_to_file(&Some(dir.path()));
@@ -79,7 +80,7 @@ fn test_write_to_file_in_default_directory() {
     let definitions = Definitions {
         name: "TestName".to_string(),
         pallets: std::collections::HashMap::new(),
-        ink_dependencies: InkDependencies::default()
+        ink_dependencies: InkDependencies::default(),
     };
 
     definitions.write_to_file::<PathBuf>(&None); // Using a temporary directory as the current directory
@@ -98,7 +99,7 @@ fn test_definitions_add_pallet_function() {
     let mut definitions = Definitions {
         name: "TestName".to_string(),
         pallets: std::collections::HashMap::new(),
-        ink_dependencies: InkDependencies::default()
+        ink_dependencies: InkDependencies::default(),
     };
 
     let pallet_function = PalletFunction {
@@ -119,4 +120,51 @@ fn test_definitions_add_pallet_function() {
     };
     definitions.add_pallet_function("Pallet1".to_string(), pallet_function2.clone());
     assert_eq!(definitions.pallets["Pallet1"], vec![pallet_function, pallet_function2]);
+}
+
+fn mock_definitions() -> Definitions {
+    let mut pallets = HashMap::new();
+    pallets.insert(
+        "test_pallet".to_string(),
+        vec![
+            PalletFunction {
+                hook_point: "hook1".to_string(),
+                arguments: vec![
+                    FunctionArgument { name: "arg1".to_string(), type_: "AccountId".to_string() },
+                    FunctionArgument { name: "arg2".to_string(), type_: "u32".to_string() },
+                ],
+                returns: Some(ReturnValue { default: "default_value".to_string(), type_: "Hash".to_string() }),
+            },
+            PalletFunction {
+                hook_point: "hook2".to_string(),
+                arguments: vec![
+                    FunctionArgument { name: "arg3".to_string(), type_: "String".to_string() },
+                ],
+                returns: None,
+            },
+        ],
+    );
+
+    Definitions {
+        name: "test".to_string(),
+        ink_dependencies: InkDependencies::default(),
+        pallets,
+    }
+}
+
+#[test]
+fn test_extract_types() {
+    let definitions = mock_definitions();
+    let types = definitions.extract_types();
+
+    assert_eq!(types, vec!["AccountId", "u32", "Hash", "String"]);
+}
+
+#[test]
+fn test_contains_type() {
+    let definitions = mock_definitions();
+
+    assert!(definitions.contains_type(&["AccountId", "Hash"]));
+    assert!(definitions.contains_type(&["String"]));
+    assert!(!definitions.contains_type(&["Vec<u8>"]));
 }

@@ -3,6 +3,7 @@ extern crate regex;
 
 use dialoguer::{theme::ColorfulTheme, Select, Input};
 use crate::config::models::{FunctionArgument, PalletFunction, ReturnValue};
+use crate::utils::INK_TYPES;
 
 pub const SNAKE_CASE_REGEX: &str = r"^[a-z]+(?:_[a-z]+)*$";
 pub const CAMEL_CASE_REGEX: &str = r"^[A-Z][a-z]+(?:[A-Z][a-z]+)*$";
@@ -54,7 +55,7 @@ pub fn get_hook_point_name() -> String {
 }
 
 // Extract the logic for getting the argument details
-pub fn get_argument_details(ink_primitives: &Vec<&str>) -> FunctionArgument {
+pub fn get_argument_details(ink_types: &Vec<&str>) -> FunctionArgument {
     let arg_name = Input::with_theme(&ColorfulTheme::default())
         .with_prompt("Enter an argument name (snake_case please):")
         .validate_with({
@@ -71,31 +72,31 @@ pub fn get_argument_details(ink_primitives: &Vec<&str>) -> FunctionArgument {
     let arg_type = Select::with_theme(&ColorfulTheme::default())
         .with_prompt("Choose a type:")
         .default(0)
-        .items(ink_primitives)
+        .items(ink_types)
         .interact()
         .unwrap();
 
     FunctionArgument {
         name: arg_name,
-        type_: ink_primitives[arg_type].to_string(),
+        type_: ink_types[arg_type].to_string(),
     }
 }
 
 // Extract the logic for getting the return details
-pub fn get_return_details(ink_primitives: &Vec<&str>, arguments: &Vec<FunctionArgument>, no_default_values: &Vec<&str>) -> ReturnValue {
+pub fn get_return_details(ink_types: &Vec<&str>, arguments: &Vec<FunctionArgument>, no_default_values: &Vec<&str>) -> ReturnValue {
     let return_type = Select::with_theme(&ColorfulTheme::default())
         .with_prompt("Choose a return type:")
         .default(0)
-        .items(ink_primitives)
+        .items(ink_types)
         .interact()
         .unwrap();
 
     let mut arguments_with_return_type: Vec<&str> = arguments.iter()
-        .filter(|arg| arg.type_ == ink_primitives[return_type])
+        .filter(|arg| arg.type_ == ink_types[return_type])
         .filter(|arg| !no_default_values.contains(&arg.type_.as_str()))
         .map(|arg| arg.name.as_str())
         .collect();
-    arguments_with_return_type.push(ink_primitives[return_type]);
+    arguments_with_return_type.push(ink_types[return_type]);
 
     let return_default = Select::with_theme(&ColorfulTheme::default())
         .with_prompt("Choose a default return value:")
@@ -105,7 +106,7 @@ pub fn get_return_details(ink_primitives: &Vec<&str>, arguments: &Vec<FunctionAr
         .unwrap();
 
     ReturnValue {
-        type_: ink_primitives[return_type].to_string(),
+        type_: ink_types[return_type].to_string(),
         default: arguments_with_return_type[return_default].to_string(),
     }
 }
@@ -115,10 +116,7 @@ pub fn add_hook() -> PalletFunction {
 
     let mut arguments: Vec<FunctionArgument> = Vec::new();
     let mut returns: Option<ReturnValue> = None;
-    let ink_primitives = vec![
-        "u8", "u16", "u32", "u64", "u128", "i8", "i16", "i32", "i64", "i128", "bool", "char", "str",
-        "AccountId", "Balance",
-    ];
+    let ink_types = INK_TYPES.to_vec();
     let no_default_values = vec!["AccountId"];
 
     loop {
@@ -131,11 +129,11 @@ pub fn add_hook() -> PalletFunction {
 
         match selection {
             0 => {
-                let arg = get_argument_details(&ink_primitives);
+                let arg = get_argument_details(&ink_types);
                 arguments.push(arg);
             }
             1 => {
-                let ret = get_return_details(&ink_primitives, &arguments, &no_default_values);
+                let ret = get_return_details(&ink_types, &arguments, &no_default_values);
                 returns = Some(ret);
             }
             _ => break

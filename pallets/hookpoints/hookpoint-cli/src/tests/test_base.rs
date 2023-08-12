@@ -6,7 +6,7 @@ use tempfile::tempdir;
 use crate::config::models::InkDependencies;
 use crate::environment::{get_pallets, load_definitions};
 use crate::interactive::{CAMEL_CASE_REGEX, SNAKE_CASE_REGEX};
-use crate::utils::camel_case_to_kebab;
+use crate::utils::{camel_case_to_kebab, camel_to_snake, get_default_for_ink_type};
 
 #[test]
 fn test_camel_case_to_kebap() {
@@ -16,6 +16,16 @@ fn test_camel_case_to_kebap() {
     assert_eq!(camel_case_to_kebab("WithNumbers123"), "with-numbers123");
     assert_eq!(camel_case_to_kebab("Already-kebap"), "already-kebap");
     assert_eq!(camel_case_to_kebab(""), "");
+}
+
+#[test]
+    fn test_camel_to_snake() {
+    assert_eq!(camel_to_snake("SampleContract"), "sample_contract");
+    assert_eq!(camel_to_snake("CamelCaseHere"), "camel_case_here");
+    assert_eq!(camel_to_snake("AlreadySnake"), "already_snake");
+    assert_eq!(camel_to_snake("NoChange"), "no_change");
+    assert_eq!(camel_to_snake("A"), "a");
+    assert_eq!(camel_to_snake(""), "");
 }
 
 #[test]
@@ -119,4 +129,22 @@ fn test_snake_case_regex() {
     assert!(!snake_case_regex.is_match("CamelCaseString"));
     assert!(!snake_case_regex.is_match("snakeCaseString"));
     assert!(!snake_case_regex.is_match("With_Numbers123"));
+}
+
+#[test]
+fn test_default_for_ink_type() {
+    assert_eq!(get_default_for_ink_type("u8"), "0");
+    assert_eq!(get_default_for_ink_type("u128"), "0");
+    assert_eq!(get_default_for_ink_type("i64"), "0");
+    assert_eq!(get_default_for_ink_type("Balance"), "0");
+    assert_eq!(get_default_for_ink_type("Vec<u8>"), "vec![]");
+    assert_eq!(get_default_for_ink_type("Vec<i128>"), "vec![]");
+    assert_eq!(get_default_for_ink_type("AccountId"), "AccountId::from([0x01; 32])");
+    assert_eq!(get_default_for_ink_type("Hash"), "Hash::default()");
+}
+
+#[test]
+#[should_panic(expected = "Unknown INK type: u256")]
+fn test_default_for_unknown_type() {
+    get_default_for_ink_type("u256");
 }
