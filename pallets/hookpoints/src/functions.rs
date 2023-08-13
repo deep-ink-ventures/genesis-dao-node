@@ -120,12 +120,12 @@ impl<T: Config> Pallet<T> {
     /// Prepares the details for a new contract deployment.
     ///
     /// This function assists in creating a `ContractDeployment` instance by setting up the necessary data,
-    /// such as the selector derived from the given callback. The created instance can then be further customized
-    /// with additional arguments using the `add_arg` method.
+    /// such as the selector derived from the given constructor. The created instance can then be further customized
+    /// with initial arguments using the `add_init_arg` method.
     ///
     /// # Arguments
     ///
-    /// * `callback` - A string representing the callback identifier.
+    /// * `constructor` - A string representing the constructor identifier.
     /// * `creator` - The account ID of the entity deploying the contract.
     /// * `code` - The compiled wasm code of the ink! contract.
     /// * `salt` - A unique salt to ensure the resulting contract address is unique.
@@ -133,7 +133,7 @@ impl<T: Config> Pallet<T> {
     /// # Returns
     ///
     /// A new `ContractDeployment` instance.
-    pub fn prepare_deployment(callback: &str, creator: T::AccountId, code: Vec<u8>, salt: Vec<u8>) -> ContractDeployment<T::AccountId> {
-        ContractDeployment::<T::AccountId>::new(callback, creator, code, salt)
+    pub fn prepare_deployment(constructor: &str, creator: T::AccountId, code: Vec<u8>, salt: Vec<u8>) -> ContractDeployment<T::AccountId> {
+        ContractDeployment::<T::AccountId>::new(constructor, creator, code, salt)
     }
 }

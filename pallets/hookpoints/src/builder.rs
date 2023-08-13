@@ -49,15 +49,43 @@ pub struct ContractDeployment<AccountId> {
 }
 
 impl<AccountId> ContractDeployment<AccountId> {
-    pub fn new(callback: &str, creator: AccountId, code: Vec<u8>, salt: Vec<u8>) -> Self {
+    /// Creates a new `ContractDeployment` instance.
+    ///
+    /// This function initializes a contract deployment by taking in the contract's constructor
+    /// signature, the account that created the contract, the contract's bytecode, and a salt for
+    /// deployment.
+    ///
+    /// # Parameters
+    ///
+    /// - `constructor`: The signature of the contract's constructor.
+    /// - `creator`: The account ID of the entity that's deploying the contract.
+    /// - `code`: The bytecode of the contract.
+    /// - `salt`: A salt that can be used for creating a deterministic contract address.
+    ///
+    /// # Returns
+    ///
+    /// Returns an instance of `ContractDeployment`.
+    pub fn new(constructor: &str, creator: AccountId, code: Vec<u8>, salt: Vec<u8>) -> Self {
         ContractDeployment {
             creator,
             code,
             salt,
-            init_args: selector_from_str(callback)
+            init_args: selector_from_str(constructor)
         }
     }
 
+    /// Adds initialization arguments to the `ContractDeployment` instance.
+    ///
+    /// This method appends encoded arguments to the contract's initialization arguments list.
+    /// These arguments will be used when deploying the contract.
+    ///
+    /// # Parameters
+    ///
+    /// - `arg`: The argument to add. It must implement the `Encode` trait.
+    ///
+    /// # Returns
+    ///
+    /// Returns the modified `ContractDeployment` instance.
     pub fn add_init_arg<T>(mut self, arg: T) -> Self
     where
         T: Encode
