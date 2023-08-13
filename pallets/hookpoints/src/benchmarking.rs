@@ -17,7 +17,7 @@
 //! > cargo build --release --features runtime-benchmarks
 //!
 //! Weight Creation:
-//! > ./target/release/genesis-dao-solochain benchmark pallet --chain dev --pallet pallet_hookpoints --extrinsic '*' --steps 20 --repeat 10 --output pallets/dao-core/src/weights.rs --template ./benchmarking/frame-weight-template.hbs
+//! > ./target/release/your-node benchmark pallet --chain dev --pallet pallet_hookpoints --extrinsic '*' --steps 20 --repeat 10 --output pallets/hookpoints/src/weights.rs --template ./benchmarking/frame-weight-template.hbs
 
 #![cfg(feature = "runtime-benchmarks")]
 

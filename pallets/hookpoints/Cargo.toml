@@ -1,13 +1,12 @@
 [package]
 name = "pallet-hookpoints"
 version = "4.0.0-dev"
-description = "FRAME pallet for managing ink! callbacks"
-authors = ["chp"]
-homepage = "https://deep-ink.ventures"
+description = "A pallet for managing ink! callbacks"
+authors = ["Christian Peters <chp@deep-ink.ventures>"]
 edition = "2021"
 license = "Apache-2.0"
 publish = false
-repository = "https://github.com/deep-ink-ventures/genesis-dao/"
+repository = "https://github.com/deep-ink-ventures/pallet-hookpoints/"
 
 [package.metadata.docs.rs]
 targets = ["x86_64-unknown-linux-gnu"]
@@ -19,9 +18,7 @@ codec = { package = "parity-scale-codec", version = "3.0.0", default-features = 
 frame-benchmarking = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "release-v1.0.0-cumulus", optional = true }
 frame-support = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "release-v1.0.0-cumulus" }
 frame-system = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "release-v1.0.0-cumulus" }
-scale-info = { version = "2.1.1", default-features = false, features = [
-	"derive",
-] }
+scale-info = { version = "2.1.1", default-features = false, features = ["derive"] }
 sp-std = { version = "8.0.0", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "release-v1.0.0-cumulus" }
 pallet-contracts = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "release-v1.0.0-cumulus" }
 pallet-contracts-primitives = { version = "24.0.0", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "release-v1.0.0-cumulus" }
