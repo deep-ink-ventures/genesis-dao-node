@@ -1,8 +1,42 @@
+// Copyright (C) Deep Ink Ventures GmbH
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+//! # Contracts Builder
+//!
+//! This module provides utilities and functions to generate ink! smart contract code
+//! and corresponding TOML configurations. The generated contracts serve as the interface
+//! between the Substrate runtime and the ink! smart contracts, based on the provided
+//! `hookpoints.json` configuration.
+//!
+//! The main functionalities include generating boilerplate ink! contracts, ink! trait
+//! definitions, and their respective TOML configuration files. The module uses the `Definitions`
+//! structure from the configuration to extract the necessary information.
+
 use toml::de::Error;
 use crate::config::models::{Definitions, PalletFunction};
 use crate::utils::{camel_case_to_kebab, camel_to_snake, get_default_for_ink_type, INK_PRIMITIVES, INK_TYPES};
 
-
+/// Generates TOML dependencies for the ink! contract based on the provided contract definitions.
+/// This considers both the default ink! dependencies as well as specialized dependencies based on the
+/// contract's requirements.
+///
+/// # Arguments
+/// * `definitions` - The contract definitions derived from the configuration.
+/// * `include_prelude` - Boolean indicating whether to include the ink_prelude dependency.
+///
+/// # Returns
+/// Returns a formatted string representing the dependencies in TOML format.
 fn generate_dependencies_toml(definitions: &Definitions, include_prelude: bool) -> String {
     let ink_deps = &definitions.ink_dependencies;
 
@@ -30,6 +64,13 @@ scale-info = {{ version = "{}", default-features = false, features = ["derive"],
 }
 
 
+/// Generates the TOML configuration for the main ink! contract boilerplate.
+///
+/// # Arguments
+/// * `definitions` - The contract definitions derived from the configuration.
+///
+/// # Returns
+/// Returns a Result containing the formatted TOML configuration string or a toml::de::Error.
 pub fn generate_contract_boilerplate_toml(definitions: &Definitions) -> Result<String, toml::de::Error> {
     let ink_deps = &definitions.ink_dependencies;
     let name_kebab = camel_case_to_kebab(&definitions.name);
@@ -72,6 +113,13 @@ e2e-tests = []
     }
 }
 
+/// Generates the TOML configuration for the trait of the ink! contract.
+///
+/// # Arguments
+/// * `definitions` - The contract definitions derived from the configuration.
+///
+/// # Returns
+/// Returns a Result containing the formatted TOML configuration string or a toml::de::Error.
 pub fn generate_contract_trait_toml(definitions: &Definitions) -> Result<String, toml::de::Error> {
     let name_kebab = camel_case_to_kebab(&definitions.name);
 
@@ -105,6 +153,13 @@ ink-as-dependency = []
     }
 }
 
+/// Generates the ink! trait signature based on the provided contract definitions.
+///
+/// # Arguments
+/// * `definitions` - The contract definitions derived from the configuration.
+///
+/// # Returns
+/// Returns a formatted string representing the ink! trait.
 pub fn generate_ink_trait(definitions: &Definitions) -> String {
     let function_signatures: Vec<String> = definitions.pallets
         .iter()
@@ -147,6 +202,13 @@ pub trait {trait_name} {{
     )
 }
 
+/// Generates the signature for a given function to be used in an ink! trait.
+///
+/// # Arguments
+/// * `func` - A reference to the pallet function for which the signature is to be generated.
+///
+/// # Returns
+/// Returns a formatted string representing the trait function signature.
 fn generate_trait_function_signature(func: &PalletFunction) -> String {
     let args = func.arguments
         .iter()
@@ -175,6 +237,13 @@ fn generate_trait_function_signature(func: &PalletFunction) -> String {
     )
 }
 
+/// Generates the contract functions based on the provided definitions.
+///
+/// # Arguments
+/// * `definitions` - The contract definitions derived from the configuration.
+///
+/// # Returns
+/// Returns a formatted string with the generated contract functions.
 fn generate_contract_functions(definitions: &Definitions)-> String {
     let functions: Vec<String> = definitions
         .pallets
@@ -195,6 +264,13 @@ fn generate_contract_functions(definitions: &Definitions)-> String {
         .join("\n\n")
 }
 
+/// Generates the body of a specific contract function.
+///
+/// # Arguments
+/// * `func` - A reference to the pallet function for which the body is to be generated.
+///
+/// # Returns
+/// Returns a formatted string representing the function body.
 fn generate_function_body(func: &PalletFunction) -> String {
     let args = func
         .arguments
@@ -244,6 +320,13 @@ fn generate_function_body(func: &PalletFunction) -> String {
     )
 }
 
+/// Generates test functions for ink! based on the provided definitions.
+///
+/// # Arguments
+/// * `definitions` - The contract definitions derived from the configuration.
+///
+/// # Returns
+/// Returns a formatted string with the generated test functions.
 fn generate_ink_test_functions(definitions: &Definitions) -> String {
     let tests: Vec<String> = definitions
         .pallets
@@ -259,6 +342,14 @@ fn generate_ink_test_functions(definitions: &Definitions) -> String {
     tests.join("\n")
 }
 
+/// Generates a single test function for a given contract function.
+///
+/// # Arguments
+/// * `func` - A reference to the pallet function for which the test is to be generated.
+/// * `contract_name` - The name of the contract for which the test is being generated.
+///
+/// # Returns
+/// Returns a formatted string representing the test function.
 fn generate_test_function(func: &PalletFunction, contract_name: &str) -> String {
     let contract_instance = format!(
         "let {} = {}::new();",
@@ -293,6 +384,13 @@ fn generate_test_function(func: &PalletFunction, contract_name: &str) -> String 
     )
 }
 
+/// Generates the full boilerplate for an ink! contract based on provided definitions.
+///
+/// # Arguments
+/// * `definitions` - The contract definitions derived from the configuration.
+///
+/// # Returns
+/// Returns a formatted string representing the complete boilerplate for the ink! contract.
 pub fn generate_ink_boilerplate_contract(definitions: &Definitions) -> String {
     let functions = generate_contract_functions(definitions);
     let contract_name = &definitions.name;
