@@ -1,13 +1,13 @@
 [package]
-name = "solochain-runtime"
-version = "4.0.0-dev"
-description = "A solochain node for the genesis dao"
 authors = ["chp <chp@deep-ink.ventures>"]
-homepage = "https://deep-ink-ventures"
+description = "A solochain node for the genesis dao"
 edition = "2021"
+homepage = "https://deep-ink-ventures"
 license = "MIT-0"
+name = "solochain-runtime"
 publish = false
 renrepository = "https://github.com/deep-ink-ventures/genesis-dao"
+version = "4.0.0-dev"
 
 [package.metadata.docs.rs]
 targets = ["x86_64-unknown-linux-gnu"]
@@ -20,20 +20,20 @@ scale-info = { version = "2.5.0", default-features = false, features = [
 	"derive",
 ] }
 
+frame-executive = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "release-v1.0.0-cumulus" }
+frame-support = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "release-v1.0.0-cumulus" }
+frame-system = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "release-v1.0.0-cumulus" }
+frame-try-runtime = { version = "0.10.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", optional = true, branch = "release-v1.0.0-cumulus" }
 pallet-aura = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "release-v1.0.0-cumulus" }
 pallet-balances = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "release-v1.0.0-cumulus" }
-frame-support = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "release-v1.0.0-cumulus" }
-pallet-contracts-primitives = { version = "24.0.0", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "release-v1.0.0-cumulus" }
 pallet-contracts = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "release-v1.0.0-cumulus" }
+pallet-contracts-primitives = { version = "24.0.0", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "release-v1.0.0-cumulus" }
 pallet-grandpa = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "release-v1.0.0-cumulus" }
 pallet-multisig = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "release-v1.0.0-cumulus" }
 pallet-sudo = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "release-v1.0.0-cumulus" }
-pallet-utility = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "release-v1.0.0-cumulus" }
-frame-system = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "release-v1.0.0-cumulus" }
-frame-try-runtime = { version = "0.10.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", optional = true, branch = "release-v1.0.0-cumulus" }
 pallet-timestamp = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "release-v1.0.0-cumulus" }
 pallet-transaction-payment = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "release-v1.0.0-cumulus" }
-frame-executive = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "release-v1.0.0-cumulus" }
+pallet-utility = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "release-v1.0.0-cumulus" }
 sp-api = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "release-v1.0.0-cumulus" }
 sp-block-builder = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "release-v1.0.0-cumulus" }
 sp-consensus-aura = { version = "0.10.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "release-v1.0.0-cumulus" }
@@ -56,16 +56,37 @@ frame-benchmarking = { version = "4.0.0-dev", default-features = false, git = "h
 frame-system-benchmarking = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", optional = true, branch = "release-v1.0.0-cumulus" }
 
 # Local Dependencies
-pallet-dao-core = { version = "4.0.0-dev", default-features = false, path = "../../pallets/dao-core" }
 pallet-dao-assets = { version = "4.0.0-dev", default-features = false, path = "../../pallets/dao-assets" }
+pallet-dao-core = { version = "4.0.0-dev", default-features = false, path = "../../pallets/dao-core" }
 pallet-dao-votes = { version = "4.0.0-dev", default-features = false, path = "../../pallets/dao-votes" }
 pallet-hookpoints = { version = "4.0.0-dev", default-features = false, path = "../../pallets/hookpoints" }
+
+# Chain extension
+pallet-dao-assets-chain-extension = { git = "https://github.com/cute0laf/genesis-dao-assets-chain-extension", branch = "genesis-dao-assets", default-features = false, features = [
+	"substrate",
+] }
 
 [build-dependencies]
 substrate-wasm-builder = { version = "5.0.0-dev", git = "https://github.com/paritytech/substrate.git", optional = true, branch = "release-v1.0.0-cumulus" }
 
 [features]
 default = ["std"]
+runtime-benchmarks = [
+	"frame-benchmarking/runtime-benchmarks",
+	"frame-support/runtime-benchmarks",
+	"frame-system-benchmarking/runtime-benchmarks",
+	"frame-system/runtime-benchmarks",
+	"pallet-balances/runtime-benchmarks",
+	"pallet-grandpa/runtime-benchmarks",
+	"pallet-multisig/runtime-benchmarks",
+	"pallet-dao-assets/runtime-benchmarks",
+	"pallet-dao-core/runtime-benchmarks",
+	"pallet-dao-votes/runtime-benchmarks",
+	"pallet-hookpoints/runtime-benchmarks",
+	"pallet-timestamp/runtime-benchmarks",
+	"sp-runtime/runtime-benchmarks",
+	"pallet-dao-assets-chain-extension/runtime-benchmarks",
+]
 std = [
 	"frame-try-runtime?/std",
 	"frame-system-benchmarking?/std",
@@ -104,21 +125,7 @@ std = [
 	"sp-transaction-pool/std",
 	"sp-version/std",
 	"substrate-wasm-builder",
-]
-runtime-benchmarks = [
-	"frame-benchmarking/runtime-benchmarks",
-	"frame-support/runtime-benchmarks",
-	"frame-system-benchmarking/runtime-benchmarks",
-	"frame-system/runtime-benchmarks",
-	"pallet-balances/runtime-benchmarks",
-	"pallet-grandpa/runtime-benchmarks",
-	"pallet-multisig/runtime-benchmarks",
-	"pallet-dao-assets/runtime-benchmarks",
-	"pallet-dao-core/runtime-benchmarks",
-	"pallet-dao-votes/runtime-benchmarks",
-	"pallet-hookpoints/runtime-benchmarks",
-	"pallet-timestamp/runtime-benchmarks",
-	"sp-runtime/runtime-benchmarks",
+	"pallet-dao-assets-chain-extension/substrate-std",
 ]
 try-runtime = [
 	"frame-try-runtime/try-runtime",
