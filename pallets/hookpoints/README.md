@@ -95,12 +95,25 @@ Users can register a global callback, which becomes the default point of interac
 
 This is normally done by someone who "owns" a part of your application and wants to alter it's behaviour. In the example above it's DAO.
 
-## Registering a Specific Callback
-Users can also define specific callbacks, which will take precedence over global callbacks when triggered.
+#### Registering a Global Callback
+Users can also define a global callbacks which will be used as a default callback when no specific callback is defined.
+
+```rust
+assert_ok!(HookPoints::register_global_callback(origin, contract_address));
+```
 
 ## Registering a Specific Callback
 Users can also define specific callbacks, which will take precedence over global callbacks when triggered.
 
+```rust
+assert_ok!(HookPoints::register_specific_callback(
+    RuntimeOrigin::signed(ALICE).into(),
+    contract_address,
+    selector_id_as_stringd
+));
+```
+
+The id can be found as label in the `contract.json`, when using hookpoint-cli (highly recommended) it's just `ChoosenName:choosen_hookpoint_name`.
 
 ## Testing
 Here's how a typical test might look like:
@@ -120,7 +133,7 @@ fn execute_callback() {
         let contract_address = HookPoints::install(contract_deployment)
             .expect("Contract installation should be successful");
 
-        // Register the contract for callbacks (if you have such a step)
+        // Register the contract for callbacks
         HookPoints::register_global_callback(RuntimeOrigin::signed(creator.clone()), contract_address.clone()).unwrap();
 
         // Create a HookPoint for the "multiply" function
