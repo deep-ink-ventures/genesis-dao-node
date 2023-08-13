@@ -58,7 +58,7 @@ impl<AccountId> ContractDeployment<AccountId> {
         }
     }
 
-    pub fn add_arg<T>(mut self, arg: T) -> Self
+    pub fn add_init_arg<T>(mut self, arg: T) -> Self
     where
         T: Encode
     {

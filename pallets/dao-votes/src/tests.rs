@@ -286,7 +286,6 @@ fn voting_outcome_successful_proposal_and_mark_implemented() {
 
 #[test]
 fn on_vote_calculation_callback_works() {
-    use frame_support::dispatch::Encode;
     new_test_ext().execute_with(|| {
         let sender = ALICE;
         let origin = RuntimeOrigin::signed(sender.clone());
@@ -295,6 +294,8 @@ fn on_vote_calculation_callback_works() {
 
         let voter = BOB;
         let asset_id = 1;
+
+		// this is our state before
         assert_ok!(Assets::transfer(origin.clone(), asset_id, voter.clone(), 50));
         assert_eq!(<Proposals<Test>>::get(prop_id).unwrap().in_favor, 0);
 
@@ -304,21 +305,20 @@ fn on_vote_calculation_callback_works() {
             sender.clone(),
             std::fs::read(contract_path).unwrap(),
             vec![]
-        ).add_arg("DAO".encode());
+        );
 
-        // Attempt to install the contract
         let contract_account = HookPoints::install(contract_deployment)
             .expect("code deployed");
 
-        // Register the contract for callbacks (if you have such a step)
         assert_ok!(HookPoints::register_specific_callback(
             origin,
             contract_account,
             "GenesisDao::on_vote".into(),
         ));
 
-        let vote = true;
-        assert_ok!(DaoVotes::vote(RuntimeOrigin::signed(voter), prop_id, Some(vote)));
+		// now let's vote
+        assert_ok!(DaoVotes::vote(RuntimeOrigin::signed(voter), prop_id, Some(true)));
+		// and this should be multiplied by 2, as defined in the above ink! contract
         assert_eq!(<Proposals<Test>>::get(prop_id).unwrap().in_favor, 100);
     });
 }

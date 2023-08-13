@@ -114,8 +114,8 @@ fn execute_callback() {
         // your compiled wasm ink contract!
         let contract_path = "test_contract.wasm";
 
-        let mut contract_deployment = HookPoints::prepare_deployment("new", creator.clone(), std::fs::read(contract_path).unwrap(), vec![]);
-        contract_deployment = contract_deployment.add_arg(42u128);
+        let contract_deployment = HookPoints::prepare_deployment("new", creator.clone(), std::fs::read(contract_path).unwrap(), vec![])
+            .add_init_arg(42u128);
 
         let contract_address = HookPoints::install(contract_deployment)
             .expect("Contract installation should be successful");

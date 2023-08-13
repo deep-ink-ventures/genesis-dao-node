@@ -148,13 +148,13 @@ fn install_and_call_ink_contract_works() {
         let contract_path = "test_contract.wasm";
 
         let contract_deployment = HookPoints::prepare_deployment("new", creator.clone(), std::fs::read(contract_path).unwrap(), vec![])
-            .add_arg(42u128);
+            .add_init_arg(42u128);
 
         // Attempt to install the contract
         let contract_address = HookPoints::install(contract_deployment)
             .expect("Contract installation should be successful");
 
-        // Register the contract for callbacks (if you have such a step)
+        // Register the contract for callbacks
         HookPoints::register_global_callback(RuntimeOrigin::signed(creator.clone()), contract_address.clone()).unwrap();
 
         // Create a HookPoint for the "get" function
@@ -176,13 +176,13 @@ fn execute_callback() {
         let contract_path = "test_contract.wasm";
 
         let contract_deployment = HookPoints::prepare_deployment("new", creator.clone(), std::fs::read(contract_path).unwrap(), vec![])
-           .add_arg(42u128);
+           .add_init_arg(42u128);
 
         // Attempt to install the contract
         let contract_address = HookPoints::install(contract_deployment)
             .expect("Contract installation should be successful");
 
-        // Register the contract for callbacks (if you have such a step)
+        // Register the contract for callbacks
         HookPoints::register_global_callback(RuntimeOrigin::signed(creator.clone()), contract_address.clone()).unwrap();
 
         // Create a HookPoint for the "multiply" function
