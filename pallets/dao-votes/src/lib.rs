@@ -47,7 +47,7 @@ type ProposalOf<T> = Proposal<
 
 type GovernanceOf<T> = Governance<AssetBalanceOf<T>>;
 
-#[frame_support::pallet(dev_mode)]
+#[frame_support::pallet]
 pub mod pallet {
 
 	use super::*;
@@ -97,7 +97,6 @@ pub mod pallet {
 			+ One
 			+ Saturating;
 
-		/// Weight information for extrinsics in this pallet.
 		type WeightInfo: WeightInfo;
 	}
 
@@ -199,7 +198,7 @@ pub mod pallet {
 		}
 
 		#[pallet::call_index(1)]
-		#[pallet::weight(0)] //<T as pallet::Config>::WeightInfo::create_proposal())]
+		#[pallet::weight(<T as pallet::Config>::WeightInfo::create_proposal())]
 		pub fn set_metadata(
 			origin: OriginFor<T>,
 			proposal_id: T::ProposalId,
@@ -270,7 +269,7 @@ pub mod pallet {
 		}
 
 		#[pallet::call_index(3)]
-		#[pallet::weight(<T as pallet::Config>::WeightInfo::finalize_proposal(T::HistoryHorizon::get()))]
+		#[pallet::weight(<T as pallet::Config>::WeightInfo::finalize_proposal())]
 		pub fn finalize_proposal(
 			origin: OriginFor<T>,
 			proposal_id: T::ProposalId,
@@ -447,7 +446,7 @@ pub mod pallet {
 		}
 
 		#[pallet::call_index(7)]
-		//#[pallet::weight(<T as pallet::Config>::WeightInfo::mark_implemented())]
+		#[pallet::weight(<T as pallet::Config>::WeightInfo::mark_implemented())]
 		pub fn mark_implemented(
 			origin: OriginFor<T>,
 			proposal_id: T::ProposalId,

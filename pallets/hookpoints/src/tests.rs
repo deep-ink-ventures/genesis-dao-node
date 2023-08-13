@@ -1,3 +1,17 @@
+// Copyright (C) Deep Ink Ventures GmbH
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 use crate::{mock::*, Error, Event};
 use frame_support::{assert_noop, assert_ok, BoundedVec};
 use codec::Encode;
@@ -127,24 +141,18 @@ fn it_appends_argument_to_hook_point_from_hookpoints() {
     assert_eq!(hook_point.data, expected_data);
 }
 
-
 #[test]
 fn install_and_call_ink_contract_works() {
     new_test_ext().execute_with(|| {
         let creator = ALICE;
         let contract_path = "test_contract.wasm";
 
-		let mut data = 0x9bae9d5e_u32.to_be_bytes().to_vec();
-		data.append(&mut 42u128.encode()); // argument DaoId
-        let salt = vec![];
+        let contract_deployment = HookPoints::prepare_deployment("new", creator.clone(), std::fs::read(contract_path).unwrap(), vec![])
+            .add_arg(42u128);
 
         // Attempt to install the contract
-        let contract_address = HookPoints::install(
-            creator.clone(),
-            std::fs::read(contract_path).unwrap(),
-            data.clone(),
-            salt.clone()
-        ).expect("Contract installation should be successful");
+        let contract_address = HookPoints::install(contract_deployment)
+            .expect("Contract installation should be successful");
 
         // Register the contract for callbacks (if you have such a step)
         HookPoints::register_global_callback(RuntimeOrigin::signed(creator.clone()), contract_address.clone()).unwrap();
@@ -167,29 +175,24 @@ fn execute_callback() {
         let creator = ALICE;
         let contract_path = "test_contract.wasm";
 
-		let mut data = 0x9bae9d5e_u32.to_be_bytes().to_vec();
-		data.append(&mut 42u128.encode()); // argument DaoId
-        let salt = vec![];
+        let contract_deployment = HookPoints::prepare_deployment("new", creator.clone(), std::fs::read(contract_path).unwrap(), vec![])
+           .add_arg(42u128);
 
         // Attempt to install the contract
-        let contract_address = HookPoints::install(
-            creator.clone(),
-            std::fs::read(contract_path).unwrap(),
-            data.clone(),
-            salt.clone()
-        ).expect("Contract installation should be successful");
+        let contract_address = HookPoints::install(contract_deployment)
+            .expect("Contract installation should be successful");
 
         // Register the contract for callbacks (if you have such a step)
         HookPoints::register_global_callback(RuntimeOrigin::signed(creator.clone()), contract_address.clone()).unwrap();
 
-        // Create a HookPoint for the "get" function
+        // Create a HookPoint for the "multiply" function
         let hookpoint = HookPoints::create("multiply", creator.clone(), creator.clone())
             .add_arg(2u128);
 
-        // Execute the "get" function using the HookPoint
+        // Execute the "multiply" function using the HookPoint
         let result: Result<u128, _> = HookPoints::execute(hookpoint);
 
-        // Ensure the result is Ok and equals to 42
+        // Ensure the result is Ok and equals to 84 (since 42 * 2 = 84)
         assert_eq!(result.unwrap(), 84);
     });
 }

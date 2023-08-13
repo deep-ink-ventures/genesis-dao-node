@@ -1,7 +1,6 @@
 use crate::{mock::*, test_utils::*, types::*, Config, Error, ProposalSlots, Proposals, Votes};
 use frame_support::{assert_noop, assert_ok, traits::TypedGet};
 use pallet_dao_core::{CurrencyOf, Error as DaoError};
-use pallet_hookpoints::Pallet as Hookpoints;
 
 #[test]
 fn can_create_a_proposal() {
@@ -159,7 +158,7 @@ fn can_finalize_a_proposal() {
 	new_test_ext().execute_with(|| {
 		let sender = ALICE;
 		let origin = RuntimeOrigin::signed(sender.clone());
-		let dao_id = setup_dao_with_governance::<Test>(sender.clone());
+		let dao_id = setup_dao_with_governance_and_no_duration::<Test>(sender.clone());
 		let prop_id = create_proposal_id::<Test>(sender.clone(), dao_id);
 
 		assert_noop!(
@@ -287,38 +286,39 @@ fn voting_outcome_successful_proposal_and_mark_implemented() {
 
 #[test]
 fn on_vote_calculation_callback_works() {
-	use frame_support::dispatch::Encode;
-	new_test_ext().execute_with(|| {
-		let sender = ALICE;
-		let origin = RuntimeOrigin::signed(sender.clone());
-		let dao_id = setup_dao_with_governance::<Test>(sender.clone());
-		let prop_id = setup_proposal::<Test>(sender.clone(), dao_id);
+    use frame_support::dispatch::Encode;
+    new_test_ext().execute_with(|| {
+        let sender = ALICE;
+        let origin = RuntimeOrigin::signed(sender.clone());
+        let dao_id = setup_dao_with_governance::<Test>(sender.clone());
+        let prop_id = setup_proposal::<Test>(sender.clone(), dao_id);
 
-		let voter = BOB;
-		let asset_id = 1;
-		assert_ok!(Assets::transfer(origin.clone(), asset_id, voter.clone(), 50));
-		assert_eq!(<Proposals<Test>>::get(prop_id).unwrap().in_favor, 0);
+        let voter = BOB;
+        let asset_id = 1;
+        assert_ok!(Assets::transfer(origin.clone(), asset_id, voter.clone(), 50));
+        assert_eq!(<Proposals<Test>>::get(prop_id).unwrap().in_favor, 0);
 
-		let contract_path = "../../contracts/hooks/genesis-dao-contract-tests/target/ink/genesis_dao_contract.wasm";
-		let mut data = 0x9bae9d5e_u32.to_be_bytes().to_vec();
-		data.append(&mut "DAO".encode()); // argument DaoId
-		let contract_account = Hookpoints::<Test>::install(
-			sender,
-			std::fs::read(contract_path).unwrap(),
-			data,
-			vec![]
-		).expect("code deployed");
+        let contract_path = "../../contracts/hooks/genesis-dao-contract-tests/target/ink/genesis_dao_contract.wasm";
+        let contract_deployment = HookPoints::prepare_deployment(
+            "new",
+            sender.clone(),
+            std::fs::read(contract_path).unwrap(),
+            vec![]
+        ).add_arg("DAO".encode());
 
-		// register callback
-		assert_ok!(Hookpoints::<Test>::register_specific_callback(
-			origin,
-			contract_account,
-			"GenesisDao::on_vote".into(),
-		));
+        // Attempt to install the contract
+        let contract_account = HookPoints::install(contract_deployment)
+            .expect("code deployed");
 
-		let vote = true;
-		assert_ok!(DaoVotes::vote(RuntimeOrigin::signed(voter), prop_id, Some(vote)));
-		assert_eq!(<Proposals<Test>>::get(prop_id).unwrap().in_favor, 100);
-	})
+        // Register the contract for callbacks (if you have such a step)
+        assert_ok!(HookPoints::register_specific_callback(
+            origin,
+            contract_account,
+            "GenesisDao::on_vote".into(),
+        ));
+
+        let vote = true;
+        assert_ok!(DaoVotes::vote(RuntimeOrigin::signed(voter), prop_id, Some(vote)));
+        assert_eq!(<Proposals<Test>>::get(prop_id).unwrap().in_favor, 100);
+    });
 }
-

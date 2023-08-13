@@ -1,15 +1,15 @@
 [workspace]
 members = [
-	"node",
-	"runtime",
-	"integration-wrapper",
-	]
+    "node/solo",
+    "runtime/solo",
+    "integration-wrapper",
+]
 default-members = [
-	"node",
-	"runtime",
-	]
+    "node/solo",
+    "runtime/solo",
+]
 exclude = [
-	"contracts/**",
+    "contracts/**",
 ]
 
 [profile.release]

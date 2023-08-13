@@ -22,7 +22,27 @@ pub fn setup_dao<T: Config>(caller: T::AccountId) -> Vec<u8> {
 /// - `caller`: AccountId of the dao creator
 pub fn setup_dao_with_governance<T: Config>(caller: T::AccountId) -> Vec<u8> {
 	let dao_id = setup_dao::<T>(caller.clone());
-	let proposal_duration = 0_u32;
+	let proposal_duration = 1000_u32;
+	let proposal_token_deposit = 1_u32.into();
+	let minimum_majority_per_1024 = 10;
+	assert_eq!(
+		Votes::<T>::set_governance_majority_vote(
+			RawOrigin::Signed(caller).into(),
+			dao_id.clone(),
+			proposal_duration,
+			proposal_token_deposit,
+			minimum_majority_per_1024
+		),
+		Ok(())
+	);
+	dao_id
+}
+
+/// Same as `setup_dao_with_governance` but with no duration.
+/// - `caller`: AccountId of the dao creator
+pub fn setup_dao_with_governance_and_no_duration<T: Config>(caller: T::AccountId) -> Vec<u8> {
+	let dao_id = setup_dao::<T>(caller.clone());
+	let proposal_duration = 0;
 	let proposal_token_deposit = 1_u32.into();
 	let minimum_majority_per_1024 = 10;
 	assert_eq!(

@@ -1,4 +1,6 @@
 //! DAO Votes pallet benchmarking.
+//!
+//! ./target/release/genesis-dao-solochain benchmark pallet --chain dev --pallet pallet_dao_votes --extrinsic '*' --steps 20 --repeat 10 --output pallets/dao-votes/src/weights.rs --template ./benchmarking/frame-weight-template.hbs
 
 use super::*;
 use crate::{test_utils::*, Pallet as Votes};
@@ -74,7 +76,7 @@ benchmarks! {
 
 	finalize_proposal {
 		let caller = setup_caller::<T>();
-		let dao_id = setup_dao_with_governance::<T>(caller.clone());
+		let dao_id = setup_dao_with_governance_and_no_duration::<T>(caller.clone());
 		let proposal_id = setup_proposal::<T>(caller.clone(), dao_id);
 		frame_system::Pallet::<T>::set_block_number(5_u32.into());
 	}: _(RawOrigin::Signed(caller.clone()), proposal_id)
@@ -107,7 +109,7 @@ benchmarks! {
 
 	mark_implemented {
 		let caller = setup_caller::<T>();
-		let dao_id = setup_dao_with_governance::<T>(caller.clone());
+		let dao_id = setup_dao_with_governance_and_no_duration::<T>(caller.clone());
 		let proposal_id = setup_accepted_proposal::<T>(caller.clone(), dao_id);
 	}: _(RawOrigin::Signed(caller.clone()), proposal_id)
 	verify {

@@ -4,6 +4,14 @@
 
 The Hookpoint CLI is a powerful tool designed to streamline the integration of hook points in Substrate and ink! smart contracts. With this CLI, developers can effortlessly bridge the gap between blockchain runtime and smart contract development, ensuring a cohesive and efficient workflow.
 
+## Background
+The concept of hook points emerges from the need to create an extensible and modular system in the blockchain world, reminiscent of successful software models in the web2 era. Platforms such as Magento, WordPress, and Shopify owe a significant part of their success to their rich ecosystem of plugins and extensions. These extensions allowed third-party developers to introduce additional functionalities, creating a versatile and adaptable platform tailored to diverse use cases.
+
+In a similar vein, Substrate presents itself as a specialized blockchain framework that adheres to the Unix philosophy: "Do one thing and do it right." At its core, Substrate focuses on providing a robust and efficient base, leaving room for extensibility and adaptability. The introduction of hook points superimposes a plugin and extension system on top of this core. This not only enhances the core functionalities but also opens doors for developers to introduce innovative features without altering the base.
+
+Leveraging the capabilities of ink! and pallet_contracts, hook points pave the way for seamless integration between Substrate pallets and ink modules. This integration allows developers to tap into the core functionalities, intercept them, and build upon them. The essence of hook points lies in its abstraction capabilities. Instead of delving deep into the intricacies of byte manipulation, encoding/decoding, and low-level coding nuances, hook points offer a higher-level interface that masks these complexities. This effectively bridges the gap between the Substrate runtime environment and ink, making the development process smoother and more intuitive.
+
+To further enhance the developer experience, a CLI tool accompanies hook points. This tool is designed to automate the code generation process for both Substrate and ink. It takes care of generating essential code, tests, and other necessary components. The emphasis is on reducing manual interventions, eliminating boilerplate code, and ensuring that developers can focus on logic and functionality rather than the underlying intricacies. In essence, hook points aim to provide a streamlined, efficient, and developer-friendly environment for blockchain extension and customization.
 
 ## Features
 

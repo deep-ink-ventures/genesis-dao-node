@@ -611,6 +611,7 @@ impl pallet_dao_votes::Config for Runtime {
 impl pallet_hookpoints::Config for Runtime {
 	type RuntimeEvent = RuntimeEvent;
 	type MaxLengthId = ConstU32<64>;
+	type WeightInfo = pallet_hookpoints::weights::SubstrateWeight<Runtime>;
 }
 
 // Create the runtime by composing the FRAME pallets that were previously configured.

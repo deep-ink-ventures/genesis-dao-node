@@ -31,4 +31,5 @@ mod genesis_dao {
             assert_eq!(genesis_dao.on_vote(AccountId::from([0x01; 32]), 50), 100);
         }
     }
+
 }

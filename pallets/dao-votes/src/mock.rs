@@ -186,6 +186,7 @@ impl pallet_dao_core::Config for Test {
 impl pallet_hookpoints::Config for Test {
 	type RuntimeEvent = RuntimeEvent;
 	type MaxLengthId = ConstU32<64>;
+	type WeightInfo = ();
 }
 
 impl pallet_dao_votes::Config for Test {
