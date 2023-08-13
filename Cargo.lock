@@ -3818,9 +3818,9 @@ checksum = "d897f394bad6a705d5f4104762e116a75639e470d80901eed05a860a95cb1904"
 
 [[package]]
 name = "httpdate"
-version = "1.0.2"
+version = "1.0.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c4a1e36c821dbe04574f602848a19f742f4fb3c98d40449f11bcad18d6b17421"
+checksum = "df3b46402a9d5adb4c86a0cf463f42e19994e3ee891101b1841f30a545cb49a9"
 
 [[package]]
 name = "humantime"
@@ -6242,7 +6242,7 @@ dependencies = [
 [[package]]
 name = "pallet-dao-assets"
 version = "4.0.0-dev"
-source = "git+https://github.com/deep-ink-ventures/genesis-dao-node?branch=main#e95bd558bb828959dede5cd34f470468c866bb06"
+source = "git+https://github.com/deep-ink-ventures/genesis-dao-node?branch=main#96fb86e543a35158826b55c185697f58c0396cb5"
 dependencies = [
  "frame-benchmarking",
  "frame-support",
@@ -6256,7 +6256,7 @@ dependencies = [
 [[package]]
 name = "pallet-dao-assets-chain-extension"
 version = "0.1.0"
-source = "git+https://github.com/cute0laf/genesis-dao-assets-chain-extension?branch=genesis-dao-assets#5c70858e23c8f67570233db2d8fd8afbaf6768bf"
+source = "git+https://github.com/cute0laf/genesis-dao-assets-chain-extension?branch=genesis-dao-assets#d4fe29e44791590b8fdab7743e27d74cb095d71a"
 dependencies = [
  "obce",
  "pallet-dao-assets 4.0.0-dev (git+https://github.com/deep-ink-ventures/genesis-dao-node?branch=main)",
