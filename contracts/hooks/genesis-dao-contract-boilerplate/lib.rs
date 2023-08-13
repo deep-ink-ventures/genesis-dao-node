@@ -35,26 +35,31 @@ mod genesis_dao {
     #[cfg(all(test, feature = "e2e-tests"))]
     mod e2e_tests {
         use super::*;
+        use genesis_dao_contract_trait::GenesisDao as Trait;
         use ink_e2e::build_message;
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
         #[ink_e2e::test]
-        async fn default_works(mut client: ink_e2e::Client<C, E>) -> E2EResult<()> {
-            let constructor = ContractRef::new();
+        async fn e2e_test_on_vote(mut client: ink_e2e::Client<C, E>) -> E2EResult<()> {
+            let constructor = GenesisDaoRef::new();
 
-            // When
             let contract_account_id = client
-                .instantiate("contract", &ink_e2e::alice(), constructor, 0, None)
+                .instantiate("genesis_dao", &ink_e2e::alice(), constructor, 0, None)
                 .await
                 .expect("instantiate failed")
                 .account_id;
 
-            // Then
-            let get = build_message::<ContractRef>(contract_account_id.clone())
-                .call(|contract| contract.on_vote());
-            let get_result = client.call_dry_run(&ink_e2e::alice(), &on_vote, 0, None).await;
-            assert!(matches!(get_result.return_value(), false));
+            let on_vote = build_message::<GenesisDaoRef>(contract_account_id.clone())
+                .call(|genesis_dao| genesis_dao.on_vote(
+                    ink::env::test::default_accounts::<ink::env::DefaultEnvironment>().alice,
+                    0
+                ));
 
+            let result = client
+                .call_dry_run(&ink_e2e::alice(), &on_vote, 0, None)
+                .await;
+
+            assert_eq!(result.return_value(), 0);
             Ok(())
         }
     }
