@@ -59,7 +59,7 @@ impl<T: Config> Pallet<T> {
         let callback = Pallet::<T>::get_callback(&hook_point.owner, hook_point.callback);
         let contract = callback.ok_or(DispatchError::Other("no contract"))?;
         let data = Contracts::<T>::bare_call(
-            hook_point.origin,
+            hook_point.signer,
             contract,
             0_u32.into(),
             Weight::from_all(10_000_000_000),

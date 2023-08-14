@@ -114,7 +114,7 @@ fn it_creates_hook_point_from_hookpoints() {
 
     // Assertions
     assert_eq!(hook_point.owner, ALICE);
-    assert_eq!(hook_point.origin, BOB);
+    assert_eq!(hook_point.signer, BOB);
     assert_eq!(hook_point.callback, CALLBACK_NAME.as_bytes().to_vec());
 
     // Check the first 4 bytes of the hashed callback name

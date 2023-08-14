@@ -105,7 +105,7 @@ pub struct HookPoint<AccountId> {
     pub owner: AccountId,
 
     /// The origin account ID initiating the call.
-    pub origin: AccountId,
+    pub signer: AccountId,
 
     /// The specific callback identifier to be triggered.
     pub callback: Vec<u8>,
@@ -127,7 +127,7 @@ impl<AccountId> HookPoint<AccountId> {
     pub fn new(callback: &str, owner: AccountId, origin: AccountId) -> Self {
         HookPoint {
             owner,
-            origin,
+            signer: origin,
             callback: callback.into(),
             data: selector_from_str(callback)
         }
