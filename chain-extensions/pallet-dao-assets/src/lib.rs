@@ -10,7 +10,7 @@ use sp_runtime::{DispatchError, ModuleError};
 use sp_std::marker::PhantomData;
 
 enum AssetsFunc {
-    Transfer,
+    Transfer = 100
 }
 
 impl TryFrom<u16> for AssetsFunc {
@@ -18,7 +18,7 @@ impl TryFrom<u16> for AssetsFunc {
 
     fn try_from(value: u16) -> Result<Self, Self::Error> {
         match value {
-            1 => Ok(AssetsFunc::Transfer),
+            100 => Ok(AssetsFunc::Transfer),
             _ => Err(DispatchError::Other(
                 "PalletDaoAssetsExtension: Unimplemented func_id",
             )),
@@ -111,7 +111,6 @@ impl<T> ChainExtension<T> for AssetsExtension<T>
         let func_id = env.func_id().try_into()?;
         let mut env = env.buf_in_buf_out();
 
-
         return match func_id {
             AssetsFunc::Transfer => {
                 let (origin, id, target, amount): (
@@ -141,5 +140,9 @@ impl<T> ChainExtension<T> for AssetsExtension<T>
                 }
             }
         }
+    }
+
+    fn enabled() -> bool {
+        true
     }
 }

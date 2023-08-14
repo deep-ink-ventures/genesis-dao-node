@@ -13,3 +13,4 @@ sp-keyring = "18.0.0" # needs to match the sp-core version used in subxt?
 subxt = "0.27.1"
 tokio = "1.26.0"
 
+[workspace]

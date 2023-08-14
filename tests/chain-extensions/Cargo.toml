@@ -1,16 +1,12 @@
 [package]
-name = "pallet-dao-core"
+name = "chain-extensions-test-suite"
 version = "4.0.0-dev"
-description = "FRAME pallet for the creation of a new DAO"
 authors = ["chp"]
 homepage = "https://deep-ink.ventures"
 edition = "2021"
 license = "Apache-2.0"
 publish = false
 repository = "https://github.com/deep-ink-ventures/genesis-dao/"
-
-[package.metadata.docs.rs]
-targets = ["x86_64-unknown-linux-gnu"]
 
 [dependencies]
 codec = { package = "parity-scale-codec", version = "3.0.0", default-features = false, features = [
@@ -24,12 +20,19 @@ scale-info = { version = "2.1.1", default-features = false, features = [
 ] }
 sp-std = { version = "8.0.0", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v1.0.0" }
 pallet-balances = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v1.0.0" }
-pallet-dao-assets = { version = "4.0.0-dev", default-features = false, path = "../dao-assets" }
+pallet-dao-core = { version = "4.0.0-dev", default-features = false, path = "../../pallets/dao-core" }
+pallet-dao-assets = { version = "4.0.0-dev", default-features = false, path = "../../pallets/dao-assets" }
+pallet-dao-votes = { version = "4.0.0-dev", default-features = false, path = "../../pallets/dao-votes" }
+pallet-hookpoints = { version = "4.0.0-dev", default-features = false, path = "../../pallets/hookpoints" }
 
-[dev-dependencies]
 sp-core = { version = "21.0.0", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v1.0.0" }
 sp-io = { version = "23.0.0", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v1.0.0" }
 sp-runtime = { version = "24.0.0", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v1.0.0" }
+pallet-timestamp = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v1.0.0" }
+pallet-transaction-payment = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v1.0.0" }
+pallet-contracts-primitives = { version = "24.0.0", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v1.0.0" }
+pallet-contracts = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v1.0.0" }
+pallet-dao-assets-extensions = { version = "4.0.0-dev", default-features = false, path = "../../chain-extensions/pallet-dao-assets" }
 
 [features]
 default = ["std"]
@@ -41,10 +44,18 @@ std = [
 	"scale-info/std",
 	"sp-runtime/std",
 	"pallet-balances/std",
+	"pallet-contracts-primitives/std",
+	"pallet-contracts/std",
 	"pallet-dao-assets/std",
+	"pallet-dao-core/std",
+	"pallet-hookpoints/std",
+	"pallet-dao-assets-extensions/std",
 ]
 runtime-benchmarks = [
 	"frame-benchmarking/runtime-benchmarks",
 	"pallet-dao-assets/runtime-benchmarks",
+	"pallet-dao-core/runtime-benchmarks",
+	"pallet-hookpoints/runtime-benchmarks",
 ]
 try-runtime = ["frame-support/try-runtime"]
+[workspace]

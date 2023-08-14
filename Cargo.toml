@@ -2,14 +2,10 @@
 members = [
     "node/solo",
     "runtime/solo",
-    "integration-wrapper",
 ]
 default-members = [
     "node/solo",
     "runtime/solo",
-]
-exclude = [
-    "contracts/**",
 ]
 
 [profile.release]

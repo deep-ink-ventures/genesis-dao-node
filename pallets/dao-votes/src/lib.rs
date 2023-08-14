@@ -20,7 +20,7 @@ mod mock;
 mod tests;
 
 #[cfg(any(test, feature = "runtime-benchmarks"))]
-mod test_utils;
+pub mod test_utils;
 
 mod types;
 pub use types::*;
