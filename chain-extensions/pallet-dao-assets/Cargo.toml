@@ -1,0 +1,37 @@
+[package]
+name = "pallet-dao-assets-extensions"
+version = "4.0.0-dev"
+license = "Apache-2.0"
+authors = ["chp"]
+edition = "2021"
+
+[dependencies]
+frame-support = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "release-v1.0.0-cumulus" }
+frame-system = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "release-v1.0.0-cumulus" }
+num-traits = { version = "0.2", default-features = false }
+pallet-dao-assets = { version = "4.0.0-dev", default-features = false, path = "../../pallets/dao-assets" }
+pallet-contracts = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "release-v1.0.0-cumulus" }
+pallet-contracts-primitives = { version = "24.0.0", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "release-v1.0.0-cumulus" }
+parity-scale-codec = { package = "parity-scale-codec", version = "3.0.0", default-features = false, features = [
+	"derive",
+] }
+scale-info = { version = "2.1.1", default-features = false, features = ["derive"] }
+sp-core = { version = "21.0.0", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "release-v1.0.0-cumulus" }
+sp-runtime = { version = "24.0.0", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "release-v1.0.0-cumulus" }
+sp-std = { version = "8.0.0", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "release-v1.0.0-cumulus" }
+
+[features]
+default = ["std"]
+std = [
+	"parity-scale-codec/std",
+	"frame-support/std",
+	"frame-system/std",
+	"num-traits/std",
+	"pallet-contracts/std",
+	"pallet-contracts-primitives/std",
+	"scale-info/std",
+	"sp-std/std",
+	"sp-core/std",
+	"sp-runtime/std",
+	"pallet-dao-assets/std",
+]

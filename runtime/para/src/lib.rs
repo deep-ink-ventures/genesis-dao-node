@@ -261,7 +261,7 @@ pub fn native_version() -> NativeVersion {
 parameter_types! {
 	pub const Version: RuntimeVersion = VERSION;
 
-	// This part is copied from Substrate's `bin/node/runtime/src/lib.rs`.
+	// This part is copied from Substrate's `bin/node/runtime/src/assets_extension`.
 	//  The `RuntimeBlockLength` and `RuntimeBlockWeights` exist here because the
 	// `DeletionWeightLimit` and `DeletionQueueDepth` depend on those to parameterize
 	// the lazy contract deletion.

@@ -61,6 +61,8 @@ pallet-dao-assets = { version = "4.0.0-dev", default-features = false, path = ".
 pallet-dao-votes = { version = "4.0.0-dev", default-features = false, path = "../../pallets/dao-votes" }
 pallet-hookpoints = { version = "4.0.0-dev", default-features = false, path = "../../pallets/hookpoints" }
 
+pallet-dao-assets-extensions = { version = "4.0.0-dev", default-features = false, path = "../../chain-extensions/pallet-dao-assets" }
+
 [build-dependencies]
 substrate-wasm-builder = { version = "5.0.0-dev", git = "https://github.com/paritytech/substrate.git", optional = true, branch = "release-v1.0.0-cumulus" }
 
