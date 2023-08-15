@@ -78,7 +78,7 @@ parachain-info = { git = "https://github.com/paritytech/cumulus.git", tag = "par
 pallet-dao-assets = { version = "4.0.0-dev", default-features = false, path = "../../pallets/dao-assets" }
 pallet-dao-core = { version = "4.0.0-dev", default-features = false, path = "../../pallets/dao-core" }
 pallet-dao-votes = { version = "4.0.0-dev", default-features = false, path = "../../pallets/dao-votes" }
-pallet-hookpoints = { version = "4.0.0-dev", default-features = false, path = "../../pallets/hookpoints" }
+pallet-hookpoints = { version = "1.0.0", default-features = false, git = "https://github.com/deep-ink-ventures/pallet_hookpoints.git", branch="polkadot-v1.0.0"}
 
 [features]
 default = [

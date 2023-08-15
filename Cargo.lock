@@ -4969,7 +4969,8 @@ dependencies = [
 
 [[package]]
 name = "pallet-hookpoints"
-version = "4.0.0-dev"
+version = "1.0.0"
+source = "git+https://github.com/deep-ink-ventures/pallet_hookpoints.git?branch=polkadot-v1.0.0#8db49264f97bf6de1caf79650768225fdc06ff8f"
 dependencies = [
  "frame-benchmarking",
  "frame-support",
@@ -4981,8 +4982,6 @@ dependencies = [
  "parity-scale-codec",
  "scale-info",
  "sp-core 21.0.0",
- "sp-io 23.0.0",
- "sp-runtime 24.0.0",
  "sp-std 8.0.0",
 ]
 
