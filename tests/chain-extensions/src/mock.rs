@@ -203,7 +203,7 @@ pub const CHARLIE: AccountId32 = AccountId32::new([3u8; 32]);
 pub fn new_test_ext() -> sp_io::TestExternalities {
 	let mut t = frame_system::GenesisConfig::<Test>::default().build_storage().unwrap();
 	pallet_balances::GenesisConfig::<Test> {
-		balances: vec![(ALICE, 1_000_000_000_000), (BOB, 1_000_000_000_000)],
+		balances: vec![(ALICE, 1_000_000_000_000), (BOB, 1_000_000_000_000), (CHARLIE, 1_000_000_000_000)],
 	}
 	.assimilate_storage(&mut t)
 	.unwrap();

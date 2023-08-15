@@ -1,11 +1,8 @@
 use crate::mock::*;
-use frame_support::{
-	assert_ok, pallet_prelude::DispatchError, sp_io::hashing::blake2_256, weights::Weight,
-};
+use frame_support::{assert_ok, pallet_prelude::DispatchError, sp_io::hashing::blake2_256, weights::Weight};
 use pallet_contracts::{CollectEvents, DebugInfo, Determinism};
-
 use codec::{Decode, Encode};
-use pallet_contracts_primitives::Code;
+use pallet_contracts_primitives::{Code, ReturnFlags};
 
 fn selector_from_str(label: &str) -> Vec<u8> {
 	let hash = blake2_256(label.as_bytes());
@@ -25,8 +22,8 @@ fn install(
 		Code::Upload(std::fs::read(contract_path).unwrap()),
 		data,
 		vec![],
-		pallet_contracts::DebugInfo::UnsafeDebug,
-		pallet_contracts::CollectEvents::UnsafeCollect,
+		DebugInfo::Skip,
+		CollectEvents::Skip,
 	);
 	Ok(contract_instantiate_result.result?.account_id)
 }
@@ -49,13 +46,19 @@ where
 		DebugInfo::Skip,
 		CollectEvents::Skip,
 		Determinism::Enforced,
-	)
-	.result?
-	.data;
+	).result.unwrap();
 
-	<Result<R, DispatchError>>::decode(&mut &call_result[..])
+	match call_result.flags {
+		ReturnFlags::REVERT => {
+			Err(DispatchError::Other("failed"))
+		},
+		_ => {
+			<Result<R, DispatchError>>::decode(&mut &call_result.data[..])
 		.map_err(|_| DispatchError::Other("decoding error"))
 		.unwrap()
+		}
+	}
+
 }
 
 #[test]
@@ -121,8 +124,7 @@ fn test_transfer_keep_alive_extension() {
 		data.append(&mut BOB.clone().encode());
 		data.append(&mut 1000_u128.encode());
 
-		// FIXME: `transfer_keep_alive` should fail
-		assert!(call::<()>(sender.clone(), contract_address, data).is_ok());
+		assert!(call::<()>(sender.clone(), contract_address, data).is_err());
 
 		// `transfer_keep_alive` failed, so the balances should not change.
 
@@ -158,11 +160,10 @@ fn test_approved_transfer_flow_extension() {
 
 		// call `approve_transfer`
 		let mut data = selector_from_str("approve_transfer");
-		data.append(&mut asset_id.clone().encode());
 		data.append(&mut BOB.clone().encode());
 		data.append(&mut 100_u128.encode());
 
-		assert!(call::<()>(sender.clone(), contract_address.clone(), data).is_ok());
+		assert_ok!(call::<()>(sender.clone(), contract_address.clone(), data));
 
 		assert_eq!(Assets::balance(asset_id.clone(), ALICE), 1000);
 		assert_eq!(Assets::balance(asset_id.clone(), BOB), 0);
@@ -170,13 +171,11 @@ fn test_approved_transfer_flow_extension() {
 		// call `transfer_approved`
 		let sender = BOB;
 		let mut data = selector_from_str("transfer_approved");
-		data.append(&mut asset_id.clone().encode());
 		data.append(&mut ALICE.clone().encode());
 		data.append(&mut CHARLIE.clone().encode());
 		data.append(&mut 10_u128.encode());
 
-		// FIXME:
-		let _ = call::<()>(sender.clone(), contract_address.clone(), data);
+		assert_ok!(call::<()>(sender.clone(), contract_address.clone(), data));
 
 		assert_eq!(Assets::balance(asset_id.clone(), ALICE), 990);
 		assert_eq!(Assets::balance(asset_id.clone(), BOB), 0);
@@ -186,18 +185,18 @@ fn test_approved_transfer_flow_extension() {
 		// Alice cancels approval for Bob
 		let sender = ALICE;
 		let mut data = selector_from_str("cancel_approval");
-		data.append(&mut asset_id.clone().encode());
 		data.append(&mut BOB.clone().encode());
+
+		assert_ok!(call::<()>(sender.clone(), contract_address.clone(), data));
+
 
 		// call `transfer_approved`
 		let sender = BOB;
 		let mut data = selector_from_str("transfer_approved");
-		data.append(&mut asset_id.clone().encode());
 		data.append(&mut ALICE.clone().encode());
 		data.append(&mut CHARLIE.clone().encode());
 		data.append(&mut 10_u128.encode());
 
-		// FIXME: this call should fail
-		let _ = call::<()>(sender.clone(), contract_address.clone(), data);
+		assert!(call::<()>(sender.clone(), contract_address.clone(), data).is_err());
 	});
 }
