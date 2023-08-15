@@ -2,10 +2,12 @@
 members = [
     "node/solo",
     "runtime/solo",
+    "tests/chain-extensions"
 ]
 default-members = [
     "node/solo",
     "runtime/solo",
+
 ]
 
 [profile.release]

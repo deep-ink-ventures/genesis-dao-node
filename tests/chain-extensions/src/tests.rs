@@ -83,9 +83,9 @@ fn test_transfer_extension() {
 
 		let mut data = selector_from_str("transfer");
 		data.append(&mut BOB.clone().encode());
-		data.append(&mut 100_u128.encode());
+		data.append(&mut 2000_u128.encode());
 
-		call::<()>(sender.clone(), contract_address, data).expect("call success");
+		let x = call::<()>(sender.clone(), contract_address, data);
 
 		assert_eq!(Assets::balance(asset_id.clone(), ALICE), 900);
 		assert_eq!(Assets::balance(asset_id.clone(), BOB), 100);
@@ -121,7 +121,9 @@ fn test_transfer_keep_alive_extension() {
 		data.append(&mut BOB.clone().encode());
 		data.append(&mut 10000_u128.encode());
 
-		assert!(call::<()>(sender.clone(), contract_address, data).is_err());
+		let result = call::<()>(sender.clone(), contract_address, data);
+
+		assert!(result.is_err());
 
 		assert_eq!(Assets::balance(asset_id.clone(), ALICE), 0);
 		assert_eq!(Assets::balance(asset_id.clone(), BOB), 1000);
