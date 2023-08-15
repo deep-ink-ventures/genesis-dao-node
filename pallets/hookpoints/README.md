@@ -27,7 +27,7 @@ Ensure that the pallet_contracts is included in your runtime, as HookPoints reli
 Install the CLI Tool:
 
 ```shell
-> cargo install hookpoint-cli
+> cargo install hookpoints-cli
 ```
 
 ## Installation

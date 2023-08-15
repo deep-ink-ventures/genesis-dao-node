@@ -24,8 +24,7 @@
 use codec::Decode;
 use frame_support::BoundedVec;
 use super::*;
-use frame_support::weights::Weight;
-use frame_support::pallet_prelude::DispatchError;
+use frame_support::pallet_prelude::{DispatchError, Get};
 use pallet_contracts::{CollectEvents, DebugInfo, Determinism, Pallet as Contracts};
 use pallet_contracts_primitives::Code;
 use crate::builder::{ContractDeployment, HookPoint};
@@ -62,7 +61,7 @@ impl<T: Config> Pallet<T> {
             hook_point.signer,
             contract,
             0_u32.into(),
-            Weight::from_all(10_000_000_000),
+            T::BlockWeights::get().max_block,
             Some(0_u32.into()),
             hook_point.data,
             DebugInfo::Skip,
@@ -90,16 +89,17 @@ impl<T: Config> Pallet<T> {
             ..
         } = contract_deployment;
 
+
         let contract_instantiate_result = Contracts::<T>::bare_instantiate(
             creator,
             0_u32.into(),
-            Weight::MAX,
+            T::BlockWeights::get().max_block,
             Some(100_u32.into()),
             Code::Upload(code),
             init_args,
             salt,
-            pallet_contracts::DebugInfo::UnsafeDebug,
-            pallet_contracts::CollectEvents::UnsafeCollect,
+            pallet_contracts::DebugInfo::Skip,
+            pallet_contracts::CollectEvents::Skip,
         );
         Ok(contract_instantiate_result.result?.account_id)
     }
