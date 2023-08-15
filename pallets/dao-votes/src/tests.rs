@@ -299,7 +299,7 @@ fn on_vote_calculation_callback_works() {
         assert_ok!(Assets::transfer(origin.clone(), asset_id, voter.clone(), 50));
         assert_eq!(<Proposals<Test>>::get(prop_id).unwrap().in_favor, 0);
 
-        let contract_path = "../../contracts/hooks/genesis-dao-contract-tests/target/ink/genesis_dao_contract.wasm";
+        let contract_path = "../../contracts/hooks/genesis-dao-contract-tests/test_contract.wasm";
         let contract_deployment = HookPoints::prepare_deployment(
             "new",
             sender.clone(),
