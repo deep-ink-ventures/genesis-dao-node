@@ -1829,7 +1829,8 @@ dependencies = [
 
 [[package]]
 name = "pallet-hookpoints"
-version = "4.0.0-dev"
+version = "1.0.1"
+source = "git+https://github.com/deep-ink-ventures/pallet_hookpoints.git?branch=polkadot-v1.0.0#865aeee9acdf84e3470bb390957dc7e58ad81049"
 dependencies = [
  "frame-benchmarking",
  "frame-support",
