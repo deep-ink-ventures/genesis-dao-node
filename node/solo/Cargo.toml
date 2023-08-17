@@ -7,8 +7,7 @@ homepage = "https://deep-ink.ventures"
 edition = "2021"
 license = "Unlicense"
 publish = false
-# todo
-repository = "https://github.com/shredding/genesis-dao"
+repository = "https://github.com/deep-ink-ventures/genesis-dao"
 build = "build.rs"
 
 [package.metadata.docs.rs]

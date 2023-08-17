@@ -159,7 +159,7 @@ fn test_approved_transfer_flow_extension() {
 		let contract_address = install(sender.clone(), contract_path, data).expect("code deployed");
 
 		// call `approve_transfer`
-		let mut data = selector_from_str("approve_transfer");
+		let mut data = selector_from_str("approve");
 		data.append(&mut BOB.clone().encode());
 		data.append(&mut 100_u128.encode());
 
@@ -170,7 +170,7 @@ fn test_approved_transfer_flow_extension() {
 
 		// call `transfer_approved`
 		let sender = BOB;
-		let mut data = selector_from_str("transfer_approved");
+		let mut data = selector_from_str("transfer_from");
 		data.append(&mut ALICE.clone().encode());
 		data.append(&mut CHARLIE.clone().encode());
 		data.append(&mut 10_u128.encode());
