@@ -1,4 +1,6 @@
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
+use ink::prelude::vec::Vec;
+use scale::Encode;
 
 pub type AccountId = <ink::env::DefaultEnvironment as ink::env::Environment>::AccountId;
 pub type Balance = u128;
@@ -9,19 +11,19 @@ pub trait AssetExtension {
     type ErrorCode = AssetError;
 
     #[ink(extension = 100)]
-    fn transfer(sender: AccountId, asset_id: AssetId, target: AccountId, amount: Balance) -> Result<(), AssetError>;
+    fn transfer(asset_id: AssetId, target: AccountId, amount: Balance) -> Result<(), AssetError>;
 
     #[ink(extension = 101)]
-    fn transfer_keep_alive(sender: AccountId, asset_id: AssetId, target: AccountId, amount: Balance) -> Result<(), AssetError>;
+    fn transfer_keep_alive(asset_id: AssetId, target: AccountId, amount: Balance) -> Result<(), AssetError>;
 
     #[ink(extension = 102)]
-    fn approve(sender: AccountId, asset_id: AssetId, delegate: AccountId, amount: Balance) -> Result<(), AssetError>;
+    fn approve(asset_id: AssetId, delegate: AccountId, amount: Balance) -> Result<(), AssetError>;
 
     #[ink(extension = 103)]
-    fn cancel_approval(sender: AccountId, asset_id: AssetId, delegate: AccountId) -> Result<(), AssetError>;
+    fn cancel_approval(asset_id: AssetId, delegate: AccountId) -> Result<(), AssetError>;
 
     #[ink(extension = 104)]
-    fn transfer_from(sender: AccountId, asset_id: AssetId, owner: AccountId, destination: AccountId, amount: Balance) -> Result<(), AssetError>;
+    fn transfer_from(asset_id: AssetId, owner: AccountId, destination: AccountId, amount: Balance) -> Result<(), AssetError>;
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, scale::Encode, scale::Decode)]
@@ -89,24 +91,24 @@ impl From<scale::Error> for AssetError {
 	}
 }
 
-impl ToString for AssetError {
-    fn to_string(&self) -> String {
+impl AssetError {
+    pub fn to_bytes(&self) -> Vec<u8> {
         match self {
-            AssetError::BalanceLow => "BalanceLow".to_string(),
-            AssetError::NoAccount => "NoAccount".to_string(),
-            AssetError::NoPermission => "NoPermission".to_string(),
-            AssetError::Unknown => "Unknown".to_string(),
-            AssetError::InUse => "InUse".to_string(),
-            AssetError::BadWitness => "BadWitness".to_string(),
-            AssetError::MinBalanceZero => "MinBalanceZero".to_string(),
-            AssetError::BadMetadata => "BadMetadata".to_string(),
-            AssetError::Unapproved => "Unapproved".to_string(),
-            AssetError::WouldDie => "WouldDie".to_string(),
-            AssetError::AlreadyExists => "AlreadyExists".to_string(),
-            AssetError::WouldBurn => "WouldBurn".to_string(),
-            AssetError::AssetNotLive => "AssetNotLive".to_string(),
-            AssetError::RuntimeError => "RuntimeError".to_string(),
-            AssetError::EncodingError => "EncodingError".to_string(),
+            AssetError::BalanceLow => "BalanceLow".encode(),
+            AssetError::NoAccount => "NoAccount".encode(),
+            AssetError::NoPermission => "NoPermission".encode(),
+            AssetError::Unknown => "Unknown".encode(),
+            AssetError::InUse => "InUse".encode(),
+            AssetError::BadWitness => "BadWitness".encode(),
+            AssetError::MinBalanceZero => "MinBalanceZero".encode(),
+            AssetError::BadMetadata => "BadMetadata".encode(),
+            AssetError::Unapproved => "Unapproved".encode(),
+            AssetError::WouldDie => "WouldDie".encode(),
+            AssetError::AlreadyExists => "AlreadyExists".encode(),
+            AssetError::WouldBurn => "WouldBurn".encode(),
+            AssetError::AssetNotLive => "AssetNotLive".encode(),
+            AssetError::RuntimeError => "RuntimeError".encode(),
+            AssetError::EncodingError => "EncodingError".encode(),
         }
     }
 }

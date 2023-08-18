@@ -81,12 +81,13 @@ fn test_transfer_extension() {
 		data.append(&mut asset_id.clone().encode());
 
 		let contract_path =
-			"../../contracts/extensions/dao-assets-contract/target/ink/dao_assets_contract.wasm";
+			"../../target/ink/dao_assets_contract/dao_assets_contract.wasm";
 		let contract_address = install(sender.clone(), contract_path, data).expect("code deployed");
 
-		let mut data = selector_from_str("transfer");
+		let mut data = selector_from_str("PSP22::transfer");
 		data.append(&mut BOB.clone().encode());
 		data.append(&mut 100_u128.encode());
+		data.append(&mut "empty".encode());
 
 		call::<()>(sender.clone(), contract_address, data).expect("call success");
 
@@ -117,7 +118,7 @@ fn test_transfer_keep_alive_extension() {
 		data.append(&mut asset_id.clone().encode());
 
 		let contract_path =
-			"../../contracts/extensions/dao-assets-contract/target/ink/dao_assets_contract.wasm";
+			"../../contracts/extensions/dao-assets-contract/target/ink/dao-assets_contract/dao_assets_contract.wasm";
 		let contract_address = install(sender.clone(), contract_path, data).expect("code deployed");
 
 		let mut data = selector_from_str("transfer_keep_alive");

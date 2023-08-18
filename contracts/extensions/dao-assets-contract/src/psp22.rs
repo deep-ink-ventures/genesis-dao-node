@@ -1,7 +1,6 @@
 use dao_assets_extension::{Balance, AccountId, AssetError};
 use ink::prelude::vec::Vec;
 
-
 #[derive(Debug, Clone, PartialEq, Eq, scale::Encode, scale::Decode)]
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
 pub enum PSP22Error {
@@ -129,7 +128,7 @@ impl From<AssetError> for PSP22Error {
         match value {
             AssetError::BalanceLow => PSP22Error::InsufficientBalance,
             AssetError::Unapproved => PSP22Error::InsufficientAllowance,
-            _ => PSP22Error::Custom(value.to_string().into_bytes())
+            _ => PSP22Error::Custom(value.to_bytes())
         }
     }
 

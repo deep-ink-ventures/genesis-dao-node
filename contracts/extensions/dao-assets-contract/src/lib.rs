@@ -24,6 +24,8 @@ impl Environment for CustomEnvironment {
 #[ink::contract(env = crate::CustomEnvironment)]
 mod dao_assets_contract {
 	use dao_assets_extension::AssetId;
+    use ink::prelude::vec::Vec;
+
     use crate::psp22::{PSP22, PSP22Error};
 
     #[ink(storage)]
@@ -36,6 +38,11 @@ mod dao_assets_contract {
 		pub fn new(asset_id: AssetId) -> Self {
 			Self { asset_id }
 		}
+
+        #[ink(message)]
+        pub fn transfer_keep_alive(&self, target: AccountId, amount: Balance) -> Result<(), PSP22Error> {
+            self.env().extension().transfer_keep_alive(self.asset_id, target, amount).map_err(PSP22Error::from)
+        }
 	}
 
     impl PSP22 for AssetContract {
@@ -60,20 +67,17 @@ mod dao_assets_contract {
 
         #[ink(message)]
         fn transfer(&self, to: AccountId, value: Balance, _data: Vec<u8>) -> Result<(), PSP22Error> {
-            let sender = self.env().caller();
-            self.env().extension().transfer(sender, self.asset_id, to, value).map_err(PSP22Error::from)
+            self.env().extension().transfer(self.asset_id, to, value).map_err(PSP22Error::from)
         }
 
         #[ink(message)]
         fn transfer_from(&self, from: AccountId, to: AccountId, value: Balance, _data: Vec<u8>) -> Result<(), PSP22Error> {
-            let sender = self.env().caller();
-            self.env().extension().transfer_from(sender, self.asset_id, from, to, value).map_err(PSP22Error::from)
+            self.env().extension().transfer_from(self.asset_id, from, to, value).map_err(PSP22Error::from)
         }
 
         #[ink(message)]
         fn approve(&self, spender: AccountId, value: Balance) -> Result<(), PSP22Error> {
-            let sender = self.env().caller();
-            self.env().extension().approve(sender, self.asset_id, spender, value).map_err(PSP22Error::from)
+            self.env().extension().approve(self.asset_id, spender, value).map_err(PSP22Error::from)
         }
 
         #[ink(message)]
@@ -93,15 +97,6 @@ mod dao_assets_contract {
             }
             let new_allowance = current_allowance - delta_value;
             self.approve(spender, new_allowance).map_err(PSP22Error::from)
-        }
-    }
-
-    // Separate impl block for transfer_keep_alive
-    impl AssetContract {
-        #[ink(message)]
-        pub fn transfer_keep_alive(&self, target: AccountId, amount: Balance) -> Result<(), PSP22Error> {
-            let sender = self.env().caller();
-            self.env().extension().transfer_keep_alive(sender, self.asset_id, target, amount).map_err(PSP22Error::from)
         }
     }
 }
