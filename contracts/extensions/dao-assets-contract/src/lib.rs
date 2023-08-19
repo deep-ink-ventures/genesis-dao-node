@@ -49,20 +49,17 @@ mod dao_assets_contract {
 
         #[ink(message)]
         fn total_supply(&self) -> Balance {
-            // TODO: Implement total_supply retrieval
-            0
+            self.env().extension().total_supply(self.asset_id).unwrap_or(0)
         }
 
         #[ink(message)]
         fn balance_of(&self, owner: AccountId) -> Balance {
-            // TODO: Implement balance retrieval
-            0
+            self.env().extension().balance_of(self.asset_id, owner).unwrap_or(0)
         }
 
         #[ink(message)]
         fn allowance(&self, owner: AccountId, spender: AccountId) -> Balance {
-            // TODO: Implement allowance retrieval
-            0
+            self.env().extension().allowance(self.asset_id, owner, spender).unwrap_or(0)
         }
 
         #[ink(message)]
@@ -85,6 +82,7 @@ mod dao_assets_contract {
             let sender = self.env().caller();
             let current_allowance = self.allowance(sender.clone(), spender.clone());
             let new_allowance = current_allowance + delta_value;
+            self.env().extension().cancel_approval(self.asset_id, spender.clone()).map_err(PSP22Error::from)?;
             self.approve(spender, new_allowance).map_err(PSP22Error::from)
         }
 
@@ -93,9 +91,10 @@ mod dao_assets_contract {
             let sender = self.env().caller();
             let current_allowance = self.allowance(sender.clone(), spender.clone());
             if current_allowance < delta_value {
-                return Err(PSP22Error::InsufficientAllowance);  // This might not be the exact error you want to return, adjust as needed
+                return Err(PSP22Error::InsufficientAllowance);
             }
             let new_allowance = current_allowance - delta_value;
+            self.env().extension().cancel_approval(self.asset_id, spender.clone()).map_err(PSP22Error::from)?;
             self.approve(spender, new_allowance).map_err(PSP22Error::from)
         }
     }

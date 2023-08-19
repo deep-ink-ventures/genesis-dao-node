@@ -826,4 +826,14 @@ impl<T: Config> Pallet<T> {
 			Ok(())
 		})
 	}
+
+	pub fn allowance(
+		asset: T::AssetId,
+		owner: &<T as SystemConfig>::AccountId,
+		delegate: &<T as SystemConfig>::AccountId,
+	) -> T::Balance {
+		Approvals::<T>::get((asset, &owner, &delegate))
+			.map(|x| x.amount)
+			.unwrap_or_else(Zero::zero)
+	}
 }

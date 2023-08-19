@@ -380,7 +380,7 @@ pub mod pallet {
 			<Votes<T>>::set(proposal_id, &voter, in_favor);
 			let dao = Core::<T>::get_dao(&proposal.dao_id).expect("DAO exists");
 			let asset_id = dao.asset_id.expect("asset has been issued");
-			let token_balance = Assets::<T>::total_historical_balance(
+			let voting_power = Assets::<T>::total_historical_balance(
 				asset_id.into(),
 				&voter,
 				proposal.birth_block,
@@ -391,7 +391,7 @@ pub mod pallet {
 				dao.owner.clone(),
 				voter.clone(),
 				voter.clone(),
-				token_balance,
+				voting_power,
 			);
 			// undo old vote
 			match vote {

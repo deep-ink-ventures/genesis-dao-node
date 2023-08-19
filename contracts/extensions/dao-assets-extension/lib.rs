@@ -24,6 +24,15 @@ pub trait AssetExtension {
 
     #[ink(extension = 104)]
     fn transfer_from(asset_id: AssetId, owner: AccountId, destination: AccountId, amount: Balance) -> Result<(), AssetError>;
+
+	#[ink(extension = 105)]
+	fn balance_of(asset_id: AssetId, account: AccountId) -> Result<u128, AssetError>;
+
+	#[ink(extension = 106)]
+	fn total_supply(asset_id: AssetId) -> Result<u128, AssetError>;
+
+	#[ink(extension = 107)]
+	fn allowance(asset_id: AssetId, owner: AccountId, spender: AccountId) -> Result<u128, AssetError>;
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, scale::Encode, scale::Decode)]

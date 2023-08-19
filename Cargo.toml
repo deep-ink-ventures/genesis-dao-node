@@ -5,6 +5,7 @@ members = [
     "tests/chain-extensions",
     "contracts/extensions/dao-assets-contract"
 ]
+resolver = "2"
 
 [profile.release]
 panic = "unwind"

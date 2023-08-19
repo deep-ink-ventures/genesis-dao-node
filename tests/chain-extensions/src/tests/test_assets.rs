@@ -9,6 +9,8 @@ fn selector_from_str(label: &str) -> Vec<u8> {
 	[hash[0], hash[1], hash[2], hash[3]].to_vec()
 }
 
+pub const ASSET_CONTRACT_PATH: &str = "../../target/ink/dao_assets_contract/dao_assets_contract.wasm";
+
 fn install(
 	signer: AccountId,
 	contract_path: &str,
@@ -80,19 +82,30 @@ fn test_transfer_extension() {
 		let mut data = selector_from_str("new");
 		data.append(&mut asset_id.clone().encode());
 
-		let contract_path =
-			"../../target/ink/dao_assets_contract/dao_assets_contract.wasm";
-		let contract_address = install(sender.clone(), contract_path, data).expect("code deployed");
+		let contract_address = install(sender.clone(), ASSET_CONTRACT_PATH, data).expect("code deployed");
 
 		let mut data = selector_from_str("PSP22::transfer");
 		data.append(&mut BOB.clone().encode());
 		data.append(&mut 100_u128.encode());
 		data.append(&mut "empty".encode());
 
-		call::<()>(sender.clone(), contract_address, data).expect("call success");
+		call::<()>(sender.clone(), contract_address.clone(), data).expect("call success");
 
 		assert_eq!(Assets::balance(asset_id.clone(), ALICE), 900);
 		assert_eq!(Assets::balance(asset_id.clone(), BOB), 100);
+
+		// native funcs
+		let mut data = selector_from_str("PSP22::balance_of");
+		data.append(&mut ALICE.encode());
+		let alice_balance = call::<u128>(sender.clone(), contract_address.clone(), data).expect("call success");
+		assert_eq!(alice_balance, 900);
+
+		let mut data = selector_from_str("PSP22::balance_of");
+		data.append(&mut BOB.encode());
+		let bob_balance = call::<u128>(sender.clone(), contract_address.clone(), data).expect("call success");
+		assert_eq!(bob_balance, 100);
+
+		assert_eq!(call::<u128>(sender.clone(), contract_address, selector_from_str("PSP22::total_supply")).unwrap(), 1000);
 	});
 }
 
@@ -117,9 +130,7 @@ fn test_transfer_keep_alive_extension() {
 		let mut data = selector_from_str("new");
 		data.append(&mut asset_id.clone().encode());
 
-		let contract_path =
-			"../../contracts/extensions/dao-assets-contract/target/ink/dao-assets_contract/dao_assets_contract.wasm";
-		let contract_address = install(sender.clone(), contract_path, data).expect("code deployed");
+		let contract_address = install(sender.clone(), ASSET_CONTRACT_PATH, data).expect("code deployed");
 
 		let mut data = selector_from_str("transfer_keep_alive");
 		data.append(&mut BOB.clone().encode());
@@ -137,8 +148,7 @@ fn test_transfer_keep_alive_extension() {
 #[test]
 fn test_approved_transfer_flow_extension() {
 	new_test_ext().execute_with(|| {
-		let sender = ALICE;
-		let origin = RuntimeOrigin::signed(sender.clone());
+		let origin = RuntimeOrigin::signed(ALICE);
 
 		let dao_id: Vec<u8> = b"GDAO".to_vec();
 		let dao_name = b"Genesis DAO".to_vec();
@@ -155,49 +165,77 @@ fn test_approved_transfer_flow_extension() {
 		let mut data = selector_from_str("new");
 		data.append(&mut asset_id.clone().encode());
 
-		let contract_path =
-			"../../contracts/extensions/dao-assets-contract/target/ink/dao_assets_contract.wasm";
-		let contract_address = install(sender.clone(), contract_path, data).expect("code deployed");
+		let contract_address = install(ALICE, ASSET_CONTRACT_PATH, data).expect("code deployed");
 
-		// call `approve_transfer`
-		let mut data = selector_from_str("approve");
+		// Alice didn't allow anything
+		let mut data = selector_from_str("PSP22::allowance");
+		data.append(&mut ALICE.clone().encode());
+		data.append(&mut BOB.clone().encode());
+		assert_eq!(call::<u128>(ALICE, contract_address.clone(), data).unwrap(), 0);
+
+		// ALICE approves 100 to BOB
+		let mut data = selector_from_str("PSP22::approve");
 		data.append(&mut BOB.clone().encode());
 		data.append(&mut 100_u128.encode());
+		assert_ok!(call::<()>(ALICE, contract_address.clone(), data));
 
-		assert_ok!(call::<()>(sender.clone(), contract_address.clone(), data));
+		let mut data = selector_from_str("PSP22::allowance");
+		data.append(&mut ALICE.clone().encode());
+		data.append(&mut BOB.clone().encode());
+		assert_eq!(call::<u128>(ALICE, contract_address.clone(), data).unwrap(), 100);
 
-		assert_eq!(Assets::balance(asset_id.clone(), ALICE), 1000);
-		assert_eq!(Assets::balance(asset_id.clone(), BOB), 0);
-
-		// call `transfer_approved`
-		let sender = BOB;
-		let mut data = selector_from_str("transfer_from");
+		// BOB transfers 10 from ALICE to CHARLIE
+		let mut data = selector_from_str("PSP22::transfer_from");
 		data.append(&mut ALICE.clone().encode());
 		data.append(&mut CHARLIE.clone().encode());
 		data.append(&mut 10_u128.encode());
-
-		assert_ok!(call::<()>(sender.clone(), contract_address.clone(), data));
+		data.append(&mut "empty".encode());
+		assert_ok!(call::<()>(BOB, contract_address.clone(), data));
 
 		assert_eq!(Assets::balance(asset_id.clone(), ALICE), 990);
 		assert_eq!(Assets::balance(asset_id.clone(), BOB), 0);
 		assert_eq!(Assets::balance(asset_id.clone(), CHARLIE), 10);
 
-		// call `cancel_approval`
-		// Alice cancels approval for Bob
-		let sender = ALICE;
-		let mut data = selector_from_str("cancel_approval");
+		// BOB should still have 90 open
+		let mut data = selector_from_str("PSP22::allowance");
+		data.append(&mut ALICE.clone().encode());
 		data.append(&mut BOB.clone().encode());
+		assert_eq!(call::<u128>(BOB, contract_address.clone(), data).unwrap(), 90);
+
+		// ALICE decreases by 80 to 10
+		let mut data = selector_from_str("PSP22::decrease_allowance");
+		data.append(&mut BOB.clone().encode());
+		data.append(&mut 80_u128.encode());
+
+		assert_ok!(call::<()>(ALICE, contract_address.clone(), data));
+
+		let mut data = selector_from_str("PSP22::allowance");
+		data.append(&mut ALICE.clone().encode());
+		data.append(&mut BOB.clone().encode());
+		assert_eq!(call::<u128>(ALICE, contract_address.clone(), data).unwrap(), 10);
+
+		// BOB transfers 20 from ALICE to CHARLIE, but he can't
+		let sender = BOB;
+		let mut data = selector_from_str("PSP22::transfer_from");
+		data.append(&mut ALICE.clone().encode());
+		data.append(&mut CHARLIE.clone().encode());
+		data.append(&mut 20_u128.encode());
+		data.append(&mut "empty".encode());
+
+		assert!(call::<()>(sender.clone(), contract_address.clone(), data).is_err());
+
+		// ALICE increases by 42
+		let sender = ALICE;
+		let mut data = selector_from_str("PSP22::increase_allowance");
+		data.append(&mut BOB.clone().encode());
+		data.append(&mut 42_u128.encode());
 
 		assert_ok!(call::<()>(sender.clone(), contract_address.clone(), data));
 
-
-		// call `transfer_approved`
-		let sender = BOB;
-		let mut data = selector_from_str("transfer_approved");
+		let mut data = selector_from_str("PSP22::allowance");
 		data.append(&mut ALICE.clone().encode());
-		data.append(&mut CHARLIE.clone().encode());
-		data.append(&mut 10_u128.encode());
-
-		assert!(call::<()>(sender.clone(), contract_address.clone(), data).is_err());
+		data.append(&mut BOB.clone().encode());
+		// 10 where still around, so 10 + 42 = 52
+		assert_eq!(call::<u128>(sender.clone(), contract_address, data).unwrap(), 52);
 	});
 }
