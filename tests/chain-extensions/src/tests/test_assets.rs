@@ -9,7 +9,7 @@ fn selector_from_str(label: &str) -> Vec<u8> {
 	[hash[0], hash[1], hash[2], hash[3]].to_vec()
 }
 
-pub const ASSET_CONTRACT_PATH: &str = "../../target/ink/dao_assets_contract/dao_assets_contract.wasm";
+pub const ASSET_CONTRACT_PATH: &str = "test_dao_assets_contract.wasm";
 
 fn install(
 	signer: AccountId,
