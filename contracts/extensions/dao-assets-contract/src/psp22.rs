@@ -50,7 +50,7 @@ pub trait PSP22 {
     ///
     /// Returns `ZeroRecipientAddress` error if recipient's address is zero.
     #[ink(message)]
-    fn transfer(&self, to: AccountId, value: Balance, data: Vec<u8>) -> Result<(), PSP22Error>;
+    fn transfer(&mut self, to: AccountId, value: Balance, data: Vec<u8>) -> Result<(), PSP22Error>;
 
     /// Transfers `value` tokens on the behalf of `from` to the account `to`
     /// with additional `data` in unspecified format.
@@ -73,7 +73,7 @@ pub trait PSP22 {
     /// Returns `ZeroRecipientAddress` error if recipient's address is zero.
     #[ink(message)]
     fn transfer_from(
-        &self,
+        &mut self,
         from: AccountId,
         to: AccountId,
         value: Balance,
@@ -93,7 +93,7 @@ pub trait PSP22 {
     ///
     /// Returns `ZeroRecipientAddress` error if recipient's address is zero.
     #[ink(message)]
-    fn approve(&self, spender: AccountId, value: Balance) -> Result<(), PSP22Error>;
+    fn approve(&mut self, spender: AccountId, value: Balance) -> Result<(), PSP22Error>;
 
     /// Atomically increases the allowance granted to `spender` by the caller.
     ///
@@ -105,7 +105,7 @@ pub trait PSP22 {
     ///
     /// Returns `ZeroRecipientAddress` error if recipient's address is zero.
     #[ink(message)]
-    fn increase_allowance(&self, spender: AccountId, delta_value: Balance) -> Result<(), PSP22Error>;
+    fn increase_allowance(&mut self, spender: AccountId, delta_value: Balance) -> Result<(), PSP22Error>;
 
     /// Atomically decreases the allowance granted to `spender` by the caller.
     ///
@@ -120,7 +120,7 @@ pub trait PSP22 {
     ///
     /// Returns `ZeroRecipientAddress` error if recipient's address is zero.
     #[ink(message)]
-    fn decrease_allowance(&self, spender: AccountId, delta_value: Balance) -> Result<(), PSP22Error>;
+    fn decrease_allowance(&mut self, spender: AccountId, delta_value: Balance) -> Result<(), PSP22Error>;
 }
 
 impl From<AssetError> for PSP22Error {

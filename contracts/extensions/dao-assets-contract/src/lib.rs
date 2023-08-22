@@ -40,7 +40,7 @@ mod dao_assets_contract {
 		}
 
         #[ink(message)]
-        pub fn transfer_keep_alive(&self, target: AccountId, amount: Balance) -> Result<(), PSP22Error> {
+        pub fn transfer_keep_alive(&mut self, target: AccountId, amount: Balance) -> Result<(), PSP22Error> {
             self.env().extension().transfer_keep_alive(self.asset_id, target, amount).map_err(PSP22Error::from)
         }
 	}
@@ -63,22 +63,22 @@ mod dao_assets_contract {
         }
 
         #[ink(message)]
-        fn transfer(&self, to: AccountId, value: Balance, _data: Vec<u8>) -> Result<(), PSP22Error> {
+        fn transfer(&mut self, to: AccountId, value: Balance, _data: Vec<u8>) -> Result<(), PSP22Error> {
             self.env().extension().transfer(self.asset_id, to, value).map_err(PSP22Error::from)
         }
 
         #[ink(message)]
-        fn transfer_from(&self, from: AccountId, to: AccountId, value: Balance, _data: Vec<u8>) -> Result<(), PSP22Error> {
+        fn transfer_from(&mut self, from: AccountId, to: AccountId, value: Balance, _data: Vec<u8>) -> Result<(), PSP22Error> {
             self.env().extension().transfer_from(self.asset_id, from, to, value).map_err(PSP22Error::from)
         }
 
         #[ink(message)]
-        fn approve(&self, spender: AccountId, value: Balance) -> Result<(), PSP22Error> {
+        fn approve(&mut self, spender: AccountId, value: Balance) -> Result<(), PSP22Error> {
             self.env().extension().approve(self.asset_id, spender, value).map_err(PSP22Error::from)
         }
 
         #[ink(message)]
-        fn increase_allowance(&self, spender: AccountId, delta_value: Balance) -> Result<(), PSP22Error> {
+        fn increase_allowance(&mut self, spender: AccountId, delta_value: Balance) -> Result<(), PSP22Error> {
             let sender = self.env().caller();
             let current_allowance = self.allowance(sender.clone(), spender.clone());
             let new_allowance = current_allowance + delta_value;
@@ -87,7 +87,7 @@ mod dao_assets_contract {
         }
 
         #[ink(message)]
-        fn decrease_allowance(&self, spender: AccountId, delta_value: Balance) -> Result<(), PSP22Error> {
+        fn decrease_allowance(&mut self, spender: AccountId, delta_value: Balance) -> Result<(), PSP22Error> {
             let sender = self.env().caller();
             let current_allowance = self.allowance(sender.clone(), spender.clone());
             if current_allowance < delta_value {
