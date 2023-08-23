@@ -24,11 +24,11 @@ impl Environment for CustomEnvironment {
 #[ink::contract(env = crate::CustomEnvironment)]
 mod dao_assets_contract {
 	use dao_assets_extension::AssetId;
-    use ink::prelude::vec::Vec;
+	use ink::prelude::vec::Vec;
 
-    use crate::psp22::{PSP22, PSP22Error};
+	use crate::psp22::{PSP22Error, PSP22};
 
-    #[ink(storage)]
+	#[ink(storage)]
 	pub struct AssetContract {
 		asset_id: AssetId,
 	}
@@ -39,63 +39,103 @@ mod dao_assets_contract {
 			Self { asset_id }
 		}
 
-        #[ink(message)]
-        pub fn transfer_keep_alive(&self, target: AccountId, amount: Balance) -> Result<(), PSP22Error> {
-            self.env().extension().transfer_keep_alive(self.asset_id, target, amount).map_err(PSP22Error::from)
-        }
+		#[ink(message)]
+		pub fn transfer_keep_alive(
+			&self,
+			target: AccountId,
+			amount: Balance,
+		) -> Result<(), PSP22Error> {
+			self.env()
+				.extension()
+				.transfer_keep_alive(self.asset_id, target, amount)
+				.map_err(PSP22Error::from)
+		}
 	}
 
-    impl PSP22 for AssetContract {
+	impl PSP22 for AssetContract {
+		#[ink(message)]
+		fn total_supply(&self) -> Balance {
+			self.env().extension().total_supply(self.asset_id).unwrap_or(0)
+		}
 
-        #[ink(message)]
-        fn total_supply(&self) -> Balance {
-            self.env().extension().total_supply(self.asset_id).unwrap_or(0)
-        }
+		#[ink(message)]
+		fn balance_of(&self, owner: AccountId) -> Balance {
+			self.env().extension().balance_of(self.asset_id, owner).unwrap_or(0)
+		}
 
-        #[ink(message)]
-        fn balance_of(&self, owner: AccountId) -> Balance {
-            self.env().extension().balance_of(self.asset_id, owner).unwrap_or(0)
-        }
+		#[ink(message)]
+		fn allowance(&self, owner: AccountId, spender: AccountId) -> Balance {
+			self.env().extension().allowance(self.asset_id, owner, spender).unwrap_or(0)
+		}
 
-        #[ink(message)]
-        fn allowance(&self, owner: AccountId, spender: AccountId) -> Balance {
-            self.env().extension().allowance(self.asset_id, owner, spender).unwrap_or(0)
-        }
+		#[ink(message)]
+		fn transfer(
+			&self,
+			to: AccountId,
+			value: Balance,
+			_data: Vec<u8>,
+		) -> Result<(), PSP22Error> {
+			self.env()
+				.extension()
+				.transfer(self.asset_id, to, value)
+				.map_err(PSP22Error::from)
+		}
 
-        #[ink(message)]
-        fn transfer(&self, to: AccountId, value: Balance, _data: Vec<u8>) -> Result<(), PSP22Error> {
-            self.env().extension().transfer(self.asset_id, to, value).map_err(PSP22Error::from)
-        }
+		#[ink(message)]
+		fn transfer_from(
+			&self,
+			from: AccountId,
+			to: AccountId,
+			value: Balance,
+			_data: Vec<u8>,
+		) -> Result<(), PSP22Error> {
+			self.env()
+				.extension()
+				.transfer_from(self.asset_id, from, to, value)
+				.map_err(PSP22Error::from)
+		}
 
-        #[ink(message)]
-        fn transfer_from(&self, from: AccountId, to: AccountId, value: Balance, _data: Vec<u8>) -> Result<(), PSP22Error> {
-            self.env().extension().transfer_from(self.asset_id, from, to, value).map_err(PSP22Error::from)
-        }
+		#[ink(message)]
+		fn approve(&self, spender: AccountId, value: Balance) -> Result<(), PSP22Error> {
+			self.env()
+				.extension()
+				.approve(self.asset_id, spender, value)
+				.map_err(PSP22Error::from)
+		}
 
-        #[ink(message)]
-        fn approve(&self, spender: AccountId, value: Balance) -> Result<(), PSP22Error> {
-            self.env().extension().approve(self.asset_id, spender, value).map_err(PSP22Error::from)
-        }
+		#[ink(message)]
+		fn increase_allowance(
+			&self,
+			spender: AccountId,
+			delta_value: Balance,
+		) -> Result<(), PSP22Error> {
+			let sender = self.env().caller();
+			let current_allowance = self.allowance(sender.clone(), spender.clone());
+			let new_allowance = current_allowance + delta_value;
+			self.env()
+				.extension()
+				.cancel_approval(self.asset_id, spender.clone())
+				.map_err(PSP22Error::from)?;
+			self.approve(spender, new_allowance).map_err(PSP22Error::from)
+		}
 
-        #[ink(message)]
-        fn increase_allowance(&self, spender: AccountId, delta_value: Balance) -> Result<(), PSP22Error> {
-            let sender = self.env().caller();
-            let current_allowance = self.allowance(sender.clone(), spender.clone());
-            let new_allowance = current_allowance + delta_value;
-            self.env().extension().cancel_approval(self.asset_id, spender.clone()).map_err(PSP22Error::from)?;
-            self.approve(spender, new_allowance).map_err(PSP22Error::from)
-        }
-
-        #[ink(message)]
-        fn decrease_allowance(&self, spender: AccountId, delta_value: Balance) -> Result<(), PSP22Error> {
-            let sender = self.env().caller();
-            let current_allowance = self.allowance(sender.clone(), spender.clone());
-            if current_allowance < delta_value {
-                return Err(PSP22Error::InsufficientAllowance);
-            }
-            let new_allowance = current_allowance - delta_value;
-            self.env().extension().cancel_approval(self.asset_id, spender.clone()).map_err(PSP22Error::from)?;
-            self.approve(spender, new_allowance).map_err(PSP22Error::from)
-        }
-    }
+		#[ink(message)]
+		fn decrease_allowance(
+			&self,
+			spender: AccountId,
+			delta_value: Balance,
+		) -> Result<(), PSP22Error> {
+			let sender = self.env().caller();
+			let current_allowance = self.allowance(sender.clone(), spender.clone());
+			if current_allowance < delta_value {
+				return Err(PSP22Error::InsufficientAllowance)
+			}
+			let new_allowance = current_allowance - delta_value;
+			self.env()
+				.extension()
+				.cancel_approval(self.asset_id, spender.clone())
+				.map_err(PSP22Error::from)?;
+			self.approve(spender, new_allowance).map_err(PSP22Error::from)
+		}
+	}
 }

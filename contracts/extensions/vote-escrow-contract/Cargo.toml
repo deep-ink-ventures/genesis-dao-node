@@ -1,0 +1,24 @@
+[package]
+name = "vote-escrow-contract"
+version = "1.0.0"
+authors = ["cuteolaf"]
+edition = "2021"
+publish = false
+
+[dependencies]
+ink = { version = "4.2", default-features = false }
+scale = { package = "parity-scale-codec", version = "3", default-features = false, features = [
+    "derive",
+] }
+scale-info = { version = "2.6", default-features = false, features = [
+    "derive",
+] }
+vote-escrow-extension = { version = "1.0.0", path = "../vote-escrow-extension", default-features = false }
+
+[lib]
+path = "src/lib.rs"
+
+[features]
+default = ["std"]
+std = ["ink/std", "scale/std", "scale-info/std", "vote-escrow-extension/std"]
+ink-as-dependency = []
