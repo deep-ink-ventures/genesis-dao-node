@@ -12,6 +12,7 @@ use sp_runtime::{
 	traits::{BlakeTwo256, IdentityLookup},
 	BuildStorage,
 };
+use commons::traits::ActiveProposalsMock;
 
 type Block = frame_system::mocking::MockBlock<Test>;
 /// Index of a transaction in the chain.
@@ -72,6 +73,7 @@ impl pallet_balances::Config for Test {
 }
 
 impl Config for Test {
+	type ActiveProposals = ActiveProposalsMock<Self>;
 	type RuntimeEvent = RuntimeEvent;
 	type Balance = u64;
 	type AssetId = u32;

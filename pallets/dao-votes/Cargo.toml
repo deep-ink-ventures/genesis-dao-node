@@ -27,6 +27,7 @@ pallet-balances = { version = "4.0.0-dev", default-features = false, git = "http
 pallet-dao-core = { version = "4.0.0-dev", default-features = false, path = "../dao-core" }
 pallet-dao-assets = { version = "4.0.0-dev", default-features = false, path = "../dao-assets" }
 pallet-hookpoints = { version = "1.0.0", default-features = false, git = "https://github.com/deep-ink-ventures/pallet_hookpoints.git", branch="polkadot-v1.0.0"}
+commons = { path = "../../commons" }
 
 [dev-dependencies]
 sp-core = { version = "21.0.0", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v1.0.0" }
@@ -36,7 +37,6 @@ pallet-timestamp = { version = "4.0.0-dev", default-features = false, git = "htt
 pallet-transaction-payment = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v1.0.0" }
 pallet-contracts-primitives = { version = "24.0.0", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v1.0.0" }
 pallet-contracts = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v1.0.0" }
-
 
 [features]
 default = ["std"]
@@ -53,6 +53,7 @@ std = [
 	"pallet-dao-assets/std",
 	"pallet-dao-core/std",
 	"pallet-hookpoints/std",
+	"commons/std"
 ]
 runtime-benchmarks = [
 	"frame-benchmarking/runtime-benchmarks",

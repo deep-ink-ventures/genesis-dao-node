@@ -29,17 +29,9 @@ pub use frame_support::{
 };
 use pallet_dao_assets::Pallet as Assets;
 
-pub type AccountIdOf<T> = <T as frame_system::Config>::AccountId;
-pub type CurrencyOf<T> = <T as Config>::Currency;
-pub type DepositBalanceOf<T> = <CurrencyOf<T> as Currency<AccountIdOf<T>>>::Balance;
-type AssetIdOf<T> = <T as Config>::AssetId;
-pub type DaoIdOf<T> = BoundedVec<u8, <T as Config>::MaxLengthId>;
-type DaoNameOf<T> = BoundedVec<u8, <T as Config>::MaxLengthName>;
-pub type MetadataOf<T> = BoundedVec<u8, <T as Config>::MaxLengthMetadata>;
-type DaoOf<T> = Dao<DaoIdOf<T>, AccountIdOf<T>, DaoNameOf<T>, AssetIdOf<T>, MetadataOf<T>>;
-
 pub mod weights;
 use weights::WeightInfo;
+pub use crate::types::{DaoNameOf, DaoIdOf, AssetIdOf, CurrencyOf, AccountIdOf, DepositBalanceOf, MetadataOf, DaoOf};
 
 #[frame_support::pallet]
 pub mod pallet {
@@ -47,6 +39,7 @@ pub mod pallet {
 	use super::*;
 	use frame_support::{pallet_prelude::*, traits::ReservableCurrency};
 	use frame_system::pallet_prelude::*;
+	use crate::types::DepositBalanceOf;
 
 	/// The current storage version.
 	const STORAGE_VERSION: StorageVersion = StorageVersion::new(1);

@@ -4,7 +4,21 @@ use frame_support::{
 	traits::ConstU32,
 	BoundedVec, RuntimeDebug,
 };
+use frame_system::pallet_prelude::BlockNumberFor;
 use scale_info::TypeInfo;
+use pallet_dao_assets::AssetBalanceOf;
+use pallet_dao_core::DaoIdOf;
+
+pub type ProposalSlotOf<T> = ProposalSlot<DaoIdOf<T>, <T as frame_system::Config>::AccountId>;
+pub type ProposalOf<T> = Proposal<
+	DaoIdOf<T>,
+	<T as frame_system::Config>::AccountId,
+	BlockNumberFor<T>,
+	AssetBalanceOf<T>,
+	pallet_dao_core::MetadataOf<T>,
+>;
+
+pub type GovernanceOf<T> = Governance<AssetBalanceOf<T>>;
 
 #[derive(Clone, Encode, Decode, Eq, PartialEq, Default, RuntimeDebug, MaxEncodedLen, TypeInfo)]
 pub struct ProposalSlot<DaoId, AccountId> {

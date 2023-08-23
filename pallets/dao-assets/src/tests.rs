@@ -518,7 +518,7 @@ fn assets_from_genesis_should_exist() {
 #[test]
 fn querying_allowance_should_work() {
 	new_test_ext().execute_with(|| {
-		use frame_support::traits::tokens::fungibles::approvals::{Inspect, Mutate};
+		use frame_support::traits::tokens::fungibles::approvals::Mutate;
 		assert_ok!(Assets::do_force_create(0, 1, 1));
 		assert_ok!(Assets::do_mint(0, &1, 100));
 		Balances::make_free_balance_be(&1, 1);

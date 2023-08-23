@@ -22,3 +22,4 @@ path = "src/lib.rs"
 default = ["std"]
 std = ["ink/std", "scale/std", "scale-info/std", "dao-assets-extension/std"]
 ink-as-dependency = []
+[workspace]

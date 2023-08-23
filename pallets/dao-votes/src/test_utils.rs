@@ -5,17 +5,22 @@ use frame_system::RawOrigin;
 
 use crate::Pallet as Votes;
 use frame_system::{Pallet as System};
+use frame_system::pallet_prelude::BlockNumberFor;
 use pallet_dao_core::Pallet as DaoCore;
+
+pub fn setup_dao_by_name<T: Config>(dao_id: Vec<u8>, dao_name: Vec<u8>, caller: T::AccountId) -> Vec<u8> {
+	let origin = RawOrigin::Signed(caller);
+	assert_eq!(DaoCore::<T>::create_dao(origin.clone().into(), dao_id.clone(), dao_name), Ok(()));
+	assert_eq!(DaoCore::<T>::issue_token(origin.into(), dao_id.clone(), 1000_u32.into()), Ok(()));
+	dao_id
+}
 
 /// Creates a DAO for the given caller
 /// - `caller`: AccountId of the dao creator
 pub fn setup_dao<T: Config>(caller: T::AccountId) -> Vec<u8> {
 	let dao_id: Vec<u8> = b"GDAO".to_vec();
 	let dao_name = b"Genesis DAO".to_vec();
-	let origin = RawOrigin::Signed(caller);
-	assert_eq!(DaoCore::<T>::create_dao(origin.clone().into(), dao_id.clone(), dao_name), Ok(()));
-	assert_eq!(DaoCore::<T>::issue_token(origin.into(), dao_id.clone(), 1000_u32.into()), Ok(()));
-	dao_id
+	setup_dao_by_name::<T>(dao_id, dao_name, caller)
 }
 
 /// Creates a DAO for the given caller with a governance set

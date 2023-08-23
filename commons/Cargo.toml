@@ -1,0 +1,18 @@
+[package]
+name = "commons"
+version = "1.0.0"
+edition = "2021"
+
+
+[dependencies]
+sp-std = { version = "8.0.0", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v1.0.0" }
+frame-system = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v1.0.0" }
+frame-support = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v1.0.0" }
+
+[features]
+default = ["std"]
+std = [
+	"sp-std/std",
+	"frame-system/std",
+	"frame-support/std",
+]
