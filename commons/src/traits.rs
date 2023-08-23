@@ -1,5 +1,7 @@
 use frame_system::pallet_prelude::BlockNumberFor;
 use sp_std::prelude::*;
+use sp_std::marker::PhantomData;
+
 
 pub trait ActiveProposals<BlockNumber> {
 
@@ -15,7 +17,7 @@ pub trait ActiveProposals<BlockNumber> {
 
 pub struct ActiveProposalsMock<T> {
     // include any fields that might depend on T
-    _marker: std::marker::PhantomData<T>,
+    _marker: PhantomData<T>,
 }
 
 impl<T: frame_system::Config> ActiveProposals<BlockNumberFor<T>> for ActiveProposalsMock<T> {
