@@ -1,12 +1,15 @@
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
+/// `dao_assets_contract` module provides a contract for assets, implementing the PSP22 standard.
+/// The contract primarily focuses on asset transfers, approvals, and allowances.
 mod psp22;
 
+pub use dao_assets_contract::{AssetContract, AssetContractRef};
 use dao_assets_extension::AssetExtension;
 use ink::env::Environment;
 
-pub use self::dao_assets_contract::{AssetContract, AssetContractRef};
-
+/// A custom environment for the AssetContract, using the default Ink environment but
+/// with a specific chain extension for asset operations.
 #[derive(Debug, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
 pub enum CustomEnvironment {}
@@ -23,6 +26,7 @@ impl Environment for CustomEnvironment {
 	type ChainExtension = AssetExtension;
 }
 
+/// The primary contract module for DAO assets.
 #[ink::contract(env = crate::CustomEnvironment)]
 mod dao_assets_contract {
 	use dao_assets_extension::AssetId;
@@ -30,84 +34,146 @@ mod dao_assets_contract {
 
 	use crate::psp22::{PSP22Error, PSP22};
 
+	/// The `AssetContract` struct represents the main storage for the contract,
+	/// containing the `asset_id` which is unique for each asset.
 	#[ink(storage)]
 	pub struct AssetContract {
 		asset_id: AssetId,
 	}
 
+	/// Event emitted when a token transfer occurs.
+	#[ink(event)]
+	pub struct Transfer {
+		#[ink(topic)]
+		from: Option<AccountId>,
+		#[ink(topic)]
+		to: Option<AccountId>,
+		value: Balance,
+	}
+
+	/// Event emitted when an approval occurs that `spender` is allowed to withdraw
+	/// up to the amount of `value` tokens from `owner`.
+	#[ink(event)]
+	pub struct Approval {
+		#[ink(topic)]
+		owner: AccountId,
+		#[ink(topic)]
+		spender: AccountId,
+		value: Balance,
+	}
+
 	impl AssetContract {
+		/// Constructs a new `AssetContract` with a given `asset_id`.
 		#[ink(constructor)]
 		pub fn new(asset_id: AssetId) -> Self {
 			Self { asset_id }
 		}
 
+		/// Transfers an `amount` of assets to the `target` account, ensuring the sender stays
+		/// alive.
 		#[ink(message)]
 		pub fn transfer_keep_alive(
-			&self,
-			target: AccountId,
-			amount: Balance,
+			&mut self,
+			to: AccountId,
+			value: Balance,
 		) -> Result<(), PSP22Error> {
-			self.env()
+			let result = self
+				.env()
 				.extension()
-				.transfer_keep_alive(self.asset_id, target, amount)
-				.map_err(PSP22Error::from)
+				.transfer_keep_alive(self.asset_id, to.clone(), value)
+				.map_err(PSP22Error::from);
+			if result.is_ok() {
+				self.env().emit_event(Transfer {
+					from: Some(self.env().caller()),
+					to: Some(to),
+					value,
+				});
+			}
+			result
 		}
 	}
 
+	/// Implementation of the PSP22 standard for the `AssetContract`.
 	impl PSP22 for AssetContract {
+		/// Returns the total supply of the asset.
 		#[ink(message)]
 		fn total_supply(&self) -> Balance {
 			self.env().extension().total_supply(self.asset_id).unwrap_or(0)
 		}
 
+		/// Returns the balance of the `owner` account.
 		#[ink(message)]
 		fn balance_of(&self, owner: AccountId) -> Balance {
 			self.env().extension().balance_of(self.asset_id, owner).unwrap_or(0)
 		}
 
+		/// Returns the allowance provided to `spender` by the `owner`.
 		#[ink(message)]
 		fn allowance(&self, owner: AccountId, spender: AccountId) -> Balance {
 			self.env().extension().allowance(self.asset_id, owner, spender).unwrap_or(0)
 		}
 
+		/// Transfer tokens from the caller to the `to` account.
 		#[ink(message)]
 		fn transfer(
-			&self,
+			&mut self,
 			to: AccountId,
 			value: Balance,
 			_data: Vec<u8>,
 		) -> Result<(), PSP22Error> {
-			self.env()
+			let result = self
+				.env()
 				.extension()
-				.transfer(self.asset_id, to, value)
-				.map_err(PSP22Error::from)
+				.transfer(self.asset_id, to.clone(), value)
+				.map_err(PSP22Error::from);
+			if result.is_ok() {
+				self.env().emit_event(Transfer {
+					from: Some(self.env().caller()),
+					to: Some(to),
+					value,
+				});
+			}
+			result
 		}
 
+		/// Transfer tokens from the `from` account to the `to` account on behalf of the caller.
 		#[ink(message)]
 		fn transfer_from(
-			&self,
+			&mut self,
 			from: AccountId,
 			to: AccountId,
 			value: Balance,
 			_data: Vec<u8>,
 		) -> Result<(), PSP22Error> {
-			self.env()
+			let result = self
+				.env()
 				.extension()
-				.transfer_from(self.asset_id, from, to, value)
-				.map_err(PSP22Error::from)
+				.transfer_from(self.asset_id, from.clone(), to.clone(), value)
+				.map_err(PSP22Error::from);
+			if result.is_ok() {
+				self.env().emit_event(Transfer { from: Some(from), to: Some(to), value });
+			}
+			result
 		}
 
+		/// Approve the `spender` to transfer tokens on behalf of the caller.
 		#[ink(message)]
-		fn approve(&self, spender: AccountId, value: Balance) -> Result<(), PSP22Error> {
-			self.env()
+		fn approve(&mut self, spender: AccountId, value: Balance) -> Result<(), PSP22Error> {
+			let result = self
+				.env()
 				.extension()
-				.approve(self.asset_id, spender, value)
-				.map_err(PSP22Error::from)
+				.approve(self.asset_id, spender.clone(), value)
+				.map_err(PSP22Error::from);
+			if result.is_ok() {
+				self.env().emit_event(Approval { owner: self.env().caller(), spender, value });
+			}
+			result
 		}
 
+		/// Increase the allowance provided to `spender` by `delta_value`.
 		#[ink(message)]
 		fn increase_allowance(
-			&self,
+			&mut self,
 			spender: AccountId,
 			delta_value: Balance,
 		) -> Result<(), PSP22Error> {
@@ -121,9 +187,10 @@ mod dao_assets_contract {
 			self.approve(spender, new_allowance).map_err(PSP22Error::from)
 		}
 
+		/// Decrease the allowance provided to `spender` by `delta_value`.
 		#[ink(message)]
 		fn decrease_allowance(
-			&self,
+			&mut self,
 			spender: AccountId,
 			delta_value: Balance,
 		) -> Result<(), PSP22Error> {
