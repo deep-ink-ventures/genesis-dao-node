@@ -333,5 +333,131 @@ mod vote_escrow_contract {
 
 			Ok(())
 		}
+
+		// Voting power
+		// Calculate voting power using the decay function
+		#[ink(message)]
+		pub fn balance_of(&self, addr: AccountId, t: Timestamp) -> Balance {
+			let lock = self.locked_balances.get(addr);
+
+			if let Some(record) = lock {
+				let time_remaining: Timestamp =
+					if record.end_time > t { record.end_time - t } else { 0 };
+				record.value * (time_remaining as Balance) / (self.max_lock_time as Balance)
+			} else {
+				0
+			}
+		}
+	}
+
+	#[cfg(test)]
+	mod tests {
+		use super::*;
+		use ink::env::{
+			block_number,
+			test::{default_accounts, recorded_events, set_caller, DefaultAccounts},
+			DefaultEnvironment,
+		};
+
+		type Event = <VoteEscrowContract as ::ink::reflect::ContractEventBase>::Type;
+
+		fn get_default_accounts() -> DefaultAccounts<DefaultEnvironment> {
+			default_accounts::<DefaultEnvironment>()
+		}
+
+		#[ink::test]
+		fn test_constructor() {
+			let DefaultAccounts::<DefaultEnvironment> { alice, bob, .. } = get_default_accounts();
+			// Use Bob as the token address
+			let vote_escrow = VoteEscrowContract::new(bob);
+
+			// Contract owner must be Alice as the default caller in test is Alice
+			assert_eq!(vote_escrow.owner, alice);
+
+			// Token address must equal to Bob
+			assert_eq!(vote_escrow.token, bob);
+
+			// Default max lock time is 4 years
+			assert_eq!(vote_escrow.max_lock_time, 4 * YEAR);
+
+			// Nobody has created a lock yet.
+			assert!(!vote_escrow.locked_balances.contains(alice));
+			assert!(!vote_escrow.locked_balances.contains(bob));
+		}
+
+		#[ink::test]
+		fn test_transfer_ownership() {
+			let DefaultAccounts::<DefaultEnvironment> { alice, bob, charlie, .. } =
+				get_default_accounts();
+
+			let mut vote_escrow = VoteEscrowContract::new(bob);
+
+			assert_eq!(vote_escrow.owner, alice);
+
+			// Bob cannot call `transfer_ownership`
+			set_caller::<DefaultEnvironment>(bob);
+			assert_eq!(vote_escrow.transfer_ownership(charlie), Err(Error::NotAllowed));
+
+			// Now Alice transfers ownership to Charlie
+			let block_now = block_number::<DefaultEnvironment>();
+			set_caller::<DefaultEnvironment>(alice);
+			assert!(vote_escrow.transfer_ownership(charlie).is_ok());
+
+			// Now Charlie is the new owner
+			assert_eq!(vote_escrow.owner, charlie);
+
+			// Check the emitted events
+			assert_eq!(recorded_events().count(), 1);
+
+			let last_event = recorded_events().last().unwrap();
+
+			let decoded_event = <Event as scale::Decode>::decode(&mut &last_event.data[..])
+				.expect("Failed to decode event");
+
+			let Event::OwnershipTransferred(OwnershipTransferred { block, new_owner }) =
+				decoded_event
+			else {
+				panic!("OwnershipTransferred should be emitted");
+			};
+
+			assert_eq!(block, block_now);
+			assert_eq!(new_owner, charlie);
+		}
+
+		#[ink::test]
+		fn test_set_max_lock_time() {
+			let DefaultAccounts::<DefaultEnvironment> { alice, bob, .. } = get_default_accounts();
+
+			let mut vote_escrow = VoteEscrowContract::new(bob);
+
+			// Bob tries to update the max lock period
+			let new_max_lock_time = 2 * YEAR;
+			set_caller::<DefaultEnvironment>(bob);
+			assert_eq!(vote_escrow.set_max_lock_time(new_max_lock_time), Err(Error::NotAllowed));
+
+			// Only Alice can update the max lock period
+			let block_now = block_number::<DefaultEnvironment>();
+			set_caller::<DefaultEnvironment>(alice);
+			assert!(vote_escrow.set_max_lock_time(new_max_lock_time).is_ok());
+
+			assert_eq!(vote_escrow.max_lock_time, new_max_lock_time);
+
+			// Check the emitted events
+			assert_eq!(recorded_events().count(), 1);
+
+			let last_event = recorded_events().last().unwrap();
+
+			let decoded_event = <Event as scale::Decode>::decode(&mut &last_event.data[..])
+				.expect("Failed to decode event");
+
+			let Event::MaxTimeUpdated(MaxTimeUpdated { block, new_max_lock_time: new_lock_period }) =
+				decoded_event
+			else {
+				panic!("OwnershipTransferred should be emitted");
+			};
+
+			assert_eq!(block, block_now);
+			assert_eq!(new_lock_period, new_max_lock_time);
+		}
 	}
 }
