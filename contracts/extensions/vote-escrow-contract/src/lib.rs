@@ -460,4 +460,25 @@ mod vote_escrow_contract {
 			assert_eq!(new_lock_period, new_max_lock_time);
 		}
 	}
+
+	#[cfg(all(test, feature = "e2e-tests"))]
+	mod e2e_tests {
+		use super::*;
+		use dao_assets_contract::AssetContractRef;
+		use ink_e2e::build_message;
+
+		type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
+
+		#[ink_e2e::test]
+		async fn test_constructor(mut client: ink_e2e::Client<C, E>) -> E2EResult<()> {
+			let asset_id = 1;
+			let token_constructor = AssetContractRef::new(asset_id);
+
+			let token_contract = client
+				.instantiate("dao_assets_contract", &ink_e2e::alice(), token_constructor, 0, None)
+				.await
+				.expect("instantiate failed")
+				.account_id;
+		}
+	}
 }

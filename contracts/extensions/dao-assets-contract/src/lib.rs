@@ -5,6 +5,8 @@ mod psp22;
 use dao_assets_extension::AssetExtension;
 use ink::env::Environment;
 
+pub use self::dao_assets_contract::{AssetContract, AssetContractRef};
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
 pub enum CustomEnvironment {}

@@ -15,6 +15,9 @@ scale-info = { version = "2.6", default-features = false, features = [
 ] }
 dao-assets-extension = { version = "1.0.0", path = "../dao-assets-extension", default-features = false }
 
+[dev-dependencies]
+ink_e2e = "4.2.0"
+
 [lib]
 path = "src/lib.rs"
 
@@ -22,3 +25,4 @@ path = "src/lib.rs"
 default = ["std"]
 std = ["ink/std", "scale/std", "scale-info/std", "dao-assets-extension/std"]
 ink-as-dependency = []
+e2e-tests = []
