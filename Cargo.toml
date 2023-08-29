@@ -2,6 +2,7 @@
 members = [
     "node/solo",
     "runtime/solo",
+    "tests/chain-extensions",
 ]
 resolver = "2"
 

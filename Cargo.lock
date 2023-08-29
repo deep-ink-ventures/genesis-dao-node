@@ -867,6 +867,31 @@ dependencies = [
 ]
 
 [[package]]
+name = "chain-extensions-test-suite"
+version = "4.0.0-dev"
+dependencies = [
+ "commons",
+ "frame-support",
+ "frame-system",
+ "pallet-balances",
+ "pallet-contracts",
+ "pallet-contracts-primitives",
+ "pallet-dao-assets",
+ "pallet-dao-assets-extensions",
+ "pallet-dao-core",
+ "pallet-dao-votes",
+ "pallet-hookpoints",
+ "pallet-timestamp",
+ "pallet-transaction-payment",
+ "parity-scale-codec",
+ "scale-info",
+ "sp-core",
+ "sp-io",
+ "sp-runtime",
+ "sp-std",
+]
+
+[[package]]
 name = "chrono"
 version = "0.4.26"
 source = "registry+https://github.com/rust-lang/crates.io-index"
