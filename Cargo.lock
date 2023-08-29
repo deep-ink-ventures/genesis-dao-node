@@ -1005,8 +1005,20 @@ dependencies = [
 name = "commons"
 version = "1.0.0"
 dependencies = [
+ "frame-benchmarking",
  "frame-support",
  "frame-system",
+ "pallet-balances",
+ "pallet-contracts",
+ "pallet-contracts-primitives",
+ "pallet-hookpoints",
+ "pallet-timestamp",
+ "pallet-transaction-payment",
+ "parity-scale-codec",
+ "scale-info",
+ "sp-core",
+ "sp-io",
+ "sp-runtime",
  "sp-std",
 ]
 
