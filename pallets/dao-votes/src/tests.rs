@@ -9,7 +9,6 @@ fn can_create_a_proposal() {
 		let dao_name = b"TEST DAO".to_vec();
 		let sender = ALICE;
 		let origin = RuntimeOrigin::signed(sender.clone());
-
 		// cannot create a proposal without a DAO
 		assert_noop!(
 			DaoVotes::create_proposal(origin.clone(), dao_id.clone(),),
@@ -282,6 +281,62 @@ fn voting_outcome_successful_proposal_and_mark_implemented() {
 		let proposal = Proposals::<Test>::get(prop_id).unwrap();
 		assert_eq!(proposal.status, ProposalStatus::Implemented);
 	})
+}
+
+#[test]
+fn returns_active_proposals_for_a_dao() {
+
+	new_test_ext().execute_with(|| {
+		use commons::traits::ActiveProposals;
+
+		let sender = ALICE;
+		let origin = RuntimeOrigin::signed(sender.clone());
+
+		let dao1 = setup_dao_by_name::<Test>(b"DAO".to_vec(), b"TEST DAO".to_vec(), sender.clone());
+		let dao2 = setup_dao_by_name::<Test>(b"DAO2".to_vec(), b"TEST DAO2".to_vec(), sender.clone());
+
+		let proposal_duration = 1000_u32;
+		let proposal_token_deposit = 1_u32.into();
+		let minimum_majority_per_1024 = 10;
+		assert_eq!(
+			DaoVotes::set_governance_majority_vote(
+				origin.clone(),
+				dao1.clone(),
+				proposal_duration,
+				proposal_token_deposit,
+				minimum_majority_per_1024
+			),
+			Ok(())
+		);
+		assert_eq!(
+			DaoVotes::set_governance_majority_vote(
+				origin.clone(),
+				dao2.clone(),
+				proposal_duration,
+				proposal_token_deposit,
+				minimum_majority_per_1024
+			),
+			Ok(())
+		);
+
+		setup_proposal::<Test>(sender.clone(), dao1.clone());
+		run_to_block::<Test>(100_u64);
+		setup_proposal::<Test>(sender.clone(), dao2.clone());
+
+		run_to_block::<Test>(500_u64);
+		setup_proposal::<Test>(sender.clone(), dao1.clone());
+
+		let proposals = DaoVotes::active_proposals_starting_time(dao1.clone(), System::block_number());
+
+		assert_eq!(proposals.len(), 2);
+		assert_eq!(proposals[0], 1_u64);
+		assert_eq!(proposals[1], 500_u64);
+
+		run_to_block::<Test>(1002_u64);
+		let proposals = DaoVotes::active_proposals_starting_time(dao1, System::block_number());
+		assert_eq!(proposals.len(), 1);
+		assert_eq!(proposals[0], 500_u64);
+	});
 }
 
 #[test]

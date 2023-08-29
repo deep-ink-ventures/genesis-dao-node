@@ -154,6 +154,7 @@ parameter_types! {
 }
 
 impl pallet_dao_assets::Config for Test {
+	type ActiveProposals = DaoVotes;
 	type RuntimeEvent = RuntimeEvent;
 	type Balance = Balance;
 	type AssetId = u32;

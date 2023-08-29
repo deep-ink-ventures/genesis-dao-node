@@ -349,7 +349,7 @@ checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 name = "chain-extensions-test-suite"
 version = "4.0.0-dev"
 dependencies = [
- "frame-benchmarking",
+ "commons",
  "frame-support",
  "frame-system",
  "pallet-balances",
@@ -380,6 +380,15 @@ dependencies = [
  "iana-time-zone",
  "num-traits",
  "winapi",
+]
+
+[[package]]
+name = "commons"
+version = "1.0.0"
+dependencies = [
+ "frame-support",
+ "frame-system",
+ "sp-std",
 ]
 
 [[package]]
@@ -1772,6 +1781,7 @@ dependencies = [
 name = "pallet-dao-assets"
 version = "4.0.0-dev"
 dependencies = [
+ "commons",
  "frame-benchmarking",
  "frame-support",
  "frame-system",
@@ -1802,6 +1812,7 @@ dependencies = [
 name = "pallet-dao-core"
 version = "4.0.0-dev"
 dependencies = [
+ "commons",
  "frame-benchmarking",
  "frame-support",
  "frame-system",
@@ -1816,6 +1827,7 @@ dependencies = [
 name = "pallet-dao-votes"
 version = "4.0.0-dev"
 dependencies = [
+ "commons",
  "frame-support",
  "frame-system",
  "pallet-balances",

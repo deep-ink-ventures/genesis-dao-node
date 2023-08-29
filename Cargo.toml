@@ -3,7 +3,6 @@ members = [
     "node/solo",
     "runtime/solo",
     "tests/chain-extensions",
-    "contracts/extensions/dao-assets-contract"
 ]
 resolver = "2"
 

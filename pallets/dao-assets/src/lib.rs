@@ -24,6 +24,8 @@ mod types;
 
 pub use types::*;
 
+use commons::traits::ActiveProposals;
+
 use frame_support::{
 	dispatch::{DispatchError, DispatchResult},
 	ensure,
@@ -52,6 +54,7 @@ pub mod pallet {
 	use super::*;
 	use frame_support::{pallet_prelude::*, sp_runtime, traits::BuildGenesisConfig};
 	use frame_system::pallet_prelude::*;
+	use sp_runtime::traits::Header;
 
 	/// The current storage version.
 	const STORAGE_VERSION: StorageVersion = StorageVersion::new(1);
@@ -77,6 +80,8 @@ pub mod pallet {
 	pub trait Config: frame_system::Config {
 		/// The overarching event type.
 		type RuntimeEvent: From<Event<Self>> + IsType<<Self as frame_system::Config>::RuntimeEvent>;
+
+		type ActiveProposals: ActiveProposals<<HeaderFor<Self> as Header>::Number>;
 
 		/// The units in which we record balances.
 		type Balance: Member

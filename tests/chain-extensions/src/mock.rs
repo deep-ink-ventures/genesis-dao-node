@@ -9,6 +9,7 @@ use sp_runtime::{
 	traits::{BlakeTwo256, IdentityLookup},
 	AccountId32, BuildStorage,
 };
+use commons::traits::ActiveProposalsMock;
 
 type Block = frame_system::mocking::MockBlock<Test>;
 
@@ -153,6 +154,7 @@ parameter_types! {
 }
 
 impl pallet_dao_assets::Config for Test {
+	type ActiveProposals = ActiveProposalsMock<Self>;
 	type RuntimeEvent = RuntimeEvent;
 	type Balance = Balance;
 	type AssetId = u32;

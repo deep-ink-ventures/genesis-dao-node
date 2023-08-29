@@ -1,4 +1,5 @@
 //! Functions for the dao-core pallet.
+use crate::types::{DaoOf, MetadataOf};
 use super::*;
 
 impl<T: Config> Pallet<T> {

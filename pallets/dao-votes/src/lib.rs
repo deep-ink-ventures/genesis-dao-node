@@ -1,5 +1,4 @@
 #![cfg_attr(not(feature = "std"), no_std)]
-
 use sp_std::prelude::*;
 
 use frame_support::{
@@ -32,20 +31,10 @@ use pallet_dao_core::{
 
 pub mod weights;
 mod hooks;
+mod functions;
 
-use frame_system::pallet_prelude::BlockNumberFor;
 use weights::WeightInfo;
 
-type ProposalSlotOf<T> = ProposalSlot<DaoIdOf<T>, <T as frame_system::Config>::AccountId>;
-type ProposalOf<T> = Proposal<
-	DaoIdOf<T>,
-	<T as frame_system::Config>::AccountId,
-	BlockNumberFor<T>,
-	AssetBalanceOf<T>,
-	pallet_dao_core::MetadataOf<T>,
->;
-
-type GovernanceOf<T> = Governance<AssetBalanceOf<T>>;
 
 #[frame_support::pallet]
 pub mod pallet {
@@ -455,8 +444,7 @@ pub mod pallet {
 
 			<Proposals<T>>::try_mutate(proposal_id, |maybe_proposal| -> DispatchResult {
 				let proposal = maybe_proposal.as_mut().ok_or(Error::<T>::ProposalDoesNotExist)?;
-				let dao = pallet_dao_core::Daos::<T>::get(&proposal.dao_id)
-					.ok_or(DaoError::<T>::DaoDoesNotExist)?;
+				let dao = pallet_dao_core::Pallet::<T>::load_dao(proposal.dao_id.to_vec())?;
 				ensure!(dao.owner == sender, DaoError::<T>::DaoSignerNotOwner);
 
 				// check that the proposal has been accepted

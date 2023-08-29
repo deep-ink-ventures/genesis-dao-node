@@ -383,6 +383,7 @@ parameter_types! {
 
 // DAO assets
 impl pallet_dao_assets::Config for Runtime {
+	type ActiveProposals = Votes;
 	type RuntimeEvent = RuntimeEvent;
 	type Balance = Balance;
 	type AssetId = u32;
