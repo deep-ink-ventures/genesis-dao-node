@@ -1,3 +1,4 @@
+use sp_std::prelude::*;
 use frame_system::pallet_prelude::BlockNumberFor;
 use commons::traits::ActiveProposals;
 use crate::{Config, Pallet, ProposalOf, ProposalStatus};
@@ -8,12 +9,12 @@ impl<T: Config> Pallet<T> {
     fn get_active_proposals(dao_id: Vec<u8>, current_block: BlockNumberFor<T>) -> Vec<ProposalOf<T>> {
         let dao = match pallet_dao_core::Pallet::<T>::load_dao(dao_id.clone()) {
             Ok(dao) => dao,
-            Err(_) => return vec![]
+            Err(_) => return Vec::<ProposalOf<T>>::new()
         };
 
         let governance = match <Governances<T>>::get(dao.id) {
             Some(governance) => governance,
-            None => return vec![]
+            None => return Vec::<ProposalOf<T>>::new()
         };
 
         <Proposals<T>>::iter()

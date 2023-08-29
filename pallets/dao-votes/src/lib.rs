@@ -1,6 +1,4 @@
-#![feature(associated_type_defaults)]
 #![cfg_attr(not(feature = "std"), no_std)]
-
 use sp_std::prelude::*;
 
 use frame_support::{
