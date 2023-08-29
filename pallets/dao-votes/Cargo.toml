@@ -24,7 +24,7 @@ pallet-balances = { version = "4.0.0-dev", default-features = false, git = "http
 pallet-dao-core = { version = "4.0.0-dev", default-features = false, path = "../dao-core" }
 pallet-dao-assets = { version = "4.0.0-dev", default-features = false, path = "../dao-assets" }
 pallet-hookpoints = { version = "1.0.0", default-features = false, git = "https://github.com/deep-ink-ventures/pallet_hookpoints.git", branch="polkadot-v1.0.0"}
-commons = { path = "../../commons" }
+commons = { path = "../../commons", default-features = false }
 
 [dev-dependencies]
 sp-core = { version = "21.0.0", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v1.0.0" }

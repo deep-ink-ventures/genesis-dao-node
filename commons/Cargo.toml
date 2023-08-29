@@ -2,7 +2,10 @@
 name = "commons"
 version = "1.0.0"
 edition = "2021"
-
+license = "Apache-2.0"
+publish = false
+authors = ["chp"]
+homepage = "https://deep-ink.ventures"
 
 [dependencies]
 sp-std = { version = "8.0.0", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v1.0.0" }
