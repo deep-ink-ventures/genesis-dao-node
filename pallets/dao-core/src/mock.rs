@@ -1,9 +1,9 @@
 use crate as pallet_dao_core;
+use crate::*;
 use frame_support::{
 	parameter_types,
 	traits::{AsEnsureOriginWithArg, ConstU128, ConstU32, ConstU64, ConstU8},
 };
-use crate::*;
 use sp_core::H256;
 
 use commons::traits::ActiveProposalsMock;
@@ -30,7 +30,7 @@ frame_support::construct_runtime!(
 		Balances: pallet_balances,
 		DaoCore: pallet_dao_core,
 		Assets: pallet_dao_assets,
-        CoreX: pallet_dao_assets::dao_core,
+		CoreX: pallet_dao_assets::dao_core,
 	}
 );
 
@@ -81,7 +81,7 @@ impl pallet_balances::Config for Test {
 parameter_types! {
 	// we're not really using this, as reservation is via DAO, but whatever
 	pub const ApprovalDeposit: Balance = 1;
-    pub const AssetsStringLimit: u32 = 50;
+	pub const AssetsStringLimit: u32 = 50;
 }
 
 impl pallet_dao_assets::dao_core::Config for Test {
@@ -94,7 +94,7 @@ impl pallet_dao_assets::dao_core::Config for Test {
 	type MinLength = ConstU32<3>;
 	type MaxLengthId = ConstU32<8>;
 	type MaxLengthName = ConstU32<16>;
-    type MaxLengthMetadata = ConstU32<256>;
+	type MaxLengthMetadata = ConstU32<256>;
 	type TokenUnits = ConstU8<10>;
 }
 
@@ -108,7 +108,7 @@ impl Config for Test {
 	type MinLength = ConstU32<3>;
 	type MaxLengthId = ConstU32<8>;
 	type MaxLengthName = ConstU32<16>;
-    type MaxLengthMetadata = ConstU32<256>;
+	type MaxLengthMetadata = ConstU32<256>;
 	type TokenUnits = ConstU8<10>;
 }
 

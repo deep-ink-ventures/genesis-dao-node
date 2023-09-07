@@ -409,7 +409,7 @@ impl pallet_dao_core::Config for Runtime {
 	type DaoDeposit = ConstU128<{ 10 * DOT }>;
 	type TokenUnits = ConstU8<10>;
 	type AssetId = u32;
-    type ExposeAsset = Assets;
+	type ExposeAsset = Assets;
 	type CoreWeightInfo = pallet_dao_core::weights::SubstrateWeight<Runtime>;
 }
 

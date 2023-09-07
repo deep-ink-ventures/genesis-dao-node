@@ -843,7 +843,7 @@ impl<T: Config> commons::traits::AssetInterface for Pallet<T> {
 	type AssetInfo = AssetDetails<AssetBalanceOf<T>, AccountIdOf<T>>;
 	type AccountId = AccountIdOf<T>;
 	type Balance = AssetBalanceOf<T>;
-    type BlockNumber = BlockNumberFor<T>;
+	type BlockNumber = BlockNumberFor<T>;
 
 	fn get_asset(asset_id: Self::AssetId) -> Option<Self::AssetInfo> {
 		Asset::<T>::get(asset_id)
@@ -875,27 +875,30 @@ impl<T: Config> commons::traits::AssetInterface for Pallet<T> {
 		Pallet::<T>::do_set_metadata(id, from, name, symbol, decimals)
 	}
 
-    fn change_owner(id: Self::AssetId, new_owner: Self::AccountId) -> DispatchResult {
-        Pallet::<T>::change_owner(id, new_owner)
-    }
+	fn change_owner(id: Self::AssetId, new_owner: Self::AccountId) -> DispatchResult {
+		Pallet::<T>::change_owner(id, new_owner)
+	}
 
-    fn reserve(
+	fn reserve(
 		id: Self::AssetId,
 		target: impl Borrow<Self::AccountId>,
 		amount: Self::Balance,
 	) -> Result<Self::Balance, DispatchError> {
-        Pallet::<T>::do_reserve(id, target, amount)
-    }
+		Pallet::<T>::do_reserve(id, target, amount)
+	}
 
-    fn total_historical_supply(id: Self::AssetId, block: Self::BlockNumber) -> Option<Self::Balance> {
-        Pallet::<T>::total_historical_supply(id, block)
-    }
+	fn total_historical_supply(
+		id: Self::AssetId,
+		block: Self::BlockNumber,
+	) -> Option<Self::Balance> {
+		Pallet::<T>::total_historical_supply(id, block)
+	}
 
-    fn total_historical_balance(
+	fn total_historical_balance(
 		id: Self::AssetId,
 		who: impl Borrow<Self::AccountId>,
 		block: Self::BlockNumber,
 	) -> Option<Self::Balance> {
-        Pallet::<T>::total_historical_balance(id, who, block)
-    }
+		Pallet::<T>::total_historical_balance(id, who, block)
+	}
 }

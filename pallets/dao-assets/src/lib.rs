@@ -4,8 +4,8 @@
 // Ensure we're `no_std` when compiling for Wasm.
 #![cfg_attr(not(feature = "std"), no_std)]
 
-pub use pallet_dao_core as dao_core;
 pub use pallet::*;
+pub use pallet_dao_core as dao_core;
 use sp_std::prelude::*;
 
 #[cfg(feature = "runtime-benchmarks")]
@@ -53,10 +53,10 @@ type AccountIdLookupOf<T> = <<T as frame_system::Config>::Lookup as StaticLookup
 #[frame_support::pallet]
 pub mod pallet {
 	use super::*;
+	use commons::traits::AssetInterface;
 	use frame_support::{pallet_prelude::*, sp_runtime, traits::BuildGenesisConfig};
 	use frame_system::pallet_prelude::*;
 	use sp_runtime::traits::{Header, One};
-    use commons::traits::AssetInterface;
 
 	/// The current storage version.
 	const STORAGE_VERSION: StorageVersion = StorageVersion::new(1);

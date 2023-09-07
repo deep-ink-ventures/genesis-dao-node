@@ -179,7 +179,7 @@ impl pallet_dao_core::Config for Test {
 	type DaoDeposit = ConstU128<10>;
 	type TokenUnits = ConstU8<10>;
 	type AssetId = u32;
-    type ExposeAsset = Assets;
+	type ExposeAsset = Assets;
 	type CoreWeightInfo = ();
 }
 

@@ -70,7 +70,7 @@ pub mod pallet {
 			AssetId = Self::AssetId,
 			AccountId = AccountIdOf<Self>,
 			Balance = BalanceOf<Self>,
-            BlockNumber = BlockNumberFor<Self>,
+			BlockNumber = BlockNumberFor<Self>,
 			AssetInfo = commons::types::assets::AssetDetails<BalanceOf<Self>, AccountIdOf<Self>>,
 		>;
 

@@ -8,7 +8,7 @@ use frame_support::{
 	construct_runtime,
 	traits::{AsEnsureOriginWithArg, ConstU32, ConstU64},
 };
-use sp_core::{H256, ConstU128, ConstU8};
+use sp_core::{ConstU128, ConstU8, H256};
 use sp_runtime::{
 	traits::{BlakeTwo256, IdentityLookup},
 	BuildStorage,
@@ -24,7 +24,7 @@ construct_runtime!(
 	pub struct Test {
 		System: frame_system,
 		Balances: pallet_balances,
-        DaoCore: pallet_dao_core,
+		DaoCore: pallet_dao_core,
 		Assets: pallet_dao_assets,
 	}
 );
@@ -74,7 +74,7 @@ impl pallet_balances::Config for Test {
 }
 
 impl pallet_dao_core::Config for Test {
-    type RuntimeEvent = RuntimeEvent;
+	type RuntimeEvent = RuntimeEvent;
 	type MinLength = ConstU32<3>;
 	type MaxLengthId = ConstU32<8>;
 	type MaxLengthName = ConstU32<16>;
@@ -83,7 +83,7 @@ impl pallet_dao_core::Config for Test {
 	type DaoDeposit = ConstU64<10>;
 	type TokenUnits = ConstU8<10>;
 	type AssetId = u32;
-    type ExposeAsset = Assets;
+	type ExposeAsset = Assets;
 	type CoreWeightInfo = ();
 }
 

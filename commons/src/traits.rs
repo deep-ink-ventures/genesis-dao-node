@@ -38,7 +38,7 @@ impl<T: frame_system::Config> ActiveProposals<BlockNumberFor<T>> for ActivePropo
 
 pub trait AssetInterface {
 	type AccountId;
-    type BlockNumber;
+	type BlockNumber;
 	type Balance;
 	type AssetId;
 	type AssetInfo;
@@ -72,18 +72,21 @@ pub trait AssetInterface {
 	/// Change the owner
 	fn change_owner(id: Self::AssetId, new_owner: Self::AccountId) -> DispatchResult;
 
-    /// Reserve
-    fn reserve(
+	/// Reserve
+	fn reserve(
 		id: Self::AssetId,
 		target: impl Borrow<Self::AccountId>,
 		amount: Self::Balance,
 	) -> Result<Self::Balance, DispatchError>;
 
-    /// Get total historical supply
-    fn total_historical_supply(id: Self::AssetId, block: Self::BlockNumber) -> Option<Self::Balance>;
+	/// Get total historical supply
+	fn total_historical_supply(
+		id: Self::AssetId,
+		block: Self::BlockNumber,
+	) -> Option<Self::Balance>;
 
-    /// Get total historical balance
-    fn total_historical_balance(
+	/// Get total historical balance
+	fn total_historical_balance(
 		id: Self::AssetId,
 		who: impl Borrow<Self::AccountId>,
 		block: Self::BlockNumber,

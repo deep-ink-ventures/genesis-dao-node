@@ -39,10 +39,10 @@ pub mod pallet {
 
 	use super::*;
 	use crate::hooks::on_vote;
+	use commons::traits::AssetInterface;
 	use frame_support::pallet_prelude::*;
 	use frame_system::pallet_prelude::*;
-    use commons::traits::AssetInterface;
-    use types::BalanceOf as AssetBalanceOf;
+	use types::BalanceOf as AssetBalanceOf;
 
 	#[pallet::storage]
 	pub(super) type Governances<T: Config> =
@@ -160,11 +160,9 @@ pub mod pallet {
 			CurrencyOf::<T>::reserve(&sender, deposit)?;
 
 			// reserve DAO token, but unreserve currency if that fails
-			if let Err(error) = T::ExposeAsset::reserve(
-				asset_id.into(),
-				&sender,
-				governance.proposal_token_deposit,
-			) {
+			if let Err(error) =
+				T::ExposeAsset::reserve(asset_id.into(), &sender, governance.proposal_token_deposit)
+			{
 				CurrencyOf::<T>::unreserve(&sender, deposit);
 				Err(error)?;
 			};

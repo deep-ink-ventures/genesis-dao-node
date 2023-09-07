@@ -5,9 +5,9 @@ use frame_support::{
 	BoundedVec, RuntimeDebug,
 };
 use frame_system::pallet_prelude::BlockNumberFor;
+pub use pallet_dao_core::BalanceOf;
 use pallet_dao_core::DaoIdOf;
 use scale_info::TypeInfo;
-pub use pallet_dao_core::BalanceOf;
 
 pub type ProposalSlotOf<T> = ProposalSlot<DaoIdOf<T>, <T as frame_system::Config>::AccountId>;
 pub type ProposalOf<T> = Proposal<
