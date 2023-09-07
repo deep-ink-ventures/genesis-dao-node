@@ -5,9 +5,9 @@ use frame_support::{
 	BoundedVec, RuntimeDebug,
 };
 use frame_system::pallet_prelude::BlockNumberFor;
-use scale_info::TypeInfo;
 use pallet_dao_assets::AssetBalanceOf;
 use pallet_dao_core::DaoIdOf;
+use scale_info::TypeInfo;
 
 pub type ProposalSlotOf<T> = ProposalSlot<DaoIdOf<T>, <T as frame_system::Config>::AccountId>;
 pub type ProposalOf<T> = Proposal<
@@ -50,7 +50,6 @@ pub enum ProposalStatus {
 	Implemented,
 }
 
-
 #[derive(Clone, Encode, Decode, Eq, PartialEq, RuntimeDebug, MaxEncodedLen, TypeInfo)]
 pub struct Governance<Balance> {
 	// the number of blocks a proposal is open for voting
@@ -71,5 +70,5 @@ pub enum Voting {
 		minimum_majority_per_1024: u8,
 	},
 	// hook point entrypoint
-	Custom
+	Custom,
 }

@@ -1,12 +1,11 @@
+use crate::Config;
 use codec::MaxEncodedLen;
 use frame_support::{
 	codec::{Decode, Encode},
-	traits::ConstU32,
+	traits::{ConstU32, Currency},
 	BoundedVec, RuntimeDebug,
 };
-use frame_support::traits::Currency;
 use scale_info::TypeInfo;
-use crate::Config;
 
 pub type AccountIdOf<T> = <T as frame_system::Config>::AccountId;
 pub type CurrencyOf<T> = <T as Config>::Currency;
@@ -16,7 +15,6 @@ pub type DaoNameOf<T> = BoundedVec<u8, <T as Config>::MaxLengthName>;
 pub type MetadataOf<T> = BoundedVec<u8, <T as Config>::MaxLengthMetadata>;
 pub type DaoOf<T> = Dao<DaoIdOf<T>, AccountIdOf<T>, DaoNameOf<T>, AssetIdOf<T>, MetadataOf<T>>;
 pub type DaoIdOf<T> = BoundedVec<u8, <T as Config>::MaxLengthId>;
-
 
 /// The DAO model
 ///

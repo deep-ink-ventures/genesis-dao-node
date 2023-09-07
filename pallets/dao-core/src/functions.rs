@@ -1,6 +1,6 @@
 //! Functions for the dao-core pallet.
-use crate::types::{DaoOf, MetadataOf};
 use super::*;
+use crate::types::{DaoOf, MetadataOf};
 
 impl<T: Config> Pallet<T> {
 	/// Load a dao from storage by id.

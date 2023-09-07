@@ -29,20 +29,19 @@ use pallet_dao_core::{
 	AccountIdOf, CurrencyOf, DaoIdOf, DepositBalanceOf, Error as DaoError, Pallet as Core,
 };
 
-pub mod weights;
-mod hooks;
 mod functions;
+mod hooks;
+pub mod weights;
 
 use weights::WeightInfo;
-
 
 #[frame_support::pallet]
 pub mod pallet {
 
 	use super::*;
+	use crate::hooks::on_vote;
 	use frame_support::pallet_prelude::*;
 	use frame_system::pallet_prelude::*;
-	use crate::hooks::on_vote;
 
 	#[pallet::storage]
 	pub(super) type Governances<T: Config> =
@@ -292,8 +291,8 @@ pub mod pallet {
 			// per default you just need to have more people in your favour than against ...
 			if proposal.in_favor > proposal.against && {
 				match governance.voting {
-					// we ship a majority vote implementation as default, that is requiring a threshold
-					// to be exceeded for a proposal to pass
+					// we ship a majority vote implementation as default, that is requiring a
+					// threshold to be exceeded for a proposal to pass
 					Voting::Majority { minimum_majority_per_1024 } => {
 						let token_supply = Assets::<T>::total_historical_supply(
 							asset_id.into(),
@@ -305,9 +304,10 @@ pub mod pallet {
 							minimum_majority_per_1024.into();
 						// check for the required majority
 						proposal.in_favor - proposal.against >= required_majority
-					}
-					// the custom voting mechanism allows for the interception with a hookpoint for custom logic.
-					Voting::Custom => true
+					},
+					// the custom voting mechanism allows for the interception with a hookpoint for
+					// custom logic.
+					Voting::Custom => true,
 				}
 			} {
 				proposal.status = ProposalStatus::Accepted;
@@ -376,12 +376,8 @@ pub mod pallet {
 			)
 			.expect("history exists");
 
-			let voting_power = on_vote::<T>(
-				dao.owner.clone(),
-				voter.clone(),
-				voter.clone(),
-				voting_power,
-			);
+			let voting_power =
+				on_vote::<T>(dao.owner.clone(), voter.clone(), voter.clone(), voting_power);
 			// undo old vote
 			match vote {
 				Some(true) => {
