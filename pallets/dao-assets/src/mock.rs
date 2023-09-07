@@ -8,7 +8,7 @@ use frame_support::{
 	construct_runtime,
 	traits::{AsEnsureOriginWithArg, ConstU32, ConstU64},
 };
-use sp_core::{ConstU128, ConstU8, H256};
+use sp_core::{ConstU8, H256};
 use sp_runtime::{
 	traits::{BlakeTwo256, IdentityLookup},
 	BuildStorage,
