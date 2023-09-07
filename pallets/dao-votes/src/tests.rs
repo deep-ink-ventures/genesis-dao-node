@@ -285,7 +285,6 @@ fn voting_outcome_successful_proposal_and_mark_implemented() {
 
 #[test]
 fn returns_active_proposals_for_a_dao() {
-
 	new_test_ext().execute_with(|| {
 		use commons::traits::ActiveProposals;
 
@@ -293,7 +292,8 @@ fn returns_active_proposals_for_a_dao() {
 		let origin = RuntimeOrigin::signed(sender.clone());
 
 		let dao1 = setup_dao_by_name::<Test>(b"DAO".to_vec(), b"TEST DAO".to_vec(), sender.clone());
-		let dao2 = setup_dao_by_name::<Test>(b"DAO2".to_vec(), b"TEST DAO2".to_vec(), sender.clone());
+		let dao2 =
+			setup_dao_by_name::<Test>(b"DAO2".to_vec(), b"TEST DAO2".to_vec(), sender.clone());
 
 		let proposal_duration = 1000_u32;
 		let proposal_token_deposit = 1_u32.into();
@@ -326,7 +326,8 @@ fn returns_active_proposals_for_a_dao() {
 		run_to_block::<Test>(500_u64);
 		setup_proposal::<Test>(sender.clone(), dao1.clone());
 
-		let proposals = DaoVotes::active_proposals_starting_time(dao1.clone(), System::block_number());
+		let proposals =
+			DaoVotes::active_proposals_starting_time(dao1.clone(), System::block_number());
 
 		assert_eq!(proposals.len(), 2);
 		assert_eq!(proposals[0], 1_u64);
@@ -341,39 +342,38 @@ fn returns_active_proposals_for_a_dao() {
 
 #[test]
 fn on_vote_calculation_callback_works() {
-    new_test_ext().execute_with(|| {
-        let sender = ALICE;
-        let origin = RuntimeOrigin::signed(sender.clone());
-        let dao_id = setup_dao_with_governance::<Test>(sender.clone());
-        let prop_id = setup_proposal::<Test>(sender.clone(), dao_id);
+	new_test_ext().execute_with(|| {
+		let sender = ALICE;
+		let origin = RuntimeOrigin::signed(sender.clone());
+		let dao_id = setup_dao_with_governance::<Test>(sender.clone());
+		let prop_id = setup_proposal::<Test>(sender.clone(), dao_id);
 
-        let voter = BOB;
-        let asset_id = 1;
+		let voter = BOB;
+		let asset_id = 1;
 
 		// this is our state before
-        assert_ok!(Assets::transfer(origin.clone(), asset_id, voter.clone(), 50));
-        assert_eq!(<Proposals<Test>>::get(prop_id).unwrap().in_favor, 0);
+		assert_ok!(Assets::transfer(origin.clone(), asset_id, voter.clone(), 50));
+		assert_eq!(<Proposals<Test>>::get(prop_id).unwrap().in_favor, 0);
 
-        let contract_path = "../../contracts/hooks/genesis-dao-contract-tests/test_contract.wasm";
-        let contract_deployment = HookPoints::prepare_deployment(
-            "new",
-            sender.clone(),
-            std::fs::read(contract_path).unwrap(),
-            vec![]
-        );
+		let contract_path = "../../contracts/hooks/genesis-dao-contract-tests/test_contract.wasm";
+		let contract_deployment = HookPoints::prepare_deployment(
+			"new",
+			sender.clone(),
+			std::fs::read(contract_path).unwrap(),
+			vec![],
+		);
 
-        let contract_account = HookPoints::install(contract_deployment)
-            .expect("code deployed");
+		let contract_account = HookPoints::install(contract_deployment).expect("code deployed");
 
-        assert_ok!(HookPoints::register_specific_callback(
-            origin,
-            contract_account,
-            "GenesisDao::on_vote".into(),
-        ));
+		assert_ok!(HookPoints::register_specific_callback(
+			origin,
+			contract_account,
+			"GenesisDao::on_vote".into(),
+		));
 
 		// now let's vote
-        assert_ok!(DaoVotes::vote(RuntimeOrigin::signed(voter), prop_id, Some(true)));
+		assert_ok!(DaoVotes::vote(RuntimeOrigin::signed(voter), prop_id, Some(true)));
 		// and this should be multiplied by 2, as defined in the above ink! contract
-        assert_eq!(<Proposals<Test>>::get(prop_id).unwrap().in_favor, 100);
-    });
+		assert_eq!(<Proposals<Test>>::get(prop_id).unwrap().in_favor, 100);
+	});
 }

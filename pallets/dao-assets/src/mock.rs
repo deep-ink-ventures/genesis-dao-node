@@ -3,6 +3,7 @@
 use super::*;
 use crate as pallet_dao_assets;
 
+use commons::traits::ActiveProposalsMock;
 use frame_support::{
 	construct_runtime,
 	traits::{AsEnsureOriginWithArg, ConstU32, ConstU64},
@@ -12,7 +13,6 @@ use sp_runtime::{
 	traits::{BlakeTwo256, IdentityLookup},
 	BuildStorage,
 };
-use commons::traits::ActiveProposalsMock;
 
 type Block = frame_system::mocking::MockBlock<Test>;
 /// Index of a transaction in the chain.

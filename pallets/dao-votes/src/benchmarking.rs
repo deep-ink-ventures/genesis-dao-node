@@ -1,6 +1,8 @@
 //! DAO Votes pallet benchmarking.
 //!
-//! ./target/release/genesis-dao-solochain benchmark pallet --chain dev --pallet pallet_dao_votes --extrinsic '*' --steps 20 --repeat 10 --output pallets/dao-votes/src/weights.rs --template ./benchmarking/frame-weight-template.hbs
+//! ./target/release/genesis-dao-solochain benchmark pallet --chain dev --pallet pallet_dao_votes
+//! --extrinsic '*' --steps 20 --repeat 10 --output pallets/dao-votes/src/weights.rs --template
+//! ./benchmarking/frame-weight-template.hbs
 
 use super::*;
 use crate::{test_utils::*, Pallet as Votes};

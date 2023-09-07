@@ -30,16 +30,18 @@ pub use frame_support::{
 use pallet_dao_assets::Pallet as Assets;
 
 pub mod weights;
+pub use crate::types::{
+	AccountIdOf, AssetIdOf, CurrencyOf, DaoIdOf, DaoNameOf, DaoOf, DepositBalanceOf, MetadataOf,
+};
 use weights::WeightInfo;
-pub use crate::types::{DaoNameOf, DaoIdOf, AssetIdOf, CurrencyOf, AccountIdOf, DepositBalanceOf, MetadataOf, DaoOf};
 
 #[frame_support::pallet]
 pub mod pallet {
 
 	use super::*;
+	use crate::types::DepositBalanceOf;
 	use frame_support::{pallet_prelude::*, traits::ReservableCurrency};
 	use frame_system::pallet_prelude::*;
-	use crate::types::DepositBalanceOf;
 
 	/// The current storage version.
 	const STORAGE_VERSION: StorageVersion = StorageVersion::new(1);
@@ -49,9 +51,7 @@ pub mod pallet {
 	pub struct Pallet<T>(_);
 
 	#[pallet::config]
-	pub trait Config:
-		frame_system::Config + pallet_dao_assets::Config
-	{
+	pub trait Config: frame_system::Config + pallet_dao_assets::Config {
 		type RuntimeEvent: From<Event<Self>> + IsType<<Self as frame_system::Config>::RuntimeEvent>;
 
 		type Currency: ReservableCurrency<Self::AccountId>;

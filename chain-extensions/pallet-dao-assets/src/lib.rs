@@ -1,12 +1,14 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
+use frame_support::traits::Get;
 use frame_system::RawOrigin;
-use pallet_contracts::chain_extension::{ChainExtension, Environment, Ext, InitState, RetVal, SysConfig};
+use pallet_contracts::chain_extension::{
+	ChainExtension, Environment, Ext, InitState, RetVal, SysConfig,
+};
 use pallet_dao_assets::WeightInfo;
 use parity_scale_codec::{Decode, Encode};
 use sp_runtime::{traits::StaticLookup, DispatchError, ModuleError};
 use sp_std::marker::PhantomData;
-use frame_support::traits::Get;
 
 enum AssetsFunc {
 	Transfer = 100,
@@ -71,7 +73,7 @@ pub enum Outcome {
 	/// The asset status is not the expected status.
 	/// Unknown error
 	RuntimeError = 99,
-	OriginCannotBeCaller = 100
+	OriginCannotBeCaller = 100,
 }
 
 impl From<DispatchError> for Outcome {
@@ -125,37 +127,37 @@ where
 
 		let call_result = match func_id {
 			AssetsFunc::BalanceOf => {
-                let (id, who): (<T as pallet_dao_assets::Config>::AssetId, T::AccountId) =
-                    env.read_as()?;
+				let (id, who): (<T as pallet_dao_assets::Config>::AssetId, T::AccountId) =
+					env.read_as()?;
 
-                env.charge_weight(T::DbWeight::get().reads(1 as u64))?;
+				env.charge_weight(T::DbWeight::get().reads(1 as u64))?;
 
-                let balance = pallet_dao_assets::Pallet::<T>::balance(id, who);
-                env.write(&balance.encode(), false, None)?;
+				let balance = pallet_dao_assets::Pallet::<T>::balance(id, who);
+				env.write(&balance.encode(), false, None)?;
 				Ok(())
-            }
-            AssetsFunc::TotalSupply => {
-                let id: <T as pallet_dao_assets::Config>::AssetId = env.read_as()?;
+			},
+			AssetsFunc::TotalSupply => {
+				let id: <T as pallet_dao_assets::Config>::AssetId = env.read_as()?;
 
-                env.charge_weight(T::DbWeight::get().reads(1 as u64))?;
+				env.charge_weight(T::DbWeight::get().reads(1 as u64))?;
 
-                let total_supply = pallet_dao_assets::Pallet::<T>::total_supply(id);
-                env.write(&total_supply.encode(), false, None)?;
+				let total_supply = pallet_dao_assets::Pallet::<T>::total_supply(id);
+				env.write(&total_supply.encode(), false, None)?;
 				Ok(())
-            }
-            AssetsFunc::Allowance => {
-                let (id, owner, delegate): (
-                    <T as pallet_dao_assets::Config>::AssetId,
-                    T::AccountId,
-                    T::AccountId,
-                ) = env.read_as()?;
+			},
+			AssetsFunc::Allowance => {
+				let (id, owner, delegate): (
+					<T as pallet_dao_assets::Config>::AssetId,
+					T::AccountId,
+					T::AccountId,
+				) = env.read_as()?;
 
-                env.charge_weight(T::DbWeight::get().reads(1 as u64))?;
+				env.charge_weight(T::DbWeight::get().reads(1 as u64))?;
 
-                let allowance = pallet_dao_assets::Pallet::<T>::allowance(id, &owner, &delegate);
-                env.write(&allowance.encode(), false, None)?;
+				let allowance = pallet_dao_assets::Pallet::<T>::allowance(id, &owner, &delegate);
+				env.write(&allowance.encode(), false, None)?;
 				Ok(())
-            }
+			},
 			AssetsFunc::Transfer => {
 				let (id, target, amount): (
 					<T as pallet_dao_assets::Config>::AssetId,
@@ -166,15 +168,8 @@ where
 				let weight = <T as pallet_dao_assets::Config>::WeightInfo::transfer();
 				env.charge_weight(weight)?;
 
-
-
 				env.ext().caller_is_origin();
-				pallet_dao_assets::Pallet::<T>::transfer(
-					origin,
-					id.into(),
-					target.into(),
-					amount,
-				)
+				pallet_dao_assets::Pallet::<T>::transfer(origin, id.into(), target.into(), amount)
 			},
 			AssetsFunc::TransferKeepAlive => {
 				let (id, target, amount): (
@@ -183,8 +178,7 @@ where
 					T::Balance,
 				) = env.read_as()?;
 
-				let weight =
-					<T as pallet_dao_assets::Config>::WeightInfo::transfer_keep_alive();
+				let weight = <T as pallet_dao_assets::Config>::WeightInfo::transfer_keep_alive();
 				env.charge_weight(weight)?;
 
 				pallet_dao_assets::Pallet::<T>::transfer_keep_alive(
@@ -212,19 +206,13 @@ where
 				)
 			},
 			AssetsFunc::CancelApproval => {
-				let (id, delegate): (
-					<T as pallet_dao_assets::Config>::AssetId,
-					T::AccountId,
-				) = env.read_as()?;
+				let (id, delegate): (<T as pallet_dao_assets::Config>::AssetId, T::AccountId) =
+					env.read_as()?;
 
 				let weight = <T as pallet_dao_assets::Config>::WeightInfo::cancel_approval();
 				env.charge_weight(weight)?;
 
-				pallet_dao_assets::Pallet::<T>::cancel_approval(
-					origin,
-					id.into(),
-					delegate.into(),
-				)
+				pallet_dao_assets::Pallet::<T>::cancel_approval(origin, id.into(), delegate.into())
 			},
 			AssetsFunc::TransferApproved => {
 				let (id, owner, destination, amount): (

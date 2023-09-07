@@ -5,12 +5,11 @@ use frame_support::{
 };
 use sp_core::H256;
 
-use sp_runtime::{
-	BuildStorage,
-	traits::{BlakeTwo256, IdentityLookup},
-};
 use commons::traits::ActiveProposalsMock;
-
+use sp_runtime::{
+	traits::{BlakeTwo256, IdentityLookup},
+	BuildStorage,
+};
 
 type Block = frame_system::mocking::MockBlock<Test>;
 
