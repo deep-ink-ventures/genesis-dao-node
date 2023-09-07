@@ -157,9 +157,7 @@ impl pallet_dao_assets::Config for Test {
 	type ActiveProposals = DaoVotes;
 	type RuntimeEvent = RuntimeEvent;
 	type Balance = Balance;
-	type AssetId = u32;
 	type AssetIdParameter = u32;
-	type Currency = Balances;
 	type ForceOrigin = frame_system::EnsureRoot<Self::AccountId>;
 	type CreateOrigin = AsEnsureOriginWithArg<frame_system::EnsureSigned<Self::AccountId>>;
 	type ApprovalDeposit = ApprovalDeposit;
@@ -181,6 +179,7 @@ impl pallet_dao_core::Config for Test {
 	type DaoDeposit = ConstU128<10>;
 	type TokenUnits = ConstU8<10>;
 	type AssetId = u32;
+    type ExposeAsset = Assets;
 	type CoreWeightInfo = ();
 }
 

@@ -2,10 +2,10 @@
 members = [
     "node/solo",
     "runtime/solo",
-    "tests/chain-extensions",
     "pallets/dao-assets",
     "pallets/dao-core",
     "pallets/dao-votes",
+    "commons/",
 ]
 resolver = "2"
 

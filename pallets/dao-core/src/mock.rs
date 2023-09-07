@@ -30,6 +30,7 @@ frame_support::construct_runtime!(
 		Balances: pallet_balances,
 		DaoCore: pallet_dao_core,
 		Assets: pallet_dao_assets,
+        CoreX: pallet_dao_assets::dao_core,
 	}
 );
 
@@ -87,7 +88,21 @@ impl pallet_dao_assets::dao_core::Config for Test {
 	type RuntimeEvent = RuntimeEvent;
 	type Currency = Balances;
 	type AssetId = u32;
-	type ExposeAsset = ();
+	type ExposeAsset = Assets;
+	type CoreWeightInfo = ();
+	type DaoDeposit = ConstU128<10>;
+	type MinLength = ConstU32<3>;
+	type MaxLengthId = ConstU32<8>;
+	type MaxLengthName = ConstU32<16>;
+    type MaxLengthMetadata = ConstU32<256>;
+	type TokenUnits = ConstU8<10>;
+}
+
+impl Config for Test {
+	type RuntimeEvent = RuntimeEvent;
+	type Currency = Balances;
+	type AssetId = u32;
+	type ExposeAsset = Assets;
 	type CoreWeightInfo = ();
 	type DaoDeposit = ConstU128<10>;
 	type MinLength = ConstU32<3>;
