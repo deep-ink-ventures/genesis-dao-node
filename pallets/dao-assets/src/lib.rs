@@ -4,6 +4,7 @@
 // Ensure we're `no_std` when compiling for Wasm.
 #![cfg_attr(not(feature = "std"), no_std)]
 
+pub use pallet_dao_core as dao_core;
 pub use pallet::*;
 use sp_std::prelude::*;
 
@@ -54,7 +55,8 @@ pub mod pallet {
 	use super::*;
 	use frame_support::{pallet_prelude::*, sp_runtime, traits::BuildGenesisConfig};
 	use frame_system::pallet_prelude::*;
-	use sp_runtime::traits::Header;
+	use sp_runtime::traits::{Header, One};
+    use commons::traits::AssetInterface;
 
 	/// The current storage version.
 	const STORAGE_VERSION: StorageVersion = StorageVersion::new(1);
@@ -77,7 +79,7 @@ pub mod pallet {
 
 	#[pallet::config]
 	/// The module configuration trait.
-	pub trait Config: frame_system::Config {
+	pub trait Config: frame_system::Config + pallet_dao_core::Config {
 		/// The overarching event type.
 		type RuntimeEvent: From<Event<Self>> + IsType<<Self as frame_system::Config>::RuntimeEvent>;
 
@@ -99,9 +101,6 @@ pub mod pallet {
 		#[pallet::constant]
 		type RemoveItemsLimit: Get<u32>;
 
-		/// Identifier for the class of asset.
-		type AssetId: Member + Parameter + Copy + MaybeSerializeDeserialize + MaxEncodedLen;
-
 		/// Wrapper around `Self::AssetId` to use in dispatchable call signatures. Allows the use
 		/// of compact encoding in instances of the pallet, which will prevent breaking changes
 		/// resulting from the removal of `HasCompact` from `Self::AssetId`.
@@ -114,9 +113,6 @@ pub mod pallet {
 			+ From<Self::AssetId>
 			+ Into<Self::AssetId>
 			+ MaxEncodedLen;
-
-		/// The currency mechanism.
-		type Currency: ReservableCurrency<Self::AccountId>;
 
 		/// Standard asset class creation is only allowed if the origin attempting it and the
 		/// asset class are in this set.

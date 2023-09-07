@@ -3,14 +3,14 @@ use frame_support::{
 	parameter_types,
 	traits::{AsEnsureOriginWithArg, ConstU128, ConstU32, ConstU64, ConstU8},
 };
+use crate::*;
 use sp_core::H256;
 
-use sp_runtime::{
-	BuildStorage,
-	traits::{BlakeTwo256, IdentityLookup},
-};
 use commons::traits::ActiveProposalsMock;
-
+use sp_runtime::{
+	traits::{BlakeTwo256, IdentityLookup},
+	BuildStorage,
+};
 
 type Block = frame_system::mocking::MockBlock<Test>;
 
@@ -28,8 +28,8 @@ frame_support::construct_runtime!(
 	pub struct Test {
 		System: frame_system,
 		Balances: pallet_balances,
-		Assets: pallet_dao_assets,
 		DaoCore: pallet_dao_core,
+		Assets: pallet_dao_assets,
 	}
 );
 
@@ -80,16 +80,28 @@ impl pallet_balances::Config for Test {
 parameter_types! {
 	// we're not really using this, as reservation is via DAO, but whatever
 	pub const ApprovalDeposit: Balance = 1;
-	pub const AssetsStringLimit: u32 = 50;
+    pub const AssetsStringLimit: u32 = 50;
+}
+
+impl pallet_dao_assets::dao_core::Config for Test {
+	type RuntimeEvent = RuntimeEvent;
+	type Currency = Balances;
+	type AssetId = u32;
+	type ExposeAsset = ();
+	type CoreWeightInfo = ();
+	type DaoDeposit = ConstU128<10>;
+	type MinLength = ConstU32<3>;
+	type MaxLengthId = ConstU32<8>;
+	type MaxLengthName = ConstU32<16>;
+    type MaxLengthMetadata = ConstU32<256>;
+	type TokenUnits = ConstU8<10>;
 }
 
 impl pallet_dao_assets::Config for Test {
 	type ActiveProposals = ActiveProposalsMock<Self>;
 	type RuntimeEvent = RuntimeEvent;
 	type Balance = Balance;
-	type AssetId = u32;
 	type AssetIdParameter = u32;
-	type Currency = Balances;
 	type ForceOrigin = frame_system::EnsureRoot<Self::AccountId>;
 	type CreateOrigin = AsEnsureOriginWithArg<frame_system::EnsureSigned<Self::AccountId>>;
 	type ApprovalDeposit = ApprovalDeposit;
@@ -99,19 +111,6 @@ impl pallet_dao_assets::Config for Test {
 	type WeightInfo = ();
 	#[cfg(feature = "runtime-benchmarks")]
 	type BenchmarkHelper = ();
-}
-
-impl pallet_dao_core::Config for Test {
-	type RuntimeEvent = RuntimeEvent;
-	type MinLength = ConstU32<3>;
-	type MaxLengthId = ConstU32<8>;
-	type MaxLengthName = ConstU32<16>;
-	type MaxLengthMetadata = ConstU32<256>;
-	type Currency = Balances;
-	type DaoDeposit = ConstU128<10>;
-	type TokenUnits = ConstU8<10>;
-	type AssetId = u32;
-	type WeightInfo = ();
 }
 
 // Build genesis storage according to the mock runtime.

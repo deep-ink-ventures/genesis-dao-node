@@ -11,6 +11,10 @@ homepage = "https://deep-ink.ventures"
 sp-std = { version = "8.0.0", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v1.0.0" }
 frame-system = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v1.0.0" }
 frame-support = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v1.0.0" }
+codec = { package = "parity-scale-codec", version = "3.0.0", default-features = false }
+scale-info = { version = "2.1.1", default-features = false, features = [
+	"derive",
+] }
 
 [features]
 default = ["std"]
@@ -18,4 +22,6 @@ std = [
 	"sp-std/std",
 	"frame-system/std",
 	"frame-support/std",
+  "codec/std",
+  "scale-info/std",
 ]

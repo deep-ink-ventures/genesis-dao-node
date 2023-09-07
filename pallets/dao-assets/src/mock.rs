@@ -3,16 +3,16 @@
 use super::*;
 use crate as pallet_dao_assets;
 
+use commons::traits::ActiveProposalsMock;
 use frame_support::{
 	construct_runtime,
 	traits::{AsEnsureOriginWithArg, ConstU32, ConstU64},
 };
-use sp_core::H256;
+use sp_core::{H256, ConstU128, ConstU8};
 use sp_runtime::{
 	traits::{BlakeTwo256, IdentityLookup},
 	BuildStorage,
 };
-use commons::traits::ActiveProposalsMock;
 
 type Block = frame_system::mocking::MockBlock<Test>;
 /// Index of a transaction in the chain.
@@ -24,6 +24,7 @@ construct_runtime!(
 	pub struct Test {
 		System: frame_system,
 		Balances: pallet_balances,
+        DaoCore: pallet_dao_core,
 		Assets: pallet_dao_assets,
 	}
 );
@@ -72,13 +73,25 @@ impl pallet_balances::Config for Test {
 	type MaxHolds = ();
 }
 
+impl pallet_dao_core::Config for Test {
+    type RuntimeEvent = RuntimeEvent;
+	type MinLength = ConstU32<3>;
+	type MaxLengthId = ConstU32<8>;
+	type MaxLengthName = ConstU32<16>;
+	type MaxLengthMetadata = ConstU32<256>;
+	type Currency = Balances;
+	type DaoDeposit = ConstU64<10>;
+	type TokenUnits = ConstU8<10>;
+	type AssetId = u32;
+    type ExposeAsset = Assets;
+	type CoreWeightInfo = ();
+}
+
 impl Config for Test {
 	type ActiveProposals = ActiveProposalsMock<Self>;
 	type RuntimeEvent = RuntimeEvent;
 	type Balance = u64;
-	type AssetId = u32;
 	type AssetIdParameter = u32;
-	type Currency = Balances;
 	type CreateOrigin = AsEnsureOriginWithArg<frame_system::EnsureSigned<u64>>;
 	type ForceOrigin = frame_system::EnsureRoot<u64>;
 	type ApprovalDeposit = ConstU64<1>;

@@ -1032,6 +1032,8 @@ version = "1.0.0"
 dependencies = [
  "frame-support",
  "frame-system",
+ "parity-scale-codec",
+ "scale-info",
  "sp-std",
 ]
 
@@ -4830,6 +4832,7 @@ dependencies = [
  "frame-support",
  "frame-system",
  "pallet-balances",
+ "pallet-dao-core",
  "parity-scale-codec",
  "scale-info",
  "sp-core",
@@ -4848,6 +4851,7 @@ dependencies = [
  "pallet-contracts",
  "pallet-contracts-primitives",
  "pallet-dao-assets",
+ "pallet-dao-core",
  "parity-scale-codec",
  "scale-info",
  "sp-core",
@@ -4884,7 +4888,6 @@ dependencies = [
  "pallet-balances",
  "pallet-contracts",
  "pallet-contracts-primitives",
- "pallet-dao-assets",
  "pallet-dao-core",
  "pallet-hookpoints",
  "pallet-timestamp",

@@ -5,11 +5,11 @@ use frame_support::{
 use frame_system as system;
 use sp_core::H256;
 
+use commons::traits::ActiveProposalsMock;
 use sp_runtime::{
 	traits::{BlakeTwo256, IdentityLookup},
 	AccountId32, BuildStorage,
 };
-use commons::traits::ActiveProposalsMock;
 
 type Block = frame_system::mocking::MockBlock<Test>;
 
@@ -157,9 +157,7 @@ impl pallet_dao_assets::Config for Test {
 	type ActiveProposals = ActiveProposalsMock<Self>;
 	type RuntimeEvent = RuntimeEvent;
 	type Balance = Balance;
-	type AssetId = u32;
 	type AssetIdParameter = u32;
-	type Currency = Balances;
 	type ForceOrigin = frame_system::EnsureRoot<Self::AccountId>;
 	type CreateOrigin = AsEnsureOriginWithArg<frame_system::EnsureSigned<Self::AccountId>>;
 	type ApprovalDeposit = ApprovalDeposit;
@@ -181,7 +179,8 @@ impl pallet_dao_core::Config for Test {
 	type DaoDeposit = ConstU128<10>;
 	type TokenUnits = ConstU8<10>;
 	type AssetId = u32;
-	type WeightInfo = ();
+    type ExposeAsset = Assets;
+	type CoreWeightInfo = ();
 }
 
 impl pallet_hookpoints::Config for Test {
@@ -205,7 +204,11 @@ pub const CHARLIE: AccountId32 = AccountId32::new([3u8; 32]);
 pub fn new_test_ext() -> sp_io::TestExternalities {
 	let mut t = frame_system::GenesisConfig::<Test>::default().build_storage().unwrap();
 	pallet_balances::GenesisConfig::<Test> {
-		balances: vec![(ALICE, 1_000_000_000_000), (BOB, 1_000_000_000_000), (CHARLIE, 1_000_000_000_000)],
+		balances: vec![
+			(ALICE, 1_000_000_000_000),
+			(BOB, 1_000_000_000_000),
+			(CHARLIE, 1_000_000_000_000),
+		],
 	}
 	.assimilate_storage(&mut t)
 	.unwrap();

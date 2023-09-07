@@ -1,7 +1,9 @@
 use crate::mock::*;
-use frame_support::{assert_ok, pallet_prelude::DispatchError, sp_io::hashing::blake2_256, weights::Weight};
-use pallet_contracts::{CollectEvents, DebugInfo, Determinism};
 use codec::{Decode, Encode};
+use frame_support::{
+	assert_ok, pallet_prelude::DispatchError, sp_io::hashing::blake2_256, weights::Weight,
+};
+use pallet_contracts::{CollectEvents, DebugInfo, Determinism};
 use pallet_contracts_primitives::{Code, ReturnFlags};
 
 fn selector_from_str(label: &str) -> Vec<u8> {
@@ -48,19 +50,16 @@ where
 		DebugInfo::Skip,
 		CollectEvents::Skip,
 		Determinism::Enforced,
-	).result.unwrap();
+	)
+	.result
+	.unwrap();
 
 	match call_result.flags {
-		ReturnFlags::REVERT => {
-			Err(DispatchError::Other("failed"))
-		},
-		_ => {
-			<Result<R, DispatchError>>::decode(&mut &call_result.data[..])
-		.map_err(|_| DispatchError::Other("decoding error"))
-		.unwrap()
-		}
+		ReturnFlags::REVERT => Err(DispatchError::Other("failed")),
+		_ => <Result<R, DispatchError>>::decode(&mut &call_result.data[..])
+			.map_err(|_| DispatchError::Other("decoding error"))
+			.unwrap(),
 	}
-
 }
 
 #[test]
@@ -82,7 +81,8 @@ fn test_transfer_extension() {
 		let mut data = selector_from_str("new");
 		data.append(&mut asset_id.clone().encode());
 
-		let contract_address = install(sender.clone(), ASSET_CONTRACT_PATH, data).expect("code deployed");
+		let contract_address =
+			install(sender.clone(), ASSET_CONTRACT_PATH, data).expect("code deployed");
 
 		let mut data = selector_from_str("PSP22::transfer");
 		data.append(&mut BOB.clone().encode());
@@ -97,15 +97,25 @@ fn test_transfer_extension() {
 		// native funcs
 		let mut data = selector_from_str("PSP22::balance_of");
 		data.append(&mut ALICE.encode());
-		let alice_balance = call::<u128>(sender.clone(), contract_address.clone(), data).expect("call success");
+		let alice_balance =
+			call::<u128>(sender.clone(), contract_address.clone(), data).expect("call success");
 		assert_eq!(alice_balance, 900);
 
 		let mut data = selector_from_str("PSP22::balance_of");
 		data.append(&mut BOB.encode());
-		let bob_balance = call::<u128>(sender.clone(), contract_address.clone(), data).expect("call success");
+		let bob_balance =
+			call::<u128>(sender.clone(), contract_address.clone(), data).expect("call success");
 		assert_eq!(bob_balance, 100);
 
-		assert_eq!(call::<u128>(sender.clone(), contract_address, selector_from_str("PSP22::total_supply")).unwrap(), 1000);
+		assert_eq!(
+			call::<u128>(
+				sender.clone(),
+				contract_address,
+				selector_from_str("PSP22::total_supply")
+			)
+			.unwrap(),
+			1000
+		);
 	});
 }
 
@@ -130,7 +140,8 @@ fn test_transfer_keep_alive_extension() {
 		let mut data = selector_from_str("new");
 		data.append(&mut asset_id.clone().encode());
 
-		let contract_address = install(sender.clone(), ASSET_CONTRACT_PATH, data).expect("code deployed");
+		let contract_address =
+			install(sender.clone(), ASSET_CONTRACT_PATH, data).expect("code deployed");
 
 		let mut data = selector_from_str("transfer_keep_alive");
 		data.append(&mut BOB.clone().encode());

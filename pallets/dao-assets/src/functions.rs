@@ -837,3 +837,65 @@ impl<T: Config> Pallet<T> {
 			.unwrap_or_else(Zero::zero)
 	}
 }
+
+impl<T: Config> commons::traits::AssetInterface for Pallet<T> {
+	type AssetId = pallet_dao_core::AssetIdOf<T>;
+	type AssetInfo = AssetDetails<AssetBalanceOf<T>, AccountIdOf<T>>;
+	type AccountId = AccountIdOf<T>;
+	type Balance = AssetBalanceOf<T>;
+    type BlockNumber = BlockNumberFor<T>;
+
+	fn get_asset(asset_id: Self::AssetId) -> Option<Self::AssetInfo> {
+		Asset::<T>::get(asset_id)
+	}
+
+	fn mint(
+		id: Self::AssetId,
+		beneficiary: &Self::AccountId,
+		amount: Self::Balance,
+	) -> DispatchResult {
+		Pallet::<T>::do_mint(id, beneficiary, amount)
+	}
+
+	fn force_create(
+		id: Self::AssetId,
+		owner: Self::AccountId,
+		min_balance: Self::Balance,
+	) -> DispatchResult {
+		Pallet::<T>::do_force_create(id, owner, min_balance)
+	}
+
+	fn set_metadata(
+		id: Self::AssetId,
+		from: &Self::AccountId,
+		name: Vec<u8>,
+		symbol: Vec<u8>,
+		decimals: u8,
+	) -> DispatchResult {
+		Pallet::<T>::do_set_metadata(id, from, name, symbol, decimals)
+	}
+
+    fn change_owner(id: Self::AssetId, new_owner: Self::AccountId) -> DispatchResult {
+        Pallet::<T>::change_owner(id, new_owner)
+    }
+
+    fn reserve(
+		id: Self::AssetId,
+		target: impl Borrow<Self::AccountId>,
+		amount: Self::Balance,
+	) -> Result<Self::Balance, DispatchError> {
+        Pallet::<T>::do_reserve(id, target, amount)
+    }
+
+    fn total_historical_supply(id: Self::AssetId, block: Self::BlockNumber) -> Option<Self::Balance> {
+        Pallet::<T>::total_historical_supply(id, block)
+    }
+
+    fn total_historical_balance(
+		id: Self::AssetId,
+		who: impl Borrow<Self::AccountId>,
+		block: Self::BlockNumber,
+	) -> Option<Self::Balance> {
+        Pallet::<T>::total_historical_balance(id, who, block)
+    }
+}

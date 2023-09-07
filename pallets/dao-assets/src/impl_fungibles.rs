@@ -11,7 +11,7 @@ use frame_support::{
 };
 use sp_std::vec::Vec;
 
-use crate::{Approvals, Asset, Config, DebitFlags, Metadata, Pallet, SystemConfig};
+use crate::{types::*, Approvals, Asset, Config, DebitFlags, Metadata, Pallet, SystemConfig};
 
 impl<T: Config> fungibles::Inspect<<T as SystemConfig>::AccountId> for Pallet<T> {
 	type AssetId = T::AssetId;
@@ -181,7 +181,7 @@ impl<T: Config> fungibles::approvals::Mutate<<T as SystemConfig>::AccountId> for
 }
 
 impl<T: Config> fungibles::InspectEnumerable<T::AccountId> for Pallet<T> {
-	type AssetsIterator = KeyPrefixIterator<<T as Config>::AssetId>;
+	type AssetsIterator = KeyPrefixIterator<AssetIdOf<T>>;
 
 	/// Returns an iterator of the assets in existence.
 	///

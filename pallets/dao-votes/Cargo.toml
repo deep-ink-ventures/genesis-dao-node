@@ -22,7 +22,6 @@ scale-info = { version = "2.1.1", default-features = false, features = [
 sp-std = { version = "8.0.0", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v1.0.0" }
 pallet-balances = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v1.0.0" }
 pallet-dao-core = { version = "4.0.0-dev", default-features = false, path = "../dao-core" }
-pallet-dao-assets = { version = "4.0.0-dev", default-features = false, path = "../dao-assets" }
 pallet-hookpoints = { version = "1.0.0", default-features = false, git = "https://github.com/deep-ink-ventures/pallet_hookpoints.git", branch="polkadot-v1.0.0"}
 commons = { path = "../../commons", default-features = false }
 
@@ -47,14 +46,12 @@ std = [
 	"pallet-balances/std",
 	"pallet-contracts-primitives/std",
 	"pallet-contracts/std",
-	"pallet-dao-assets/std",
 	"pallet-dao-core/std",
 	"pallet-hookpoints/std",
 	"commons/std"
 ]
 runtime-benchmarks = [
 	"frame-benchmarking/runtime-benchmarks",
-	"pallet-dao-assets/runtime-benchmarks",
 	"pallet-dao-core/runtime-benchmarks",
 	"pallet-hookpoints/runtime-benchmarks",
 ]

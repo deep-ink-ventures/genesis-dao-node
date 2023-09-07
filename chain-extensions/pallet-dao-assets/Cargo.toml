@@ -9,7 +9,8 @@ edition = "2021"
 frame-support = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v1.0.0" }
 frame-system = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v1.0.0" }
 num-traits = { version = "0.2", default-features = false }
-pallet-dao-assets = { version = "4.0.0-dev", default-features = false, path = "../../pallets/dao-assets" }
+pallet-dao-core = { default-features = false, path = "../../pallets/dao-core" }
+pallet-dao-assets = { default-features = false, path = "../../pallets/dao-assets" }
 pallet-contracts = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v1.0.0" }
 pallet-contracts-primitives = { version = "24.0.0", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v1.0.0" }
 parity-scale-codec = { package = "parity-scale-codec", version = "3.0.0", default-features = false, features = [
@@ -34,4 +35,5 @@ std = [
 	"sp-core/std",
 	"sp-runtime/std",
 	"pallet-dao-assets/std",
+  "pallet-dao-core/std",
 ]

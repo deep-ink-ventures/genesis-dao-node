@@ -16,7 +16,7 @@ mod tests;
 pub mod functions;
 
 mod types;
-pub use types::Dao;
+pub use types::*;
 
 pub use frame_support::{
 	sp_runtime::traits::{One, Saturating},
@@ -27,19 +27,21 @@ pub use frame_support::{
 	},
 	weights::Weight,
 };
-use pallet_dao_assets::Pallet as Assets;
 
 pub mod weights;
+pub use crate::types::{
+	AccountIdOf, AssetIdOf, CurrencyOf, DaoIdOf, DaoNameOf, DaoOf, DepositBalanceOf, MetadataOf,
+};
 use weights::WeightInfo;
-pub use crate::types::{DaoNameOf, DaoIdOf, AssetIdOf, CurrencyOf, AccountIdOf, DepositBalanceOf, MetadataOf, DaoOf};
 
 #[frame_support::pallet]
 pub mod pallet {
 
 	use super::*;
+	use crate::types::DepositBalanceOf;
+	use commons::traits::AssetInterface;
 	use frame_support::{pallet_prelude::*, traits::ReservableCurrency};
 	use frame_system::pallet_prelude::*;
-	use crate::types::DepositBalanceOf;
 
 	/// The current storage version.
 	const STORAGE_VERSION: StorageVersion = StorageVersion::new(1);
@@ -49,23 +51,30 @@ pub mod pallet {
 	pub struct Pallet<T>(_);
 
 	#[pallet::config]
-	pub trait Config:
-		frame_system::Config + pallet_dao_assets::Config
-	{
+	pub trait Config: frame_system::Config {
 		type RuntimeEvent: From<Event<Self>> + IsType<<Self as frame_system::Config>::RuntimeEvent>;
 
 		type Currency: ReservableCurrency<Self::AccountId>;
 
-		type AssetId: IsType<<Self as pallet_dao_assets::Config>::AssetId>
-			+ Member
+		type AssetId: Member
 			+ Parameter
 			+ Copy
 			+ Default
 			+ MaxEncodedLen
 			+ One
-			+ Saturating;
+			+ Saturating
+			+ MaybeSerializeDeserialize
+			+ MaxEncodedLen;
 
-		type WeightInfo: WeightInfo;
+		type ExposeAsset: AssetInterface<
+			AssetId = Self::AssetId,
+			AccountId = AccountIdOf<Self>,
+			Balance = BalanceOf<Self>,
+            BlockNumber = BlockNumberFor<Self>,
+			AssetInfo = commons::types::assets::AssetDetails<BalanceOf<Self>, AccountIdOf<Self>>,
+		>;
+
+		type CoreWeightInfo: WeightInfo;
 
 		#[pallet::constant]
 		type DaoDeposit: Get<DepositBalanceOf<Self>>;
@@ -89,25 +98,11 @@ pub mod pallet {
 	#[pallet::event]
 	#[pallet::generate_deposit(pub (super) fn deposit_event)]
 	pub enum Event<T: Config> {
-		DaoCreated {
-			dao_id: DaoIdOf<T>,
-			owner: T::AccountId,
-		},
-		DaoDestroyed {
-			dao_id: DaoIdOf<T>,
-		},
-		DaoTokenIssued {
-			dao_id: DaoIdOf<T>,
-			supply: <T as pallet_dao_assets::Config>::Balance,
-			asset_id: <T as Config>::AssetId,
-		},
-		DaoMetadataSet {
-			dao_id: DaoIdOf<T>,
-		},
-		DaoOwnerChanged {
-			dao_id: DaoIdOf<T>,
-			new_owner: T::AccountId,
-		},
+		DaoCreated { dao_id: DaoIdOf<T>, owner: AccountIdOf<T> },
+		DaoDestroyed { dao_id: DaoIdOf<T> },
+		DaoTokenIssued { dao_id: DaoIdOf<T>, supply: BalanceOf<T>, asset_id: AssetIdOf<T> },
+		DaoMetadataSet { dao_id: DaoIdOf<T> },
+		DaoOwnerChanged { dao_id: DaoIdOf<T>, new_owner: AccountIdOf<T> },
 	}
 
 	#[pallet::error]
@@ -147,7 +142,7 @@ pub mod pallet {
 		///
 		/// A DAO must reserve the _DaoDeposit_ fee.
 		#[pallet::call_index(1)]
-		#[pallet::weight(<T as pallet::Config>::WeightInfo::create_dao())]
+		#[pallet::weight(<T as pallet::Config>::CoreWeightInfo::create_dao())]
 		pub fn create_dao(
 			origin: OriginFor<T>,
 			dao_id: Vec<u8>,
@@ -195,15 +190,15 @@ pub mod pallet {
 		///
 		/// Signer of this TX needs to be the owner of the DAO.
 		#[pallet::call_index(2)]
-		#[pallet::weight(<T as pallet::Config>::WeightInfo::destroy_dao())]
+		#[pallet::weight(<T as pallet::Config>::CoreWeightInfo::destroy_dao())]
 		pub fn destroy_dao(origin: OriginFor<T>, dao_id: Vec<u8>) -> DispatchResult {
 			let sender = ensure_signed(origin)?;
 			let dao = Self::load_dao(dao_id)?;
 			ensure!(dao.owner == sender, Error::<T>::DaoSignerNotOwner);
 
 			if let Some(asset_id) = dao.asset_id {
-				if let Some(asset) = pallet_dao_assets::Asset::<T>::get(asset_id.into()) {
-					if pallet_dao_assets::AssetStatus::Destroyed != asset.status {
+				if let Some(asset) = T::ExposeAsset::get_asset(asset_id) {
+					if asset.status != commons::types::assets::AssetStatus::Destroyed {
 						Err(Error::<T>::DaoTokenAlreadyIssued)?;
 					}
 				}
@@ -223,11 +218,11 @@ pub mod pallet {
 		/// Tokens can only be issued once and the signer of this TX needs to be the owner
 		/// of the DAO.
 		#[pallet::call_index(3)]
-		#[pallet::weight(<T as pallet::Config>::WeightInfo::issue_token())]
+		#[pallet::weight(<T as pallet::Config>::CoreWeightInfo::issue_token())]
 		pub fn issue_token(
 			origin: OriginFor<T>,
 			dao_id: Vec<u8>,
-			supply: <T as pallet_dao_assets::Config>::Balance,
+			supply: BalanceOf<T>,
 		) -> DispatchResult {
 			let sender = ensure_signed(origin)?;
 			let dao = Self::load_dao(dao_id)?;
@@ -237,21 +232,17 @@ pub mod pallet {
 			// create a fresh asset
 			<CurrentAssetId<T>>::mutate(|asset_id| asset_id.saturating_inc());
 
-			<pallet_dao_assets::pallet::Pallet<T>>::do_force_create(
+			T::ExposeAsset::force_create(
 				<CurrentAssetId<T>>::get().into(),
 				dao.owner.clone(),
 				One::one(),
 			)?;
 
 			// and distribute it to the owner
-			<pallet_dao_assets::pallet::Pallet<T>>::do_mint(
-				<CurrentAssetId<T>>::get().into(),
-				&dao.owner,
-				supply,
-			)?;
+			T::ExposeAsset::mint(<CurrentAssetId<T>>::get().into(), &dao.owner, supply)?;
 
 			// set the token metadata to the dao metadata
-			<pallet_dao_assets::pallet::Pallet<T>>::do_set_metadata(
+			T::ExposeAsset::set_metadata(
 				<CurrentAssetId<T>>::get().into(),
 				&dao.owner,
 				dao.name.into(),
@@ -278,7 +269,7 @@ pub mod pallet {
 		/// - `meta`: HTTP or IPFS address for the metadata about this DAO (description, logo)
 		/// - `hash`: SHA3 hash of the metadata to be found via `meta`
 		#[pallet::call_index(4)]
-		#[pallet::weight(<T as pallet::Config>::WeightInfo::set_metadata())]
+		#[pallet::weight(<T as pallet::Config>::CoreWeightInfo::set_metadata())]
 		pub fn set_metadata(
 			origin: OriginFor<T>,
 			dao_id: Vec<u8>,
@@ -313,7 +304,7 @@ pub mod pallet {
 		/// - `dao_id`: the DAO to transfer ownership of
 		/// - `new_owner`: the new owner
 		#[pallet::call_index(5)]
-		#[pallet::weight(<T as pallet::Config>::WeightInfo::set_metadata())]
+		#[pallet::weight(<T as pallet::Config>::CoreWeightInfo::set_metadata())]
 		pub fn change_owner(
 			origin: OriginFor<T>,
 			dao_id: Vec<u8>,
@@ -330,7 +321,7 @@ pub mod pallet {
 				}
 				// also change asset owner if token was issued
 				if let Some(asset_id) = dao.asset_id {
-					Assets::<T>::change_owner(asset_id.into(), new_owner.clone())?;
+					T::ExposeAsset::change_owner(asset_id.into(), new_owner.clone())?;
 				}
 
 				dao.owner = new_owner.clone();

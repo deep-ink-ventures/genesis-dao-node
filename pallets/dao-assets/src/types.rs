@@ -1,48 +1,22 @@
 //! Various basic types for use in the assets pallet.
 
 use super::*;
+pub use commons::types::assets::*;
 use frame_support::{pallet_prelude::*, traits::fungible};
+pub use pallet_dao_core::AssetIdOf;
 
 // Type alias for `frame_system`'s account id.
-type AccountIdOf<T> = <T as frame_system::Config>::AccountId;
+pub type AccountIdOf<T> = <T as frame_system::Config>::AccountId;
 // This pallet's asset id and balance type.
 pub type AssetBalanceOf<T> = <T as Config>::Balance;
 // Generic fungible balance type.
 pub type BalanceOf<F, T> = <F as fungible::Inspect<AccountIdOf<T>>>::Balance;
 // The deposit balance type
-pub type DepositBalanceOf<T> = <<T as Config>::Currency as Currency<AccountIdOf<T>>>::Balance;
+pub type DepositBalanceOf<T> =
+	<<T as pallet_dao_core::Config>::Currency as Currency<AccountIdOf<T>>>::Balance;
 // The account data for an asset
 pub type AssetAccountOf<T> = AssetAccount<AssetBalanceOf<T>>;
 pub type AssetDetailsOf<T> = AssetDetails<AssetBalanceOf<T>, AccountIdOf<T>>;
-
-/// AssetStatus holds the current state of the asset. It could either be Live and available for use,
-/// or in a Destroying state.
-#[derive(Clone, Encode, Decode, Eq, PartialEq, RuntimeDebug, MaxEncodedLen, TypeInfo)]
-pub enum AssetStatus {
-	/// The asset is active and able to be used.
-	Live,
-	/// The asset is currently being destroyed, and all actions are no longer permitted on the
-	/// asset. Once set to `Destroying`, the asset can never transition back to a `Live` state.
-	Destroying,
-	/// The asset has been destroyed
-	Destroyed,
-}
-
-#[derive(Clone, Encode, Decode, Eq, PartialEq, RuntimeDebug, MaxEncodedLen, TypeInfo)]
-pub struct AssetDetails<Balance, AccountId> {
-	/// Can destroy this asset
-	pub(super) owner: AccountId,
-	/// The total supply across all accounts.
-	pub(super) supply: Balance,
-	/// The ED for virtual accounts.
-	pub(super) min_balance: Balance,
-	/// The total number of accounts.
-	pub(super) accounts: u32,
-	/// The total number of approvals.
-	pub(super) approvals: u32,
-	/// The status of the asset
-	pub status: AssetStatus,
-}
 
 /// Data concerning an approval.
 #[derive(Clone, Encode, Decode, Eq, PartialEq, RuntimeDebug, Default, MaxEncodedLen, TypeInfo)]

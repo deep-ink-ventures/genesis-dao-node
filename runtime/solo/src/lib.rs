@@ -29,7 +29,6 @@ use sp_std::prelude::*;
 use sp_version::NativeVersion;
 use sp_version::RuntimeVersion;
 
-
 // A few exports that help ease life for downstream crates.
 pub use frame_support::{
 	construct_runtime, parameter_types,
@@ -386,10 +385,8 @@ impl pallet_dao_assets::Config for Runtime {
 	type ActiveProposals = Votes;
 	type RuntimeEvent = RuntimeEvent;
 	type Balance = Balance;
-	type AssetId = u32;
 	type AssetIdParameter = u32;
 	type CreateOrigin = AsEnsureOriginWithArg<frame_system::EnsureSigned<AccountId>>;
-	type Currency = Balances;
 	type ForceOrigin = frame_system::EnsureRoot<AccountId>;
 	type ApprovalDeposit = ApprovalDeposit;
 	type RemoveItemsLimit = ConstU32<1000>;
@@ -412,7 +409,8 @@ impl pallet_dao_core::Config for Runtime {
 	type DaoDeposit = ConstU128<{ 10 * DOT }>;
 	type TokenUnits = ConstU8<10>;
 	type AssetId = u32;
-	type WeightInfo = pallet_dao_core::weights::SubstrateWeight<Runtime>;
+    type ExposeAsset = Assets;
+	type CoreWeightInfo = pallet_dao_core::weights::SubstrateWeight<Runtime>;
 }
 
 // DAO votes
