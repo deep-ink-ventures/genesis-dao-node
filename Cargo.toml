@@ -5,7 +5,11 @@ members = [
     "pallets/dao-assets",
     "pallets/dao-core",
     "pallets/dao-votes",
-    "commons/",
+    "commons",
+    "contracts/extensions/dao-assets-extension",
+    "contracts/extensions/dao-assets-contract",
+    "contracts/plugins/vesting-wallet-contract",
+    "tests/contracts"
 ]
 resolver = "2"
 

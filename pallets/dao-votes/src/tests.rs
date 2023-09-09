@@ -286,7 +286,7 @@ fn voting_outcome_successful_proposal_and_mark_implemented() {
 #[test]
 fn returns_active_proposals_for_a_dao() {
 	new_test_ext().execute_with(|| {
-		use commons::traits::ActiveProposals;
+		use commons::traits::pallets::ActiveProposals;
 
 		let sender = ALICE;
 		let origin = RuntimeOrigin::signed(sender.clone());

@@ -1,12 +1,10 @@
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
 /// `dao_assets_contract` module provides a contract for assets, implementing the PSP22 standard.
-/// The contract primarily focuses on asset transfers, approvals, and allowances.
-mod psp22;
-
+/// The contract primarily focuses on asset transfers, approvals, and allowances.;
 use dao_assets_extension::AssetExtension;
 use ink::env::Environment;
-
+pub mod psp22;
 
 /// A custom environment for the AssetContract, using the default Ink environment but
 /// with a specific chain extension for asset operations.
@@ -29,10 +27,9 @@ impl Environment for CustomEnvironment {
 /// The primary contract module for DAO assets.
 #[ink::contract(env = crate::CustomEnvironment)]
 mod dao_assets_contract {
-    use dao_assets_extension::AssetId;
     use ink::prelude::vec::Vec;
-
-    use crate::psp22::{PSP22, PSP22Error};
+    use dao_assets_extension::AssetId;
+    use crate::psp22::{traits::PSP22, errors::PSP22Error};
 
     /// The `AssetContract` struct represents the main storage for the contract,
     /// containing the `asset_id` which is unique for each asset.

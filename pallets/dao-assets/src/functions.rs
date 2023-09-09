@@ -838,7 +838,7 @@ impl<T: Config> Pallet<T> {
 	}
 }
 
-impl<T: Config> commons::traits::AssetInterface for Pallet<T> {
+impl<T: Config> commons::traits::pallets::AssetInterface for Pallet<T> {
 	type AssetId = pallet_dao_core::AssetIdOf<T>;
 	type AssetInfo = AssetDetails<AssetBalanceOf<T>, AccountIdOf<T>>;
 	type AccountId = AccountIdOf<T>;

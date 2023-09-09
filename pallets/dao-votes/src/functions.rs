@@ -2,7 +2,7 @@ use crate::{
 	pallet::{Governances, Proposals},
 	Config, Pallet, ProposalOf, ProposalStatus,
 };
-use commons::traits::ActiveProposals;
+use commons::traits::pallets::ActiveProposals;
 use frame_system::pallet_prelude::BlockNumberFor;
 use sp_std::prelude::*;
 

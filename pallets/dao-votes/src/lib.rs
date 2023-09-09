@@ -39,7 +39,7 @@ pub mod pallet {
 
 	use super::*;
 	use crate::hooks::on_vote;
-	use commons::traits::AssetInterface;
+	use commons::traits::pallets::AssetInterface;
 	use frame_support::pallet_prelude::*;
 	use frame_system::pallet_prelude::*;
 	use types::BalanceOf as AssetBalanceOf;
