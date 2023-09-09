@@ -224,7 +224,7 @@ pub fn create_assets_contract() -> AccountId {
 	install(ALICE, ASSET_CONTRACT_PATH, data).expect("code deployed")
 }
 
-pub fn create_vesting_wallet() -> (AccountId, AccountId) {
+pub fn create_vesting_wallet_contract() -> (AccountId, AccountId) {
 	let asset_contract = create_assets_contract();
 	let mut data = selector_from_str("new");
 	data.append(&mut asset_contract.clone().encode());
@@ -305,4 +305,22 @@ pub fn new_test_ext() -> sp_io::TestExternalities {
 pub fn selector_from_str(label: &str) -> Vec<u8> {
 	let hash = blake2_256(label.as_bytes());
 	[hash[0], hash[1], hash[2], hash[3]].to_vec()
+}
+
+pub fn forward_by_blocks(n: u64) {
+	use frame_support::traits::{OnFinalize, OnInitialize};
+	let current = System::block_number();
+	let target = current + n;
+	while System::block_number() < target {
+		let mut block = System::block_number();
+		Assets::on_finalize(block);
+		System::on_finalize(block);
+		System::reset_events();
+
+		block += 1_u64;
+
+		System::set_block_number(block);
+		System::on_initialize(block);
+		Assets::on_initialize(block);
+	}
 }
