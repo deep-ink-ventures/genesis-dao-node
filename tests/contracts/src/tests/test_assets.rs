@@ -2,6 +2,26 @@ use crate::mock::*;
 use codec::Encode;
 use frame_support::assert_ok;
 
+#[test]
+fn test_init() {
+	new_test_ext().execute_with(|| {
+		let dao = DaoCore::load_dao(create_dao()).unwrap();
+		let asset_id = dao.asset_id.unwrap();
+
+		let mut data = selector_from_str("new");
+		data.append(&mut asset_id.clone().encode());
+		let asset_contract = install(ALICE, ASSET_CONTRACT_PATH, data)
+			.expect("code deployed");
+
+		let asset_id_on_chain = call::<u32>(
+			ALICE,
+			asset_contract.clone(),
+			selector_from_str("get_asset_id")
+		).expect("call success");
+
+		assert_eq!(asset_id, asset_id_on_chain);
+	});
+}
 
 #[test]
 fn test_transfer_extension() {
@@ -16,7 +36,6 @@ fn test_transfer_extension() {
 
 		let mut data = selector_from_str("new");
 		data.append(&mut asset_id.clone().encode());
-
 		let contract_address =
 			install(sender.clone(), ASSET_CONTRACT_PATH, data).expect("code deployed");
 

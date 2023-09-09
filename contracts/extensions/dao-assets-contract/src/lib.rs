@@ -66,6 +66,12 @@ mod dao_assets_contract {
             Self { asset_id }
         }
 
+        /// Returns the asset id
+        #[ink(message)]
+        pub fn get_asset_id(&self) -> AssetId {
+            self.asset_id
+        }
+
         /// Transfers an `amount` of assets to the `target` account, ensuring the sender stays alive.
         #[ink(message)]
         pub fn transfer_keep_alive(&mut self, to: AccountId, value: Balance) -> Result<(), PSP22Error> {

@@ -5,7 +5,17 @@ type AccountId = <ink::env::DefaultEnvironment as ink::env::Environment>::Accoun
 /// Storage for the main contract.
 #[ink::contract]
 pub mod vesting_wallet {
+    use ink::env::call::{build_call, ExecutionInput, Selector};
+    use ink::env::DefaultEnvironment;
+    use ink::LangError;
     use ink::storage::Mapping;
+
+    #[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
+    #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
+    pub enum Error {
+        /// Returned when we are unable to fund the vesting wallet from the sender
+        CannotFund,
+    }
 
     #[derive(scale::Decode, scale::Encode)]
     #[cfg_attr(feature = "std", derive(scale_info::TypeInfo, ink::storage::traits::StorageLayout))]
@@ -40,15 +50,32 @@ pub mod vesting_wallet {
 
         /// Create a vesting wallet for a user.
         #[ink(message)]
-        pub fn create_vesting_wallet_for(&mut self, account: AccountId, amount: u128, duration: u64) {
-            let start_time = Self::env().block_timestamp();
-            let wallet_info = VestingWalletInfo {
-                start_time,
-                duration,
-                total_tokens: amount,
-                withdrawn_tokens: 0,
-            };
-            self.wallets.insert(account, &wallet_info);
+        pub fn create_vesting_wallet_for(&mut self, account: AccountId, amount: u128, duration: u64) -> Result<(), Error> {
+            match build_call::<DefaultEnvironment>()
+                .call(self.token)
+                .exec_input(
+                    ExecutionInput::new(Selector::new(ink::selector_bytes!("PSP22::transfer_from")))
+                        .push_arg(&self.env().caller())
+                        .push_arg(&self.env().account_id())
+                        .push_arg(&amount)
+                        .push_arg(&"")
+                )
+                .returns::<Result<(), Error>>()
+                .try_invoke()
+            {
+                Err(_) => Err(Error::CannotFund),
+                Ok(_) => {
+                    let start_time = Self::env().block_timestamp();
+                    let wallet_info = VestingWalletInfo {
+                        start_time,
+                        duration,
+                        total_tokens: amount,
+                        withdrawn_tokens: 0,
+                    };
+                    self.wallets.insert(account, &wallet_info);
+                    Ok(())
+                }
+            }
         }
 
         /// Get unvested tokens for a user.
