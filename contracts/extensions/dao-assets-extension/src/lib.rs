@@ -1,10 +1,10 @@
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
+
+mod types;
+pub use types::*;
+
 use ink::prelude::vec::Vec;
 use scale::Encode;
-
-pub type AccountId = <ink::env::DefaultEnvironment as ink::env::Environment>::AccountId;
-pub type Balance = u128;
-pub type AssetId = u32;
 
 #[ink::chain_extension]
 pub trait AssetExtension {

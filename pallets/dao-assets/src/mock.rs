@@ -3,7 +3,7 @@
 use super::*;
 use crate as pallet_dao_assets;
 
-use commons::traits::ActiveProposalsMock;
+use commons::traits::pallets::ActiveProposalsMock;
 use frame_support::{
 	construct_runtime,
 	traits::{AsEnsureOriginWithArg, ConstU32, ConstU64},

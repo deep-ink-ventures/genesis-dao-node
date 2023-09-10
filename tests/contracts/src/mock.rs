@@ -1,17 +1,22 @@
-use frame_support::{
-	parameter_types,
-	traits::{AsEnsureOriginWithArg, ConstBool, ConstU128, ConstU32, ConstU64, ConstU8},
-};
+use codec::{Decode, Encode};
+use frame_support::{parameter_types, pallet_prelude::DispatchError, sp_io::hashing::blake2_256, traits::{AsEnsureOriginWithArg, ConstBool, ConstU128, ConstU32, ConstU64, ConstU8}, assert_ok};
+use frame_support::weights::Weight;
 use frame_system as system;
+use frame_system::mocking::MockUncheckedExtrinsic;
+
 use sp_core::H256;
+use pallet_contracts::{CollectEvents, DebugInfo, Determinism};
+use pallet_contracts_primitives::{Code, ReturnFlags};
 
-use commons::traits::ActiveProposalsMock;
-use sp_runtime::{
-	traits::{BlakeTwo256, IdentityLookup},
-	AccountId32, BuildStorage,
-};
+use commons::traits::pallets::ActiveProposalsMock;
+use sp_runtime::{traits::{BlakeTwo256, IdentityLookup}, AccountId32, BuildStorage, generic};
 
-type Block = frame_system::mocking::MockBlock<Test>;
+// type Block = frame_system::mocking::MockBlock<Test>;
+
+pub type Block = generic::Block<
+	generic::Header<u32, BlakeTwo256>,
+	MockUncheckedExtrinsic<Test>,
+>;
 
 pub(crate) type Balance = u128;
 
@@ -50,7 +55,7 @@ impl system::Config for Test {
 	type AccountId = AccountId;
 	type RuntimeEvent = RuntimeEvent;
 	type RuntimeOrigin = RuntimeOrigin;
-	type BlockHashCount = ConstU64<250>;
+	type BlockHashCount = ConstU32<250>;
 	type DbWeight = ();
 	type Version = ();
 	type PalletInfo = PalletInfo;
@@ -196,9 +201,91 @@ impl pallet_dao_votes::Config for Test {
 	type WeightInfo = ();
 }
 
+// Helper functions and constants used in tests
+
 pub const ALICE: AccountId32 = AccountId32::new([1u8; 32]);
 pub const BOB: AccountId32 = AccountId32::new([2u8; 32]);
 pub const CHARLIE: AccountId32 = AccountId32::new([3u8; 32]);
+pub const ASSET_CONTRACT_PATH: &str = "wasm/test_dao_assets_contract.wasm";
+pub const VESTING_WALLET_CONTRACT_PATH: &str = "wasm/test_vesting_wallet_contract.wasm";
+
+pub fn create_dao() -> Vec<u8> {
+	let origin = RuntimeOrigin::signed(ALICE);
+	let dao_id: Vec<u8> = b"GDAO".to_vec();
+	let dao_name = b"Genesis DAO".to_vec();
+	assert_ok!(DaoCore::create_dao(origin.clone().into(), dao_id.clone(), dao_name));
+	assert_ok!(DaoCore::issue_token(origin.clone().into(), dao_id.clone(), 1000_u32.into()));
+	dao_id
+}
+
+pub fn create_assets_contract() -> AccountId {
+	let dao = DaoCore::load_dao(create_dao()).unwrap();
+	let asset_id = dao.asset_id.unwrap();
+
+	let mut data = selector_from_str("new");
+	data.append(&mut asset_id.clone().encode());
+	install(ALICE, ASSET_CONTRACT_PATH, data).expect("code deployed")
+}
+
+pub fn create_vesting_wallet_contract() -> (AccountId, AccountId) {
+	let asset_contract = create_assets_contract();
+	let mut data = selector_from_str("new");
+	data.append(&mut asset_contract.clone().encode());
+	(
+		install(ALICE, VESTING_WALLET_CONTRACT_PATH, data).expect("code deployed"),
+		asset_contract
+	)
+}
+
+
+pub fn install(
+	signer: AccountId,
+	contract_path: &str,
+	data: Vec<u8>,
+) -> Result<AccountId, DispatchError> {
+	let contract_instantiate_result = Contracts::bare_instantiate(
+		signer,
+		0_u32.into(),
+		Weight::MAX,
+		Some(100_u32.into()),
+		Code::Upload(std::fs::read(contract_path).unwrap()),
+		data,
+		vec![],
+		DebugInfo::Skip,
+		CollectEvents::Skip,
+	);
+	Ok(contract_instantiate_result.result?.account_id)
+}
+
+pub fn call<R>(
+	signer: AccountId,
+	contract_address: AccountId,
+	data: Vec<u8>,
+) -> Result<R, DispatchError>
+where
+	R: Decode,
+{
+	let call_result = Contracts::bare_call(
+		signer,
+		contract_address,
+		0_u32.into(),
+		Weight::MAX,
+		Some(100_u32.into()),
+		data,
+		DebugInfo::Skip,
+		CollectEvents::Skip,
+		Determinism::Enforced,
+	)
+	.result
+	.unwrap();
+
+	match call_result.flags {
+		ReturnFlags::REVERT => Err(DispatchError::Other("failed")),
+		_ => <Result<R, DispatchError>>::decode(&mut &call_result.data[..])
+			.map_err(|_| DispatchError::Other("decoding error"))
+			.unwrap(),
+	}
+}
 
 // Build genesis storage according to the mock runtime.
 pub fn new_test_ext() -> sp_io::TestExternalities {
@@ -216,4 +303,27 @@ pub fn new_test_ext() -> sp_io::TestExternalities {
 	let mut ext = sp_io::TestExternalities::new(t);
 	ext.execute_with(|| System::set_block_number(1));
 	ext
+}
+
+pub fn selector_from_str(label: &str) -> Vec<u8> {
+	let hash = blake2_256(label.as_bytes());
+	[hash[0], hash[1], hash[2], hash[3]].to_vec()
+}
+
+pub fn forward_by_blocks(n: u32) {
+	use frame_support::traits::{OnFinalize, OnInitialize};
+	let current = System::block_number();
+	let target = current + n;
+	while System::block_number() < target {
+		let mut block = System::block_number();
+		Assets::on_finalize(block);
+		System::on_finalize(block);
+		System::reset_events();
+
+		block += 1_u32;
+
+		System::set_block_number(block);
+		System::on_initialize(block);
+		Assets::on_initialize(block);
+	}
 }

@@ -1,5 +1,5 @@
 [package]
-name = "chain-extensions-test-suite"
+name = "contracts-test-suite"
 version = "4.0.0-dev"
 authors = ["chp"]
 homepage = "https://deep-ink.ventures"

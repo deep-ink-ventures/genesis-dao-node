@@ -25,7 +25,7 @@ mod types;
 
 pub use types::*;
 
-use commons::traits::ActiveProposals;
+use commons::traits::pallets::ActiveProposals;
 
 use frame_support::{
 	dispatch::{DispatchError, DispatchResult},

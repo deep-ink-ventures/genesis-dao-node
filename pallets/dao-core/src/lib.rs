@@ -39,7 +39,7 @@ pub mod pallet {
 
 	use super::*;
 	use crate::types::DepositBalanceOf;
-	use commons::traits::AssetInterface;
+	use commons::traits::pallets::AssetInterface;
 	use frame_support::{pallet_prelude::*, traits::ReservableCurrency};
 	use frame_system::pallet_prelude::*;
 
