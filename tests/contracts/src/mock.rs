@@ -2,18 +2,21 @@ use codec::{Decode, Encode};
 use frame_support::{parameter_types, pallet_prelude::DispatchError, sp_io::hashing::blake2_256, traits::{AsEnsureOriginWithArg, ConstBool, ConstU128, ConstU32, ConstU64, ConstU8}, assert_ok};
 use frame_support::weights::Weight;
 use frame_system as system;
+use frame_system::mocking::MockUncheckedExtrinsic;
 
 use sp_core::H256;
 use pallet_contracts::{CollectEvents, DebugInfo, Determinism};
 use pallet_contracts_primitives::{Code, ReturnFlags};
 
 use commons::traits::pallets::ActiveProposalsMock;
-use sp_runtime::{
-	traits::{BlakeTwo256, IdentityLookup},
-	AccountId32, BuildStorage,
-};
+use sp_runtime::{traits::{BlakeTwo256, IdentityLookup}, AccountId32, BuildStorage, generic};
 
-type Block = frame_system::mocking::MockBlock<Test>;
+// type Block = frame_system::mocking::MockBlock<Test>;
+
+pub type Block = generic::Block<
+	generic::Header<u32, BlakeTwo256>,
+	MockUncheckedExtrinsic<Test>,
+>;
 
 pub(crate) type Balance = u128;
 
@@ -52,7 +55,7 @@ impl system::Config for Test {
 	type AccountId = AccountId;
 	type RuntimeEvent = RuntimeEvent;
 	type RuntimeOrigin = RuntimeOrigin;
-	type BlockHashCount = ConstU64<250>;
+	type BlockHashCount = ConstU32<250>;
 	type DbWeight = ();
 	type Version = ();
 	type PalletInfo = PalletInfo;
@@ -307,7 +310,7 @@ pub fn selector_from_str(label: &str) -> Vec<u8> {
 	[hash[0], hash[1], hash[2], hash[3]].to_vec()
 }
 
-pub fn forward_by_blocks(n: u64) {
+pub fn forward_by_blocks(n: u32) {
 	use frame_support::traits::{OnFinalize, OnInitialize};
 	let current = System::block_number();
 	let target = current + n;
@@ -317,7 +320,7 @@ pub fn forward_by_blocks(n: u64) {
 		System::on_finalize(block);
 		System::reset_events();
 
-		block += 1_u64;
+		block += 1_u32;
 
 		System::set_block_number(block);
 		System::on_initialize(block);

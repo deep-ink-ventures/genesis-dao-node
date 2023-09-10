@@ -1,19 +1,23 @@
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
-/// ### Vesting Wallet
-///
-/// Follows this function:
-///
-/// $$U(t) = V_{t} - \frac{t - t_0}{T}V_{t}$$
-///
-/// Where:
-///
-/// - $U(t)$ is the number of unvested tokens at time t,
-/// - $t$ is the time elapsed since the beginning of the vesting period,
-/// - $t_0$ is the starting time of the vesting period,
-/// - $T$ is the total duration of the vesting period,
-/// - $V_{t}$ is the total number of tokens to be vested.
-///
+//! ### Vesting Wallet
+//!
+//! This contract implements a vesting wallet for tokens.
+//! The vesting schedule is defined by a start time, total duration, and the total tokens to be vested.
+//!
+//! Follows this function:
+//!
+//! $$U(t) = V_{t} - \frac{t - t_0}{T}V_{t}$$
+//!
+//! Where:
+//!
+//! - $U(t)$ is the number of unvested tokens at time t,
+//! - $t$ is the time elapsed since the beginning of the vesting period,
+//! - $t_0$ is the starting time of the vesting period,
+//! - $T$ is the total duration of the vesting period,
+//! - $V_{t}$ is the total number of tokens to be vested.
+
+
 #[ink::contract]
 pub mod vesting_wallet {
     use ink::env::call::{build_call, ExecutionInput, Selector};
@@ -32,8 +36,8 @@ pub mod vesting_wallet {
     #[derive(scale::Decode, scale::Encode)]
     #[cfg_attr(feature = "std", derive(scale_info::TypeInfo, ink::storage::traits::StorageLayout))]
     pub struct VestingWalletInfo {
-        start_time: u64,
-        duration: u64,
+        start_time: BlockNumber,
+        duration: u32,
         total_tokens: u128,
         withdrawn_tokens: u128,
     }
@@ -45,7 +49,12 @@ pub mod vesting_wallet {
     }
 
     impl VestingWallets {
-        /// Constructor initializes the token for the contract.
+
+        /// Initializes a new VestingWallets contract.
+        ///
+        /// # Arguments
+        ///
+        /// - `token`: The AccountId of the token contract that will be vested.
         #[ink(constructor)]
         pub fn new(token: AccountId) -> Self {
             Self {
@@ -54,15 +63,21 @@ pub mod vesting_wallet {
             }
         }
 
-        /// Get the token for the contract.
+        /// Returns the AccountId of the token contract.
         #[ink(message)]
         pub fn get_token(&self) -> AccountId {
             self.token
         }
 
-        /// Create a vesting wallet for a user.
+        /// Creates a vesting wallet for a given account.
+        ///
+        /// # Arguments
+        ///
+        /// - `account`: The AccountId for whom the vesting wallet will be created.
+        /// - `amount`: The total amount of tokens to be vested.
+        /// - `duration`: The total duration over which the tokens will be vested.
         #[ink(message)]
-        pub fn create_vesting_wallet_for(&mut self, account: AccountId, amount: u128, duration: u64) -> Result<(), Error> {
+        pub fn create_vesting_wallet_for(&mut self, account: AccountId, amount: u128, duration: u32) -> Result<(), Error> {
             match build_call::<DefaultEnvironment>()
                 .call(self.token)
                 .exec_input(
@@ -77,9 +92,8 @@ pub mod vesting_wallet {
             {
                 Err(_) => Err(Error::CannotFund),
                 Ok(_) => {
-                    let start_time = self.env().block_timestamp();
                     let wallet_info = VestingWalletInfo {
-                        start_time,
+                        start_time: self.env().block_number(),
                         duration,
                         total_tokens: amount,
                         withdrawn_tokens: 0,
@@ -90,26 +104,54 @@ pub mod vesting_wallet {
             }
         }
 
-        /// Get unvested tokens for a user.
+        /// Creates a vesting wallet for a given account.
+        ///
+        /// # Arguments
+        ///
+        /// - `account`: The AccountId for whom the vesting wallet will be created.
+        /// - `amount`: The total amount of tokens to be vested.
+        /// - `duration`: The total duration over which the tokens will be vested.
         #[ink(message)]
         pub fn get_unvested(&self, account: AccountId) -> u128 {
             match self.wallets.get(&account) {
                 None => 0,
                 Some(wallet) => {
-                    let now: u128 = self::env().block_timestamp().into();
+                    let now: u128 = self.env().block_number().into();
                     let start: u128 = wallet.start_time.into();
                     let duration: u128 = wallet.duration.into();
 
-                    if duration > 0 {
-                        wallet.total_tokens - (now - start) * wallet.total_tokens / duration
-                    } else {
+                    return if duration == 0 {
+                        // a bit of a pointless vesting wallet but we'll allow it
                         wallet.total_tokens
+                    } else if duration < now - start {
+                        // vesting period is over
+                        0
+                    } else {
+                        let vested = (now - start) * wallet.total_tokens / duration;
+                        wallet.total_tokens - vested
                     }
                 }
             }
         }
 
-        /// Get vested but not yet withdrawn tokens for a user.
+        /// Returns the number of tokens that have been withdrawn so far for a given account.
+        ///
+        /// # Arguments
+        ///
+        /// - `account`: The AccountId to check for withdrawn tokens.
+        #[ink(message)]
+        pub fn get_withdrawn(&self, account: AccountId) -> u128 {
+            match self.wallets.get(&account) {
+                None => 0,
+                Some(wallet) => wallet.withdrawn_tokens
+            }
+        }
+
+        /// Returns the number of tokens that have been withdrawn so far for a given account.
+        ///
+        /// # Arguments
+        ///
+        /// - `account`: The AccountId to check for withdrawn tokens.
         #[ink(message)]
         pub fn get_available_for_withdraw(&self, account: AccountId) -> u128 {
             match self.wallets.get(&account) {
@@ -120,22 +162,30 @@ pub mod vesting_wallet {
             }
         }
 
-        /// Get total tokens for a user held by this wallet
+        /// Returns the total number of tokens held by the vesting wallet for a given account.
+        ///
+        /// # Arguments
+        ///
+        /// - `account`: The AccountId to check for total tokens.
         #[ink(message)]
         pub fn get_total(&self, account: AccountId) -> u128 {
             self.get_unvested(account.clone()) + self.get_available_for_withdraw(account)
         }
 
-        /// Withdraw vested tokens.
+        /// Allows an account to withdraw vested tokens.
+        ///
+        /// # Arguments
+        ///
+        /// - `account`: The AccountId from which tokens will be withdrawn.
         #[ink(message)]
-        pub fn withdraw(&mut self, account: AccountId) -> Result<u128, Error>{
+        pub fn withdraw(&mut self, account: AccountId) -> Result<(), Error>{
             let mut wallet = match self.wallets.get(&account) {
-                None => return Ok(0),
+                None => return Ok(()),
                 Some(wallet) => wallet
             };
             let amount = self.get_available_for_withdraw(account);
             if amount == 0 {
-                return Ok(0);
+                return Ok(());
             }
 
             match build_call::<DefaultEnvironment>()
@@ -154,7 +204,7 @@ pub mod vesting_wallet {
                     // this is fine as reentrancy is disbaled by default
                     wallet.withdrawn_tokens += &amount;
                     self.wallets.insert(account, &wallet);
-                    Ok(amount)
+                    Ok(())
                 }
             }
         }

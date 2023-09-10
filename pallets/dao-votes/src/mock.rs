@@ -143,7 +143,7 @@ impl pallet_contracts::Config for Test {
 	type MaxCodeLen = ConstU32<{ 128 * 1024 }>;
 	type DefaultDepositLimit = DefaultDepositLimit;
 	type MaxStorageKeyLen = ConstU32<128>;
-	type MaxDebugBufferLen = ConstU32<{ 2 * 1024 * 1024 }>;
+	type MaxDebugBufferLen = ConstU32<{ 64 * 1024 * 1024 }>;
 	type UnsafeUnstableInterface = ConstBool<false>;
 	type Migrations = ();
 }
