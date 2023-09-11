@@ -208,6 +208,7 @@ pub const BOB: AccountId32 = AccountId32::new([2u8; 32]);
 pub const CHARLIE: AccountId32 = AccountId32::new([3u8; 32]);
 pub const ASSET_CONTRACT_PATH: &str = "wasm/test_dao_assets_contract.wasm";
 pub const VESTING_WALLET_CONTRACT_PATH: &str = "wasm/test_vesting_wallet_contract.wasm";
+pub const VOTE_ESCROW_CONTRACT_PATH: &str = "wasm/test_vote_escrow_contract.wasm";
 
 pub fn create_dao() -> Vec<u8> {
 	let origin = RuntimeOrigin::signed(ALICE);
@@ -233,6 +234,17 @@ pub fn create_vesting_wallet_contract() -> (AccountId, AccountId) {
 	data.append(&mut asset_contract.clone().encode());
 	(
 		install(ALICE, VESTING_WALLET_CONTRACT_PATH, data).expect("code deployed"),
+		asset_contract
+	)
+}
+
+pub fn create_vote_escrow_contract() -> (AccountId, AccountId) {
+	let asset_contract = create_assets_contract();
+	let mut data = selector_from_str("new");
+	data.append(&mut asset_contract.clone().encode());
+	data.append(&mut 1000_u32.encode());
+	(
+		install(ALICE, VOTE_ESCROW_CONTRACT_PATH, data).expect("code deployed"),
 		asset_contract
 	)
 }
