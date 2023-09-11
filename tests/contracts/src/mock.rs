@@ -243,6 +243,7 @@ pub fn create_vote_escrow_contract() -> (AccountId, AccountId) {
 	let mut data = selector_from_str("new");
 	data.append(&mut asset_contract.clone().encode());
 	data.append(&mut 1000_u32.encode());
+	data.append(&mut 4_u8.encode());
 	(
 		install(ALICE, VOTE_ESCROW_CONTRACT_PATH, data).expect("code deployed"),
 		asset_contract
