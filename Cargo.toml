@@ -9,6 +9,7 @@ members = [
     "contracts/extensions/dao-assets-extension",
     "contracts/extensions/dao-assets-contract",
     "contracts/plugins/vesting-wallet-contract",
+    "contracts/plugins/vote-escrow-contract",
     "tests/contracts"
 ]
 resolver = "2"

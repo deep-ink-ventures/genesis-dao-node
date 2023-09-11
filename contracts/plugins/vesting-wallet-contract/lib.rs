@@ -24,10 +24,28 @@ pub mod vesting_wallet {
     use ink::env::DefaultEnvironment;
     use ink::storage::Mapping;
 
+    /// Event emitted when a new vesting wallet is created.
+    #[ink(event)]
+    pub struct VestingWalletCreated {
+        #[ink(topic)]
+        account: AccountId,
+        amount: u128,
+        duration: u32,
+    }
+
+    /// Event emitted when tokens are successfully withdrawn from a vesting wallet.
+    #[ink(event)]
+    pub struct TokensWithdrawn {
+        #[ink(topic)]
+        account: AccountId,
+        amount: u128,
+    }
+
     #[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
     #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
     pub enum Error {
-        /// Raised when we are unable to fund the vesting wallet from the sender
+        /// Raised when we are unable to fund the vesting wallet from the sender,
+        /// most likely because the sender has not approved the contract
         CannotFund,
         /// Raised when we are unable to withdraw from the vesting wallet
         WithdrawFailed
@@ -99,6 +117,11 @@ pub mod vesting_wallet {
                         withdrawn_tokens: 0,
                     };
                     self.wallets.insert(account, &wallet_info);
+                    self.env().emit_event(VestingWalletCreated {
+                        account,
+                        amount,
+                        duration,
+                    });
                     Ok(())
                 }
             }
@@ -201,9 +224,13 @@ pub mod vesting_wallet {
             {
                 Err(_) => Err(Error::WithdrawFailed),
                 Ok(_) => {
-                    // this is fine as reentrancy is disbaled by default
+                    // this is fine as reentrancy is disabled by default
                     wallet.withdrawn_tokens += &amount;
                     self.wallets.insert(account, &wallet);
+                    self.env().emit_event(TokensWithdrawn {
+                        account,
+                        amount,
+                    });
                     Ok(())
                 }
             }
