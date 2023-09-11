@@ -6,13 +6,19 @@ pub mod vote_escrow {
     use ink::env::DefaultEnvironment;
     use ink::storage::Mapping;
 
-    type LockedBalance = (u128, u32); // (amount, unlock_time)
+    type LockedBalance = (u128, BlockNumber, u32); // (amount, created_time, unlock_time)
 
     /// Error types
     #[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
     #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
     pub enum Error {
-        // TODO: Define possible error types
+        /// The unlock time is too far in the future, it may not exceed the maximum lock time
+        UnlockTimeToFarInTheFuture,
+        /// Could not transfer_from the PSP22 tokens, most likely
+        /// because the user has not approved the contract
+        UnableToLockTokens,
+        /// The user has no locked balance
+        NoLockedBalance,
     }
 
     /// Contract storage
@@ -46,27 +52,65 @@ pub mod vote_escrow {
         /// Create a new token lock
         #[ink(message)]
         pub fn create_lock(&mut self, amount: u128, unlock_time: u32) -> Result<(), Error> {
-            // TODO: Implement the logic for creating a new token lock
-            // - Check that the unlock_time is valid
-            // - Update the locked_balances mapping
-            // - Interact with the PSP22 token contract to lock tokens
-            Ok(())
+            if unlock_time > self.max_time {
+                return Err(Error::UnlockTimeToFarInTheFuture);
+            }
+            match build_call::<DefaultEnvironment>()
+                .call(self.token)
+                .exec_input(
+                    ExecutionInput::new(Selector::new(ink::selector_bytes!("PSP22::transfer_from")))
+                        .push_arg(&self.env().caller())
+                        .push_arg(&self.env().account_id())
+                        .push_arg(&amount)
+                        .push_arg(&"")
+                )
+                .returns::<Result<(), Error>>()
+                .try_invoke()
+            {
+                Err(_) => Err(Error::UnableToLockTokens),
+                Ok(_) => {
+                    let start_time = self.env().block_timestamp();
+                    self.locked_balances.insert(self.env().caller(), &(
+                        amount,
+                        self.env().block_number(),
+                        unlock_time
+                    ));
+                    Ok(())
+                }
+            }
         }
 
         /// Increase the amount of locked tokens
         #[ink(message)]
         pub fn increase_amount(&mut self, additional_amount: u128) -> Result<(), Error> {
-            // TODO: Implement the logic for increasing the amount of locked tokens
-            // - Update the locked_balances mapping
-            // - Interact with the PSP22 token contract to lock additional tokens
+            match self.locked_balances.get(self.env().caller()) {
+                None => return Err(Error::NoLockedBalance),
+                Some((amount, start_time, lock_time)) => {
+                    self.locked_balances.insert(
+                        self.env().caller(),
+                        &(amount + additional_amount, start_time, lock_time)
+                    );
+                }
+            }
             Ok(())
         }
 
         /// Increase the unlock time of the locked tokens
         #[ink(message)]
         pub fn increase_unlock_time(&mut self, new_unlock_time: u32) -> Result<(), Error> {
-            // TODO: Implement the logic for increasing the unlock time of the locked tokens
-            // - Update the locked_balances mapping
+            match self.locked_balances.get(self.env().caller()) {
+                None => return Err(Error::NoLockedBalance),
+                Some((amount, start_time, lock_time)) => {
+                    let new_lock_time = lock_time + new_unlock_time;
+                    if new_lock_time > self.max_time {
+                        return Err(Error::UnlockTimeToFarInTheFuture);
+                    }
+                    self.locked_balances.insert(
+                        self.env().caller(),
+                        &(amount, start_time, new_lock_time)
+                    );
+                }
+            }
             Ok(())
         }
 

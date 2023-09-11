@@ -27,7 +27,8 @@ pub mod vesting_wallet {
     #[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
     #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
     pub enum Error {
-        /// Raised when we are unable to fund the vesting wallet from the sender
+        /// Raised when we are unable to fund the vesting wallet from the sender,
+        /// most likely because the sender has not approved the contract
         CannotFund,
         /// Raised when we are unable to withdraw from the vesting wallet
         WithdrawFailed
