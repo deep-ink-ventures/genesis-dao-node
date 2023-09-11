@@ -249,6 +249,20 @@ pub fn create_vote_escrow_contract() -> (AccountId, AccountId) {
 	)
 }
 
+pub fn get_asset_id_from_contract(contract: AccountId) -> u32 {
+		let account_id = call::<AccountId>(
+			ALICE,
+			contract.clone(),
+			selector_from_str("get_token")
+		).expect("call success");
+
+		call::<u32>(
+			ALICE,
+			account_id.clone(),
+			selector_from_str("get_asset_id")
+		).expect("call success")
+}
+
 
 pub fn install(
 	signer: AccountId,

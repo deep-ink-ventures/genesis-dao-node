@@ -202,7 +202,7 @@ pub mod vesting_wallet {
             {
                 Err(_) => Err(Error::WithdrawFailed),
                 Ok(_) => {
-                    // this is fine as reentrancy is disbaled by default
+                    // this is fine as reentrancy is disabled by default
                     wallet.withdrawn_tokens += &amount;
                     self.wallets.insert(account, &wallet);
                     Ok(())

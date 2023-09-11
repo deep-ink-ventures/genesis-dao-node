@@ -18,20 +18,6 @@ fn create_vesting_wallet_for_bob() -> AccountId {
 	vesting_contract
 }
 
-fn get_asset_id_from_contract(contract: AccountId) -> u32 {
-		let account_id = call::<AccountId>(
-			ALICE,
-			contract.clone(),
-			selector_from_str("get_token")
-		).expect("call success");
-
-		call::<u32>(
-			ALICE,
-			account_id.clone(),
-			selector_from_str("get_asset_id")
-		).expect("call success")
-}
-
 #[test]
 fn test_create_vesting_wallet() {
 	new_test_ext().execute_with(|| {
@@ -65,7 +51,7 @@ fn test_create_vesting_wallet() {
 		assert_eq!(Assets::balance(asset_id.clone(), vesting_contract.clone()), 0);
 		assert_eq!(Assets::balance(asset_id.clone(), BOB), 0);
 
-		// // unable to fund becaue 101 > 100
+		// // unable to fund because 101 > 100
 		let mut data = selector_from_str("create_vesting_wallet_for");
 		data.append(&mut BOB.encode());
 		data.append(&mut 101_u128.encode());
