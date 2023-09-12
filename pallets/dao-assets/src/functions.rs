@@ -8,6 +8,15 @@ use sp_std::{borrow::Borrow, fmt::Debug};
 
 // The main implementation block for the module.
 impl<T: Config> Pallet<T> {
+	/// Get DaoId
+	pub fn dao_id(asset_id: &T::AssetId) -> Vec<u8> {
+		Metadata::<T>::get(asset_id).symbol.to_vec()
+		// if Metadata::<T>::contains_key(asset_id) {
+		// } else {
+		// 	unreachable!()
+		// }
+	}
+
 	// Public immutables
 
 	/// Get the asset `id` free balance of `who`, or zero if the asset-account doesn't exist.
@@ -61,13 +70,17 @@ impl<T: Config> Pallet<T> {
 		Self::search_history(SupplyHistory::<T>::get(id), block)
 	}
 
+	pub fn remove_account_history(asset_id: T::AssetId, account: &T::AccountId) {
+		AccountHistory::<T>::remove_prefix((asset_id, account), None);
+	}
+
 	pub fn mutate_account(
-		dao_id: Vec<u8>,
 		asset_id: T::AssetId,
 		who: impl Borrow<T::AccountId>,
 		balance: T::Balance,
 	) {
 		let current_block = frame_system::Pallet::<T>::block_number();
+		let dao_id = Self::dao_id(&asset_id);
 
 		// Insert new checkpoint balance
 		AccountHistory::<T>::insert((asset_id, who.borrow()), current_block, balance);
@@ -144,6 +157,7 @@ impl<T: Config> Pallet<T> {
 	}
 
 	pub(super) fn update_account_history(id: T::AssetId, who: &T::AccountId, balance: T::Balance) {
+		Self::mutate_account(id, who, balance);
 		// // update history
 		// let history =
 		// 	Self::update_history(AccountHistory::<T>::get(id, who).unwrap_or_default(), balance);
@@ -362,6 +376,7 @@ impl<T: Config> Pallet<T> {
 
 			Ok(())
 		})?;
+		Self::mutate_account(id, beneficiary, amount);
 		Self::deposit_event(Event::Issued {
 			asset_id: id,
 			owner: beneficiary.clone(),
@@ -685,6 +700,9 @@ impl<T: Config> Pallet<T> {
 				// account already removed by drain
 				Self::dead_account(id, &who, details);
 				dead_accounts += 1;
+
+				// todo: weather to remove the history or rewrite to 0?
+				Self::remove_account_history(id, &who);
 			}
 			remaining_accounts = details.accounts;
 			Ok(())
