@@ -201,10 +201,10 @@ pub mod pallet {
 	pub(super) type AccountHistory<T: Config> = StorageDoubleMap<
 		_,
 		Blake2_128Concat,
-		T::AssetId,
+		(T::AssetId, T::AccountId),
 		Blake2_128Concat,
-		T::AccountId,
-		BoundedBTreeMap<BlockNumberFor<T>, AssetBalanceOf<T>, T::HistoryHorizon>,
+		BlockNumberFor<T>,
+		AssetBalanceOf<T>,
 	>;
 
 	#[derive(frame_support::DefaultNoBound)]

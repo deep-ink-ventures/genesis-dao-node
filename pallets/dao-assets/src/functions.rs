@@ -1,6 +1,7 @@
 //! Functions for the Assets pallet.
 
 use super::*;
+use commons::traits::{ActiveProposals, UsableCheckpoints};
 use frame_support::{traits::Get, BoundedVec};
 use frame_system::pallet_prelude::BlockNumberFor;
 use sp_std::{borrow::Borrow, fmt::Debug};
@@ -60,6 +61,38 @@ impl<T: Config> Pallet<T> {
 		Self::search_history(SupplyHistory::<T>::get(id), block)
 	}
 
+	pub fn mutate_account(
+		dao_id: Vec<u8>,
+		asset_id: T::AssetId,
+		who: impl Borrow<T::AccountId>,
+		balance: T::Balance,
+	) {
+		let current_block = frame_system::Pallet::<T>::block_number();
+
+		// Insert new checkpoint balance
+		AccountHistory::<T>::insert((asset_id, who.borrow()), current_block, balance);
+
+		// get all proposals
+		let proposal_start_dates = <T::ActiveProposals as ActiveProposals::<BlockNumberFor<T>>>::active_proposals_starting_time(dao_id, current_block);
+		// get all checkpoints
+		let checkpoint_blocks = AccountHistory::<T>::iter_prefix((asset_id, who.borrow()))
+			.map(|(bl_num, _)| bl_num)
+			.collect::<Vec<_>>();
+
+		let usable_checkpoints =
+			Self::proposal_checkpoint_pair(&proposal_start_dates, &checkpoint_blocks)
+				.into_iter()
+				.map(|(_prop, ch)| ch)
+				.collect::<Vec<_>>();
+
+		// remove checkpoints that are older than the proposal start
+		for ch in checkpoint_blocks {
+			if !usable_checkpoints.contains(&&ch) {
+				AccountHistory::<T>::remove((asset_id, who.borrow()), ch);
+			}
+		}
+	}
+
 	/// Get the total historical balance of an asset `id` at a certain `block` for an account `who`.
 	/// Result may be None, if the age of the requested block is at or beyond
 	/// the HistoryHorizon and history has been removed.
@@ -68,7 +101,18 @@ impl<T: Config> Pallet<T> {
 		who: impl Borrow<T::AccountId>,
 		block: BlockNumberFor<T>,
 	) -> Option<T::Balance> {
-		Self::search_history(AccountHistory::<T>::get(id, who.borrow()), block)
+		// Self::search_history(AccountHistory::<T>::get(id, who.borrow()), block)
+		let mut nearest_block = block;
+		let mut final_balance = Some(0_u32.into());
+
+		for (block_num, balance) in AccountHistory::<T>::iter_prefix((id, who.borrow())) {
+			if block_num >= nearest_block {
+				nearest_block = block_num;
+				final_balance = Some(balance);
+			}
+		}
+
+		final_balance
 	}
 
 	/// Search a history for the value at a specific block.
@@ -100,12 +144,12 @@ impl<T: Config> Pallet<T> {
 	}
 
 	pub(super) fn update_account_history(id: T::AssetId, who: &T::AccountId, balance: T::Balance) {
-		// update history
-		let history =
-			Self::update_history(AccountHistory::<T>::get(id, who).unwrap_or_default(), balance);
-
-		// record new history
-		AccountHistory::<T>::insert(id, who, history);
+		// // update history
+		// let history =
+		// 	Self::update_history(AccountHistory::<T>::get(id, who).unwrap_or_default(), balance);
+		//
+		// // record new history
+		// AccountHistory::<T>::insert(id, who, history);
 	}
 
 	fn update_history<V: Copy + Debug + Zero, B: Get<u32>>(
@@ -145,7 +189,6 @@ impl<T: Config> Pallet<T> {
 	) {
 		let _ = frame_system::Pallet::<T>::dec_providers(who);
 		details.accounts.saturating_dec();
-		AccountHistory::<T>::remove(id, who);
 	}
 
 	/// Returns `true` when the balance of `account` can be increased by `amount`.
@@ -900,5 +943,32 @@ impl<T: Config> commons::traits::AssetInterface for Pallet<T> {
 		block: Self::BlockNumber,
 	) -> Option<Self::Balance> {
 		Pallet::<T>::total_historical_balance(id, who, block)
+	}
+}
+
+impl<T: Config> UsableCheckpoints for Pallet<T> {
+	type BlockNumber = BlockNumberFor<T>;
+	type BlockIter = Vec<Self::BlockNumber>;
+	type Res = Vec<(Self::BlockNumber, Self::BlockNumber)>;
+
+	fn proposal_checkpoint_pair(
+		// where porposals starts
+		proposals_starts: impl Borrow<Self::BlockIter>,
+		// where checkpoint are made
+		checkpoint_blocks: impl Borrow<Self::BlockIter>,
+	) -> Self::Res {
+		let mut usable_checkpoints = vec![];
+
+		for prop_start in proposals_starts.borrow() {
+			let mut checkpoint = checkpoint_blocks.borrow().get(0).cloned().unwrap_or_default();
+			for chp in checkpoint_blocks.borrow().iter().filter(|c| *c <= prop_start) {
+				if chp > &checkpoint {
+					checkpoint = *chp;
+				}
+			}
+			usable_checkpoints.push((*prop_start, checkpoint));
+		}
+
+		usable_checkpoints
 	}
 }

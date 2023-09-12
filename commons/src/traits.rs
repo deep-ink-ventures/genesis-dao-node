@@ -89,3 +89,16 @@ pub trait AssetInterface {
 		block: Self::BlockNumber,
 	) -> Option<Self::Balance>;
 }
+
+pub trait UsableCheckpoints {
+	type BlockNumber: Copy;
+	type BlockIter;
+	type Res;
+
+	fn proposal_checkpoint_pair(
+		// where porposals starts
+		proposals_starts: impl Borrow<Self::BlockIter>,
+		// where checkpoint are made
+		checkpoint_blocks: impl Borrow<Self::BlockIter>,
+	) -> Self::Res;
+}
