@@ -8,22 +8,31 @@ use scale::Encode;
 
 #[ink::chain_extension]
 pub trait AssetExtension {
-    type ErrorCode = AssetError;
+	type ErrorCode = AssetError;
 
-    #[ink(extension = 100)]
-    fn transfer(asset_id: AssetId, target: AccountId, amount: Balance) -> Result<(), AssetError>;
+	#[ink(extension = 100)]
+	fn transfer(asset_id: AssetId, target: AccountId, amount: Balance) -> Result<(), AssetError>;
 
-    #[ink(extension = 101)]
-    fn transfer_keep_alive(asset_id: AssetId, target: AccountId, amount: Balance) -> Result<(), AssetError>;
+	#[ink(extension = 101)]
+	fn transfer_keep_alive(
+		asset_id: AssetId,
+		target: AccountId,
+		amount: Balance,
+	) -> Result<(), AssetError>;
 
-    #[ink(extension = 102)]
-    fn approve(asset_id: AssetId, delegate: AccountId, amount: Balance) -> Result<(), AssetError>;
+	#[ink(extension = 102)]
+	fn approve(asset_id: AssetId, delegate: AccountId, amount: Balance) -> Result<(), AssetError>;
 
-    #[ink(extension = 103)]
-    fn cancel_approval(asset_id: AssetId, delegate: AccountId) -> Result<(), AssetError>;
+	#[ink(extension = 103)]
+	fn cancel_approval(asset_id: AssetId, delegate: AccountId) -> Result<(), AssetError>;
 
-    #[ink(extension = 104)]
-    fn transfer_from(asset_id: AssetId, owner: AccountId, destination: AccountId, amount: Balance) -> Result<(), AssetError>;
+	#[ink(extension = 104)]
+	fn transfer_from(
+		asset_id: AssetId,
+		owner: AccountId,
+		destination: AccountId,
+		amount: Balance,
+	) -> Result<(), AssetError>;
 
 	#[ink(extension = 105)]
 	fn balance_of(asset_id: AssetId, account: AccountId) -> Result<u128, AssetError>;
@@ -32,7 +41,11 @@ pub trait AssetExtension {
 	fn total_supply(asset_id: AssetId) -> Result<u128, AssetError>;
 
 	#[ink(extension = 107)]
-	fn allowance(asset_id: AssetId, owner: AccountId, spender: AccountId) -> Result<u128, AssetError>;
+	fn allowance(
+		asset_id: AssetId,
+		owner: AccountId,
+		spender: AccountId,
+	) -> Result<u128, AssetError>;
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, scale::Encode, scale::Decode)]
@@ -101,23 +114,23 @@ impl From<scale::Error> for AssetError {
 }
 
 impl AssetError {
-    pub fn to_bytes(&self) -> Vec<u8> {
-        match self {
-            AssetError::BalanceLow => "BalanceLow".encode(),
-            AssetError::NoAccount => "NoAccount".encode(),
-            AssetError::NoPermission => "NoPermission".encode(),
-            AssetError::Unknown => "Unknown".encode(),
-            AssetError::InUse => "InUse".encode(),
-            AssetError::BadWitness => "BadWitness".encode(),
-            AssetError::MinBalanceZero => "MinBalanceZero".encode(),
-            AssetError::BadMetadata => "BadMetadata".encode(),
-            AssetError::Unapproved => "Unapproved".encode(),
-            AssetError::WouldDie => "WouldDie".encode(),
-            AssetError::AlreadyExists => "AlreadyExists".encode(),
-            AssetError::WouldBurn => "WouldBurn".encode(),
-            AssetError::AssetNotLive => "AssetNotLive".encode(),
-            AssetError::RuntimeError => "RuntimeError".encode(),
-            AssetError::EncodingError => "EncodingError".encode(),
-        }
-    }
+	pub fn to_bytes(&self) -> Vec<u8> {
+		match self {
+			AssetError::BalanceLow => "BalanceLow".encode(),
+			AssetError::NoAccount => "NoAccount".encode(),
+			AssetError::NoPermission => "NoPermission".encode(),
+			AssetError::Unknown => "Unknown".encode(),
+			AssetError::InUse => "InUse".encode(),
+			AssetError::BadWitness => "BadWitness".encode(),
+			AssetError::MinBalanceZero => "MinBalanceZero".encode(),
+			AssetError::BadMetadata => "BadMetadata".encode(),
+			AssetError::Unapproved => "Unapproved".encode(),
+			AssetError::WouldDie => "WouldDie".encode(),
+			AssetError::AlreadyExists => "AlreadyExists".encode(),
+			AssetError::WouldBurn => "WouldBurn".encode(),
+			AssetError::AssetNotLive => "AssetNotLive".encode(),
+			AssetError::RuntimeError => "RuntimeError".encode(),
+			AssetError::EncodingError => "EncodingError".encode(),
+		}
+	}
 }

@@ -5,8 +5,7 @@ type Balance = <ink::env::DefaultEnvironment as ink::env::Environment>::Balance;
 
 #[ink::trait_definition]
 pub trait GenesisDao {
-
-    /// hook point for `on_vote` pallet
-    #[ink(message)]
-    fn on_vote(&self, voter: AccountId, voting_power: Balance) -> Balance;
+	/// hook point for `on_vote` pallet
+	#[ink(message)]
+	fn on_vote(&self, voter: AccountId, voting_power: Balance) -> Balance;
 }

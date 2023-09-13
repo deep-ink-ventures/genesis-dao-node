@@ -10,14 +10,11 @@ fn test_init() {
 
 		let mut data = selector_from_str("new");
 		data.append(&mut asset_id.clone().encode());
-		let asset_contract = install(ALICE, ASSET_CONTRACT_PATH, data)
-			.expect("code deployed");
+		let asset_contract = install(ALICE, ASSET_CONTRACT_PATH, data).expect("code deployed");
 
-		let asset_id_on_chain = call::<u32>(
-			ALICE,
-			asset_contract.clone(),
-			selector_from_str("get_asset_id")
-		).expect("call success");
+		let asset_id_on_chain =
+			call::<u32>(ALICE, asset_contract.clone(), selector_from_str("get_asset_id"))
+				.expect("call success");
 
 		assert_eq!(asset_id, asset_id_on_chain);
 	});

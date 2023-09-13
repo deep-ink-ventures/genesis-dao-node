@@ -1,7 +1,6 @@
-use codec::Encode;
-use frame_support::assert_ok;
-use frame_support::dispatch::RawOrigin;
 use crate::mock::*;
+use codec::Encode;
+use frame_support::{assert_ok, dispatch::RawOrigin};
 
 /// Sets up Bob with:
 /// - a vesting wallet worth 100 tokens for 1000 blocks
@@ -9,21 +8,23 @@ use crate::mock::*;
 ///
 /// Returns the dao, vesting and voting contracts
 fn warmup_on_vote() -> (AccountId, AccountId, AccountId) {
-    let asset_contract = create_assets_contract();
-    let mut data = selector_from_str("new");
+	let asset_contract = create_assets_contract();
+	let mut data = selector_from_str("new");
 	data.append(&mut asset_contract.clone().encode());
-	let vesting_contract = install(ALICE, VESTING_WALLET_CONTRACT_PATH, data).expect("code deployed");
+	let vesting_contract =
+		install(ALICE, VESTING_WALLET_CONTRACT_PATH, data).expect("code deployed");
 
-    let mut data = selector_from_str("new");
+	let mut data = selector_from_str("new");
 	data.append(&mut asset_contract.clone().encode());
 	data.append(&mut 1000_u32.encode());
 	data.append(&mut 4_u8.encode());
-    let voting_contract = install(ALICE, VOTE_ESCROW_CONTRACT_PATH, data).expect("code deployed");
+	let voting_contract = install(ALICE, VOTE_ESCROW_CONTRACT_PATH, data).expect("code deployed");
 
-    let dao_contract = install(ALICE, DAO_CONTRACT_PATH, selector_from_str("new")).expect("code deployed");
+	let dao_contract =
+		install(ALICE, DAO_CONTRACT_PATH, selector_from_str("new")).expect("code deployed");
 
-    // create a vesting wallet for Bob
-    let mut data = selector_from_str("PSP22::approve");
+	// create a vesting wallet for Bob
+	let mut data = selector_from_str("PSP22::approve");
 	data.append(&mut vesting_contract.clone().encode());
 	data.append(&mut 100_u128.encode());
 	assert_ok!(call::<()>(ALICE, asset_contract.clone(), data));
@@ -34,14 +35,14 @@ fn warmup_on_vote() -> (AccountId, AccountId, AccountId) {
 	data.append(&mut 1000_u32.encode());
 	assert_ok!(call::<()>(ALICE, vesting_contract.clone(), data));
 
-    // create vote escrow for Bob
-    let mut data = selector_from_str("PSP22::transfer");
-    data.append(&mut BOB.clone().encode());
-    data.append(&mut 200_u128.encode());
-    data.append(&mut "empty".encode());
-    call::<()>(ALICE, asset_contract.clone(), data).expect("call success");
+	// create vote escrow for Bob
+	let mut data = selector_from_str("PSP22::transfer");
+	data.append(&mut BOB.clone().encode());
+	data.append(&mut 200_u128.encode());
+	data.append(&mut "empty".encode());
+	call::<()>(ALICE, asset_contract.clone(), data).expect("call success");
 
-    let mut data = selector_from_str("PSP22::approve");
+	let mut data = selector_from_str("PSP22::approve");
 	data.append(&mut voting_contract.clone().encode());
 	data.append(&mut 100_u128.encode());
 	assert_ok!(call::<()>(BOB, asset_contract.clone(), data));
@@ -56,7 +57,7 @@ fn warmup_on_vote() -> (AccountId, AccountId, AccountId) {
 		dao_contract.clone()
 	));
 
-    (dao_contract, vesting_contract, voting_contract)
+	(dao_contract, vesting_contract, voting_contract)
 }
 
 // sets up a proposal that we wanna use for voting
@@ -73,20 +74,25 @@ fn create_test_proposals() -> u32 {
 	let proposal_id = DaoVotes::get_current_proposal_id();
 	let metadata = b"http://my.cool.proposal".to_vec();
 	let hash = b"a7ffc6f8bf1ed76651c14756a061d662f580ff4de43b49fa82d80a4b80f8434a".to_vec();
-	assert_ok!(DaoVotes::set_metadata(RawOrigin::Signed(ALICE).into(), proposal_id, metadata, hash));
+	assert_ok!(DaoVotes::set_metadata(
+		RawOrigin::Signed(ALICE).into(),
+		proposal_id,
+		metadata,
+		hash
+	));
 	proposal_id
 }
 
 #[test]
 fn test_on_vote_plugins() {
 	new_test_ext().execute_with(|| {
-        let (dao_contract, vesting_contract, voting_contract, ) = warmup_on_vote();
+		let (dao_contract, vesting_contract, voting_contract) = warmup_on_vote();
 
 		let asset_id = get_asset_id_from_contract(vesting_contract.clone());
 		assert_eq!(Assets::balance(asset_id.clone(), BOB), 100);
 
 		let prop_id = create_test_proposals();
-        forward_by_blocks(100);
+		forward_by_blocks(100);
 
 		// let's register both plugins!
 		let mut data = selector_from_str("register_vote_plugin");
@@ -123,7 +129,7 @@ fn test_on_vote_plugins() {
 #[test]
 fn test_add_and_remove_vote_plugins() {
 	new_test_ext().execute_with(|| {
-		let (dao_contract, vesting_contract, voting_contract, ) = warmup_on_vote();
+		let (dao_contract, vesting_contract, voting_contract) = warmup_on_vote();
 
 		let mut data = selector_from_str("register_vote_plugin");
 		data.append(&mut vesting_contract.clone().encode());
@@ -134,13 +140,25 @@ fn test_add_and_remove_vote_plugins() {
 		assert_ok!(call::<()>(ALICE, dao_contract.clone(), data));
 
 		// check they exists
-		let contracts = call::<Vec<AccountId>>(ALICE, dao_contract.clone(), selector_from_str("get_vote_plugins")).unwrap();
+		let contracts = call::<Vec<AccountId>>(
+			ALICE,
+			dao_contract.clone(),
+			selector_from_str("get_vote_plugins"),
+		)
+		.unwrap();
 		assert_eq!(contracts.len(), 2);
 		assert_eq!(contracts[0], vesting_contract);
 		assert_eq!(contracts[1], voting_contract);
 
-		assert_eq!(call::<u32>(ALICE, vesting_contract.clone(), selector_from_str("Vote::get_id")).unwrap(), 1);
-		assert_eq!(call::<u32>(ALICE, voting_contract.clone(), selector_from_str("Vote::get_id")).unwrap(), 2);
+		assert_eq!(
+			call::<u32>(ALICE, vesting_contract.clone(), selector_from_str("Vote::get_id"))
+				.unwrap(),
+			1
+		);
+		assert_eq!(
+			call::<u32>(ALICE, voting_contract.clone(), selector_from_str("Vote::get_id")).unwrap(),
+			2
+		);
 
 		// remove 'em all
 		let mut data = selector_from_str("remove_vote_plugin");
@@ -152,7 +170,12 @@ fn test_add_and_remove_vote_plugins() {
 		assert_ok!(call::<()>(ALICE, dao_contract.clone(), data));
 
 		// check they are gone
-		let contracts = call::<Vec<AccountId>>(ALICE, dao_contract.clone(), selector_from_str("get_vote_plugins")).unwrap();
+		let contracts = call::<Vec<AccountId>>(
+			ALICE,
+			dao_contract.clone(),
+			selector_from_str("get_vote_plugins"),
+		)
+		.unwrap();
 		assert_eq!(contracts.len(), 0);
 	});
 }

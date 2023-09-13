@@ -1,22 +1,29 @@
 use codec::{Decode, Encode};
-use frame_support::{parameter_types, pallet_prelude::DispatchError, sp_io::hashing::blake2_256, traits::{AsEnsureOriginWithArg, ConstBool, ConstU128, ConstU32, ConstU64, ConstU8}, assert_ok};
-use frame_support::weights::Weight;
+use frame_support::{
+	assert_ok,
+	pallet_prelude::DispatchError,
+	parameter_types,
+	sp_io::hashing::blake2_256,
+	traits::{AsEnsureOriginWithArg, ConstBool, ConstU128, ConstU32, ConstU64, ConstU8},
+	weights::Weight,
+};
 use frame_system as system;
 use frame_system::mocking::MockUncheckedExtrinsic;
 
-use sp_core::H256;
 use pallet_contracts::{CollectEvents, DebugInfo, Determinism};
 use pallet_contracts_primitives::{Code, ReturnFlags};
+use sp_core::H256;
 
 use commons::traits::pallets::ActiveProposalsMock;
-use sp_runtime::{traits::{BlakeTwo256, IdentityLookup}, AccountId32, BuildStorage, generic};
+use sp_runtime::{
+	generic,
+	traits::{BlakeTwo256, IdentityLookup},
+	AccountId32, BuildStorage,
+};
 
 // type Block = frame_system::mocking::MockBlock<Test>;
 
-pub type Block = generic::Block<
-	generic::Header<u32, BlakeTwo256>,
-	MockUncheckedExtrinsic<Test>,
->;
+pub type Block = generic::Block<generic::Header<u32, BlakeTwo256>, MockUncheckedExtrinsic<Test>>;
 
 pub(crate) type Balance = u128;
 
@@ -184,7 +191,7 @@ impl pallet_dao_core::Config for Test {
 	type DaoDeposit = ConstU128<10>;
 	type TokenUnits = ConstU8<10>;
 	type AssetId = u32;
-    type ExposeAsset = Assets;
+	type ExposeAsset = Assets;
 	type CoreWeightInfo = ();
 }
 
@@ -233,10 +240,7 @@ pub fn create_vesting_wallet_contract() -> (AccountId, AccountId) {
 	let asset_contract = create_assets_contract();
 	let mut data = selector_from_str("new");
 	data.append(&mut asset_contract.clone().encode());
-	(
-		install(ALICE, VESTING_WALLET_CONTRACT_PATH, data).expect("code deployed"),
-		asset_contract
-	)
+	(install(ALICE, VESTING_WALLET_CONTRACT_PATH, data).expect("code deployed"), asset_contract)
 }
 
 pub fn create_vote_escrow_contract() -> (AccountId, AccountId) {
@@ -245,26 +249,15 @@ pub fn create_vote_escrow_contract() -> (AccountId, AccountId) {
 	data.append(&mut asset_contract.clone().encode());
 	data.append(&mut 1000_u32.encode());
 	data.append(&mut 4_u8.encode());
-	(
-		install(ALICE, VOTE_ESCROW_CONTRACT_PATH, data).expect("code deployed"),
-		asset_contract
-	)
+	(install(ALICE, VOTE_ESCROW_CONTRACT_PATH, data).expect("code deployed"), asset_contract)
 }
 
 pub fn get_asset_id_from_contract(contract: AccountId) -> u32 {
-		let account_id = call::<AccountId>(
-			ALICE,
-			contract.clone(),
-			selector_from_str("get_token")
-		).expect("call success");
+	let account_id = call::<AccountId>(ALICE, contract.clone(), selector_from_str("get_token"))
+		.expect("call success");
 
-		call::<u32>(
-			ALICE,
-			account_id.clone(),
-			selector_from_str("get_asset_id")
-		).expect("call success")
+	call::<u32>(ALICE, account_id.clone(), selector_from_str("get_asset_id")).expect("call success")
 }
-
 
 pub fn install(
 	signer: AccountId,

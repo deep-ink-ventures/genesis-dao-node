@@ -1,6 +1,6 @@
+use crate::mock::*;
 use codec::Encode;
 use frame_support::assert_ok;
-use crate::mock::*;
 
 fn create_vote_escrow_for_alice() -> (AccountId, AccountId) {
 	let (escrow_contract, asset_contract) = create_vote_escrow_contract();
@@ -17,27 +17,21 @@ fn create_vote_escrow_for_alice() -> (AccountId, AccountId) {
 	(escrow_contract, asset_contract)
 }
 
-
-
 #[test]
 fn test_create_vote_escrow() {
 	new_test_ext().execute_with(|| {
 		let (escrow_contract, asset_contract) = create_vote_escrow_contract();
 
 		// check that the contract has the correct token
-		let account_id = call::<AccountId>(
-			ALICE,
-			escrow_contract.clone(),
-			selector_from_str("get_token")
-		).expect("call success");
+		let account_id =
+			call::<AccountId>(ALICE, escrow_contract.clone(), selector_from_str("get_token"))
+				.expect("call success");
 		assert_eq!(account_id, asset_contract);
 
 		// check max time is correct
-		let max_time = call::<u32>(
-			ALICE,
-			escrow_contract.clone(),
-			selector_from_str("get_max_time")
-		).expect("call success");
+		let max_time =
+			call::<u32>(ALICE, escrow_contract.clone(), selector_from_str("get_max_time"))
+				.expect("call success");
 		assert_eq!(max_time, 1000);
 	});
 }
@@ -46,11 +40,9 @@ fn test_create_vote_escrow() {
 fn test_create_lock() {
 	new_test_ext().execute_with(|| {
 		let (escrow_contract, asset_contract) = create_vote_escrow_contract();
-		let asset_id = call::<u32>(
-			ALICE,
-			asset_contract.clone(),
-			selector_from_str("get_asset_id")
-		).expect("call success");
+		let asset_id =
+			call::<u32>(ALICE, asset_contract.clone(), selector_from_str("get_asset_id"))
+				.expect("call success");
 
 		assert_eq!(Assets::balance(asset_id.clone(), ALICE), 1000);
 		assert_eq!(Assets::balance(asset_id.clone(), escrow_contract.clone()), 0);
@@ -58,11 +50,8 @@ fn test_create_lock() {
 		// no lock now
 		let mut data = selector_from_str("get_lock");
 		data.append(&mut ALICE.encode());
-		let (amount, start_time, lock_time) = call::<(u128, u32, u32)>(
-			ALICE,
-			escrow_contract.clone(),
-			data
-		).expect("call success");
+		let (amount, start_time, lock_time) =
+			call::<(u128, u32, u32)>(ALICE, escrow_contract.clone(), data).expect("call success");
 		assert_eq!(amount, 0);
 		assert_eq!(start_time, 0);
 		assert_eq!(lock_time, 0);
@@ -97,11 +86,8 @@ fn test_create_lock() {
 		// now there's a lock
 		let mut data = selector_from_str("get_lock");
 		data.append(&mut ALICE.encode());
-		let (amount, start_time, lock_time) = call::<(u128, u32, u32)>(
-			ALICE,
-			escrow_contract.clone(),
-			data
-		).expect("call success");
+		let (amount, start_time, lock_time) =
+			call::<(u128, u32, u32)>(ALICE, escrow_contract.clone(), data).expect("call success");
 		assert_eq!(amount, 100);
 		assert_eq!(start_time, 1);
 		assert_eq!(lock_time, 1000);
@@ -115,19 +101,14 @@ fn test_create_lock() {
 fn test_escrow_lifecycle() {
 	new_test_ext().execute_with(|| {
 		let (escrow_contract, asset_contract) = create_vote_escrow_for_alice();
-		let asset_id = call::<u32>(
-			ALICE,
-			asset_contract.clone(),
-			selector_from_str("get_asset_id")
-		).expect("call success");
+		let asset_id =
+			call::<u32>(ALICE, asset_contract.clone(), selector_from_str("get_asset_id"))
+				.expect("call success");
 
 		let mut data = selector_from_str("get_lock");
 		data.append(&mut ALICE.encode());
-		let (amount, start_time, lock_time) = call::<(u128, u32, u32)>(
-			ALICE,
-			escrow_contract.clone(),
-			data
-		).expect("call success");
+		let (amount, start_time, lock_time) =
+			call::<(u128, u32, u32)>(ALICE, escrow_contract.clone(), data).expect("call success");
 		assert_eq!(amount, 100);
 		assert_eq!(start_time, 1);
 		assert_eq!(lock_time, 1000);
@@ -138,43 +119,31 @@ fn test_escrow_lifecycle() {
 		// get voting power
 		let mut data = selector_from_str("voting_power");
 		data.append(&mut ALICE.encode());
-		let voting_power = call::<u128>(
-			ALICE,
-			escrow_contract.clone(),
-			data
-		).expect("call success");
+		let voting_power =
+			call::<u128>(ALICE, escrow_contract.clone(), data).expect("call success");
 		assert_eq!(voting_power, 500);
 
 		forward_by_blocks(250);
 
 		let mut data = selector_from_str("voting_power");
 		data.append(&mut ALICE.encode());
-		let voting_power = call::<u128>(
-			ALICE,
-			escrow_contract.clone(),
-			data
-		).expect("call success");
+		let voting_power =
+			call::<u128>(ALICE, escrow_contract.clone(), data).expect("call success");
 		assert_eq!(voting_power, 400);
 
 		forward_by_blocks(250);
 
 		let mut data = selector_from_str("voting_power");
 		data.append(&mut ALICE.encode());
-		let voting_power = call::<u128>(
-			ALICE,
-			escrow_contract.clone(),
-			data
-		).expect("call success");
+		let voting_power =
+			call::<u128>(ALICE, escrow_contract.clone(), data).expect("call success");
 		assert_eq!(voting_power, 300);
 
 		forward_by_blocks(250);
 		let mut data = selector_from_str("voting_power");
 		data.append(&mut ALICE.encode());
-		let voting_power = call::<u128>(
-			ALICE,
-			escrow_contract.clone(),
-			data
-		).expect("call success");
+		let voting_power =
+			call::<u128>(ALICE, escrow_contract.clone(), data).expect("call success");
 		assert_eq!(voting_power, 200);
 
 		// cannot withdraw before lock time is over
@@ -187,11 +156,8 @@ fn test_escrow_lifecycle() {
 		forward_by_blocks(250);
 		let mut data = selector_from_str("voting_power");
 		data.append(&mut ALICE.encode());
-		let voting_power = call::<u128>(
-			ALICE,
-			escrow_contract.clone(),
-			data
-		).expect("call success");
+		let voting_power =
+			call::<u128>(ALICE, escrow_contract.clone(), data).expect("call success");
 		assert_eq!(voting_power, 100);
 
 		let mut data = selector_from_str("withdraw");
@@ -208,11 +174,8 @@ fn test_escrow_lifecycle() {
 
 		let mut data = selector_from_str("get_lock");
 		data.append(&mut ALICE.encode());
-		let (amount, start_time, lock_time) = call::<(u128, u32, u32)>(
-			ALICE,
-			escrow_contract.clone(),
-			data
-		).expect("call success");
+		let (amount, start_time, lock_time) =
+			call::<(u128, u32, u32)>(ALICE, escrow_contract.clone(), data).expect("call success");
 		assert_eq!(amount, 0);
 		assert_eq!(start_time, 0);
 		assert_eq!(lock_time, 0);
@@ -223,20 +186,15 @@ fn test_escrow_lifecycle() {
 fn test_increase_amount() {
 	new_test_ext().execute_with(|| {
 		let (escrow_contract, asset_contract) = create_vote_escrow_for_alice();
-		let asset_id = call::<u32>(
-			ALICE,
-			asset_contract.clone(),
-			selector_from_str("get_asset_id")
-		).expect("call success");
+		let asset_id =
+			call::<u32>(ALICE, asset_contract.clone(), selector_from_str("get_asset_id"))
+				.expect("call success");
 		forward_by_blocks(500);
 
 		let mut data = selector_from_str("voting_power");
 		data.append(&mut ALICE.encode());
-		let voting_power = call::<u128>(
-			ALICE,
-			escrow_contract.clone(),
-			data
-		).expect("call success");
+		let voting_power =
+			call::<u128>(ALICE, escrow_contract.clone(), data).expect("call success");
 		assert_eq!(voting_power, 300);
 
 		// unknown account
@@ -260,16 +218,12 @@ fn test_increase_amount() {
 
 		let mut data = selector_from_str("voting_power");
 		data.append(&mut ALICE.encode());
-		let voting_power = call::<u128>(
-			ALICE,
-			escrow_contract.clone(),
-			data
-		).expect("call success");
+		let voting_power =
+			call::<u128>(ALICE, escrow_contract.clone(), data).expect("call success");
 		assert_eq!(voting_power, 600);
 
 		assert_eq!(Assets::balance(asset_id.clone(), ALICE), 800);
 		assert_eq!(Assets::balance(asset_id.clone(), escrow_contract.clone()), 200);
-
 	});
 }
 
@@ -281,11 +235,8 @@ fn test_increase_lock_time() {
 
 		let mut data = selector_from_str("voting_power");
 		data.append(&mut ALICE.encode());
-		let voting_power = call::<u128>(
-			ALICE,
-			escrow_contract.clone(),
-			data
-		).expect("call success");
+		let voting_power =
+			call::<u128>(ALICE, escrow_contract.clone(), data).expect("call success");
 		assert_eq!(voting_power, 300);
 
 		// unknown account
@@ -309,11 +260,8 @@ fn test_increase_lock_time() {
 
 		let mut data = selector_from_str("voting_power");
 		data.append(&mut ALICE.encode());
-		let voting_power = call::<u128>(
-			ALICE,
-			escrow_contract.clone(),
-			data
-		).expect("call success");
+		let voting_power =
+			call::<u128>(ALICE, escrow_contract.clone(), data).expect("call success");
 		assert_eq!(voting_power, 500)
 	});
 }

@@ -1,6 +1,6 @@
+use crate::mock::*;
 use codec::Encode;
 use frame_support::assert_ok;
-use crate::mock::*;
 
 fn create_vesting_wallet_for_bob() -> AccountId {
 	let (vesting_contract, asset_contract) = create_vesting_wallet_contract();
@@ -24,18 +24,14 @@ fn test_create_vesting_wallet() {
 		let (vesting_contract, asset_contract) = create_vesting_wallet_contract();
 
 		// check that the vesting contract has the correct token
-		let account_id = call::<AccountId>(
-			ALICE,
-			vesting_contract.clone(),
-			selector_from_str("get_token")
-		).expect("call success");
+		let account_id =
+			call::<AccountId>(ALICE, vesting_contract.clone(), selector_from_str("get_token"))
+				.expect("call success");
 		assert_eq!(account_id, asset_contract);
 
-		let asset_id = call::<u32>(
-			ALICE,
-			asset_contract.clone(),
-			selector_from_str("get_asset_id")
-		).expect("call success");
+		let asset_id =
+			call::<u32>(ALICE, asset_contract.clone(), selector_from_str("get_asset_id"))
+				.expect("call success");
 
 		assert_eq!(Assets::balance(asset_id.clone(), ALICE), 1000);
 		assert_eq!(Assets::balance(asset_id.clone(), vesting_contract.clone()), 0);
@@ -67,7 +63,6 @@ fn test_create_vesting_wallet() {
 		assert_eq!(Assets::balance(asset_id.clone(), ALICE), 900);
 		assert_eq!(Assets::balance(asset_id.clone(), vesting_contract.clone()), 100);
 		assert_eq!(Assets::balance(asset_id.clone(), BOB), 0);
-
 	});
 }
 
@@ -237,4 +232,3 @@ fn test_vesting_wallet_returns_correct_amounts() {
 		assert_eq!(Assets::balance(asset_id.clone(), BOB), 100);
 	});
 }
-
