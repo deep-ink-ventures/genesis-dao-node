@@ -59,6 +59,7 @@ fn warmup_on_vote() -> (AccountId, AccountId, AccountId) {
     (dao_contract, vesting_contract, voting_contract)
 }
 
+// sets up a proposal that we wanna use for voting
 fn create_test_proposals() -> u32 {
 	let dao_id: Vec<u8> = b"GDAO".to_vec();
 	assert_ok!(DaoVotes::set_governance_majority_vote(
