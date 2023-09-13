@@ -1,21 +1,44 @@
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
+/// Genesis DAO Contract
+///
+/// This contract manages vote plugins that can affect the voting power
+/// of DAO members in various ways. It acts as a registry and a hook
+/// point for voting in the DAO.
 #[ink::contract]
 mod genesis_dao {
     use ink::prelude::vec::Vec;
     use ink::env::call::{build_call, ExecutionInput, Selector};
     use ink::env::DefaultEnvironment;
 
+    /// Error types that can be emitted by this contract.
     #[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
     #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
     pub enum Error {}
 
+    /// Event emitted when a new vote plugin is registered.
+    #[ink(event)]
+    pub struct VotePluginRegistered {
+        #[ink(topic)]
+        plugin: AccountId,
+    }
+
+    /// Event emitted when a vote plugin is removed.
+    #[ink(event)]
+    pub struct VotePluginRemoved {
+        #[ink(topic)]
+        plugin: AccountId,
+    }
+
+    /// Contract storage.
     #[ink(storage)]
     pub struct GenesisDao {
+        /// Registered vote plugins.
         vote_plugins: Vec<AccountId>,
     }
 
     impl GenesisDao {
+        /// Constructor initializes the contract.
         #[ink(constructor)]
         pub fn new() -> Self {
             Self {
@@ -23,19 +46,43 @@ mod genesis_dao {
             }
         }
 
+        /// Registers a new vote plugin.
+        ///
+        /// Adds the given vote plugin to the list of registered vote plugins
+        /// if it is not already present.
+        ///
+        /// # Arguments
+        ///
+        /// - `vote_plugin`: AccountId of the vote plugin contract.
         #[ink(message)]
         pub fn register_vote_plugin(&mut self, vote_plugin: AccountId) {
             if self.vote_plugins.contains(&vote_plugin) {
                 return;
             }
             self.vote_plugins.push(vote_plugin);
+            self.env().emit_event(VotePluginRegistered { plugin: vote_plugin });
         }
 
+        /// Removes a vote plugin.
+        ///
+        /// Removes the given vote plugin from the list of registered vote plugins.
+        ///
+        /// # Arguments
+        ///
+        /// - `vote_plugin`: AccountId of the vote plugin contract.
         #[ink(message)]
         pub fn remove_vote_plugin(&mut self, vote_plugin: AccountId) {
             self.vote_plugins.retain(|&x| x != vote_plugin);
+            self.env().emit_event(VotePluginRemoved { plugin: vote_plugin });
         }
 
+        /// Gets all registered vote plugins.
+        ///
+        /// Returns a list of AccountIds for all registered vote plugins.
+        ///
+        /// # Returns
+        ///
+        /// - `Vec<AccountId>`: List of registered vote plugins.
         #[ink(message)]
         pub fn get_vote_plugins(&self) -> Vec<AccountId> {
             self.vote_plugins.clone()
@@ -44,16 +91,19 @@ mod genesis_dao {
 
     impl genesis_dao_contract_trait::GenesisDao for GenesisDao {
 
-        /// Hook point for `on_vote` pallet
+        /// `on_vote` Hook Point
         ///
-        /// Iterates over all registered vote plugins and calls their `get_voting_power` function.
+        /// This function gets called when a vote is made. It iterates through
+        /// all registered vote plugins and updates the voting power of the voter.
         ///
         /// # Arguments
         ///
-        /// - `voter`: The AccountId of the voter.
-        /// - `voting_power`: The voting power of the voter.
+        /// - `voter`: AccountId of the voter.
+        /// - `voting_power`: Initial voting power of the voter.
         ///
-        /// - Returns the new voting power.
+        /// # Returns
+        ///
+        /// - `Balance`: Updated voting power after considering all vote plugins.
         #[ink(message)]
         fn on_vote(&self, voter: AccountId, voting_power: Balance) -> Balance {
             let mut voting_power = voting_power.clone();
