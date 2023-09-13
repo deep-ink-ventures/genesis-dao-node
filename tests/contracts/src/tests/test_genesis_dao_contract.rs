@@ -101,10 +101,12 @@ fn test_on_vote_plugins() {
 
 		// ok so:
 		// 100 tokens were locked in the vote escrow with a boost of 4 and a max of 1000
-		// so after 100 blocks, the voting power should
+		// so after 100 blocks, the voting power should be:
 		//
 		// locked * (max - blocks_passed) / max * boost + locked
+		//
 		// 100 * (1000 - 100) / 1000 * 4 + 100 = 460
+		//
 		// 100 tokens are vested over 100 blocks and none withdrawn so there should be another 100
 		//
 		// 100 is the balance of Bob
@@ -113,7 +115,7 @@ fn test_on_vote_plugins() {
 		// 460 + 100 + 100 = 660
 		assert_eq!(DaoVotes::proposals(prop_id).unwrap().in_favor, 660);
 
-		// note: removing now is not counting to already castd votes!
+		// note: removing now is not counting to already casted votes!
 	});
 }
 
