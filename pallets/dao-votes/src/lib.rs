@@ -53,6 +53,7 @@ pub mod pallet {
 		StorageMap<_, Twox64Concat, T::ProposalId, ProposalSlotOf<T>>;
 
 	#[pallet::storage]
+	#[pallet::getter(fn proposals)]
 	pub(super) type Proposals<T: Config> =
 		StorageMap<_, Twox64Concat, T::ProposalId, ProposalOf<T>>;
 

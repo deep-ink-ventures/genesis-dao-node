@@ -1,8 +1,8 @@
 [package]
-name = "genesis-dao-contract-boilerplate"
-version = "0.1.0"
+name = "genesis-dao-contract"
+version = "1.0.0"
 edition = "2021"
-authors = ["add your name here"]
+authors = ["chp"]
 
 [dependencies]
 ink = { version = "4.2", default-features = false }
@@ -28,4 +28,3 @@ std = [
     "scale-info/std",
 ]
 ink-as-dependency = []
-e2e-tests = []

@@ -45,12 +45,22 @@ case $ACTION in
         echo "Compilation of vote-escrow-contract completed."
         ;;
 
+    "compile-genesis-dao-contract")
+        echo "Starting to compile genesis-dao-contract..."
+        cd "$BASE_DIR/contracts/hooks/genesis-dao-contract" || { echo "Failed to navigate to genesis-dao-contract directory"; exit 1; }
+        cargo contract build
+        cp "$BASE_DIR/target/ink/genesis_dao_contract/genesis_dao_contract.wasm" "$BASE_DIR/tests/contracts/wasm/test_genesis_dao_contract.wasm"
+        cd "$BASE_DIR" || { echo "Failed to navigate back to base directory"; exit 1; }
+        echo "Compilation of genesis-dao-contract completed."
+        ;;
+
     "compile-test-contracts")
         echo "Starting to compile all test contracts..."
         # Call all individual compile actions
         ./contracts.sh compile-dao-assets-contract
         ./contracts.sh compile-vesting-wallet-contract
         ./contracts.sh compile-vote-escrow-contract
+        ./contracts.sh compile-genesis-dao-contract
         echo "Compilation of all test contracts completed."
         ;;
     "test-contracts")
@@ -59,6 +69,6 @@ case $ACTION in
         ;;
 
     *)
-        printf "\nInvalid action. Valid actions are\n\n - compile-dao-assets-contract\n - compile-vesting-wallet-contract\n - compile-vote-escrow-contract\n - compile-test-contracts\n - test-contracts\n\n"
+        printf "\nInvalid action. Valid actions are\n\n - compile-dao-assets-contract\n - compile-vesting-wallet-contract\n - compile-vote-escrow-contract\n - compile-genesis-dao-contract\n - compile-test-contracts\n - test-contracts\n\n"
         ;;
 esac

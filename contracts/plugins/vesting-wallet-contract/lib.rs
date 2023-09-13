@@ -29,7 +29,7 @@ pub mod vesting_wallet {
     pub struct VestingWalletCreated {
         #[ink(topic)]
         account: AccountId,
-        amount: u128,
+        amount: Balance,
         duration: u32,
     }
 
@@ -38,7 +38,7 @@ pub mod vesting_wallet {
     pub struct TokensWithdrawn {
         #[ink(topic)]
         account: AccountId,
-        amount: u128,
+        amount: Balance,
     }
 
     #[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
@@ -56,8 +56,8 @@ pub mod vesting_wallet {
     pub struct VestingWalletInfo {
         start_time: BlockNumber,
         duration: u32,
-        total_tokens: u128,
-        withdrawn_tokens: u128,
+        total_tokens: Balance,
+        withdrawn_tokens: Balance,
     }
 
     #[ink(storage)]
@@ -95,7 +95,7 @@ pub mod vesting_wallet {
         /// - `amount`: The total amount of tokens to be vested.
         /// - `duration`: The total duration over which the tokens will be vested.
         #[ink(message)]
-        pub fn create_vesting_wallet_for(&mut self, account: AccountId, amount: u128, duration: u32) -> Result<(), Error> {
+        pub fn create_vesting_wallet_for(&mut self, account: AccountId, amount: Balance, duration: u32) -> Result<(), Error> {
             match build_call::<DefaultEnvironment>()
                 .call(self.token)
                 .exec_input(
@@ -135,13 +135,13 @@ pub mod vesting_wallet {
         /// - `amount`: The total amount of tokens to be vested.
         /// - `duration`: The total duration over which the tokens will be vested.
         #[ink(message)]
-        pub fn get_unvested(&self, account: AccountId) -> u128 {
+        pub fn get_unvested(&self, account: AccountId) -> Balance {
             match self.wallets.get(&account) {
                 None => 0,
                 Some(wallet) => {
-                    let now: u128 = self.env().block_number().into();
-                    let start: u128 = wallet.start_time.into();
-                    let duration: u128 = wallet.duration.into();
+                    let now: Balance = self.env().block_number().into();
+                    let start: Balance = wallet.start_time.into();
+                    let duration: Balance = wallet.duration.into();
 
                     return if duration == 0 {
                         // a bit of a pointless vesting wallet but we'll allow it
@@ -163,7 +163,7 @@ pub mod vesting_wallet {
         ///
         /// - `account`: The AccountId to check for withdrawn tokens.
         #[ink(message)]
-        pub fn get_withdrawn(&self, account: AccountId) -> u128 {
+        pub fn get_withdrawn(&self, account: AccountId) -> Balance {
             match self.wallets.get(&account) {
                 None => 0,
                 Some(wallet) => wallet.withdrawn_tokens
@@ -176,7 +176,7 @@ pub mod vesting_wallet {
         ///
         /// - `account`: The AccountId to check for withdrawn tokens.
         #[ink(message)]
-        pub fn get_available_for_withdraw(&self, account: AccountId) -> u128 {
+        pub fn get_available_for_withdraw(&self, account: AccountId) -> Balance {
             match self.wallets.get(&account) {
                 None => 0,
                 Some(wallet) => {
@@ -191,7 +191,7 @@ pub mod vesting_wallet {
         ///
         /// - `account`: The AccountId to check for total tokens.
         #[ink(message)]
-        pub fn get_total(&self, account: AccountId) -> u128 {
+        pub fn get_total(&self, account: AccountId) -> Balance {
             self.get_unvested(account.clone()) + self.get_available_for_withdraw(account)
         }
 
@@ -234,6 +234,13 @@ pub mod vesting_wallet {
                     Ok(())
                 }
             }
+        }
+    }
+
+    impl plugins::Vote for VestingWallets {
+        #[ink(message)]
+        fn get_voting_power(&self, voter: AccountId, voting_power: Balance) -> Balance {
+            voting_power + self.get_total(voter)
         }
     }
 }

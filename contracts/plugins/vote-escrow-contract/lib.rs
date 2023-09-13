@@ -37,14 +37,14 @@ pub mod vote_escrow {
     use ink::env::DefaultEnvironment;
     use ink::storage::Mapping;
 
-    type LockedBalance = (u128, BlockNumber, u32); // (amount, created_time, unlock_time)
+    type LockedBalance = (Balance, BlockNumber, u32); // (amount, created_time, unlock_time)
 
     /// Event emitted when tokens are successfully locked.
     #[ink(event)]
     pub struct Locked {
         #[ink(topic)]
         from: AccountId,
-        amount: u128,
+        amount: Balance,
         unlock_time: u32,
     }
 
@@ -53,8 +53,8 @@ pub mod vote_escrow {
     pub struct LockAmountIncreased {
         #[ink(topic)]
         account: AccountId,
-        added_amount: u128,
-        total_amount: u128,
+        added_amount: Balance,
+        total_amount: Balance,
     }
 
     /// Event emitted when the lock time is increased.
@@ -70,7 +70,7 @@ pub mod vote_escrow {
     pub struct Withdrawn {
         #[ink(topic)]
         account: AccountId,
-        amount: u128,
+        amount: Balance,
     }
 
     /// Error types
@@ -137,7 +137,7 @@ pub mod vote_escrow {
         ///
         /// Returns a tuple `(amount, created_time, unlock_time)`.
         #[ink(message)]
-        pub fn get_lock(&self, account: AccountId) -> (u128, u32, u32) {
+        pub fn get_lock(&self, account: AccountId) -> (Balance, u32, u32) {
             match self.locked_balances.get(account) {
                 None => (0, 0, 0),
                 Some((amount, start_time, lock_time)) => (amount, start_time.into(), lock_time)
@@ -149,7 +149,7 @@ pub mod vote_escrow {
         /// - `amount`: The amount of tokens to lock.
         /// - `unlock_time`: The time in blocks until which the tokens will be locked.
         #[ink(message)]
-        pub fn create_lock(&mut self, amount: u128, unlock_time: u32) -> Result<(), Error> {
+        pub fn create_lock(&mut self, amount: Balance, unlock_time: u32) -> Result<(), Error> {
             if unlock_time > self.max_time {
                 return Err(Error::UnlockTimeToFarInTheFuture);
             }
@@ -186,7 +186,7 @@ pub mod vote_escrow {
         ///
         /// - `additional_amount`: The additional amount of tokens to lock.
         #[ink(message)]
-        pub fn increase_amount(&mut self, additional_amount: u128) -> Result<(), Error> {
+        pub fn increase_amount(&mut self, additional_amount: Balance) -> Result<(), Error> {
             match self.locked_balances.get(self.env().caller()) {
                 None => return Err(Error::NoLockedBalance),
                 Some((amount, start_time, lock_time)) => {
@@ -289,7 +289,7 @@ pub mod vote_escrow {
         ///
         /// - `additional_amount`: The additional amount of tokens to lock.
         #[ink(message)]
-        pub fn voting_power(&self, account: AccountId) -> u128 {
+        pub fn voting_power(&self, account: AccountId) -> Balance {
             // Retrieve the locked balance information for the account
             let maybe_locked = self.locked_balances.get(account);
             if maybe_locked.is_none() {
@@ -307,16 +307,23 @@ pub mod vote_escrow {
             }
 
             // Calculate the remaining lock time
-            let remaining_lock_time: u128 = lock_time.saturating_sub(elapsed_time).into();
+            let remaining_lock_time: Balance = lock_time.saturating_sub(elapsed_time).into();
 
             // Apply a decay function to the voting power if needed
             // For this example, we'll assume the voting power is proportional to the remaining lock time
             // decay_factor = remaining_lock_time / lock_time
             // voting_power = amount * decay_factor
             // To avoid floating-point arithmetic, we'll multiply before dividing
-            let voting_power = amount.saturating_mul(remaining_lock_time) / lock_time as u128;
+            let voting_power = amount.saturating_mul(remaining_lock_time) / lock_time as Balance;
 
-            voting_power * self.boost as u128 + amount
+            voting_power * self.boost as Balance + amount
+        }
+    }
+
+    impl plugins::Vote for VoteEscrow {
+        #[ink(message)]
+        fn get_voting_power(&self, voter: AccountId, voting_power: Balance) -> Balance {
+            voting_power + self.voting_power(voter)
         }
     }
 }

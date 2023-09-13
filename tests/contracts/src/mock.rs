@@ -209,6 +209,7 @@ pub const CHARLIE: AccountId32 = AccountId32::new([3u8; 32]);
 pub const ASSET_CONTRACT_PATH: &str = "wasm/test_dao_assets_contract.wasm";
 pub const VESTING_WALLET_CONTRACT_PATH: &str = "wasm/test_vesting_wallet_contract.wasm";
 pub const VOTE_ESCROW_CONTRACT_PATH: &str = "wasm/test_vote_escrow_contract.wasm";
+pub const DAO_CONTRACT_PATH: &str = "wasm/test_genesis_dao_contract.wasm";
 
 pub fn create_dao() -> Vec<u8> {
 	let origin = RuntimeOrigin::signed(ALICE);
