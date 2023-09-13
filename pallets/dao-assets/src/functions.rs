@@ -115,10 +115,13 @@ impl<T: Config> Pallet<T> {
 		block: BlockNumberFor<T>,
 	) -> Option<T::Balance> {
 		// Self::search_history(AccountHistory::<T>::get(id, who.borrow()), block)
-		let mut nearest_block = block;
+		let mut nearest_block = 0_u32.into();
 		let mut final_balance = Some(0_u32.into());
 
-		for (block_num, balance) in AccountHistory::<T>::iter_prefix((id, who.borrow())) {
+		// Iterate through AccountHistory that is NO later than provided block number
+		for (block_num, balance) in AccountHistory::<T>::iter_prefix((id, who.borrow()))
+			.filter(|(bl_num, _)| *bl_num <= block)
+		{
 			if block_num >= nearest_block {
 				nearest_block = block_num;
 				final_balance = Some(balance);
@@ -978,9 +981,9 @@ impl<T: Config> UsableCheckpoints for Pallet<T> {
 		let mut usable_checkpoints = vec![];
 
 		for prop_start in proposals_starts.borrow() {
-			let mut checkpoint = checkpoint_blocks.borrow().get(0).cloned().unwrap_or_default();
+			let mut checkpoint = 0_u32.into();
 			for chp in checkpoint_blocks.borrow().iter().filter(|c| *c <= prop_start) {
-				if chp > &checkpoint {
+				if chp >= &checkpoint {
 					checkpoint = *chp;
 				}
 			}

@@ -3,11 +3,11 @@
 use super::*;
 use crate as pallet_dao_assets;
 
-use commons::traits::ActiveProposalsMock;
 use frame_support::{
 	construct_runtime,
 	traits::{AsEnsureOriginWithArg, ConstU32, ConstU64},
 };
+use frame_system::pallet_prelude::BlockNumberFor;
 use sp_core::{ConstU8, H256};
 use sp_runtime::{
 	traits::{BlakeTwo256, IdentityLookup},
@@ -88,7 +88,7 @@ impl pallet_dao_core::Config for Test {
 }
 
 impl Config for Test {
-	type ActiveProposals = ActiveProposalsMock<Self>;
+	type ActiveProposals = ActiveProposalsMock;
 	type RuntimeEvent = RuntimeEvent;
 	type Balance = u64;
 	type AssetIdParameter = u32;
@@ -101,6 +101,16 @@ impl Config for Test {
 	type RemoveItemsLimit = ConstU32<5>;
 	#[cfg(feature = "runtime-benchmarks")]
 	type BenchmarkHelper = ();
+}
+
+pub struct ActiveProposalsMock;
+impl ActiveProposals<BlockNumberFor<Test>> for ActiveProposalsMock {
+	fn active_proposals_starting_time(
+		dao_id: Vec<u8>,
+		current_block: BlockNumberFor<Test>,
+	) -> Vec<BlockNumberFor<Test>> {
+		vec![20, 40, 60, 80]
+	}
 }
 
 pub(crate) fn new_test_ext() -> sp_io::TestExternalities {
@@ -118,6 +128,9 @@ pub(crate) fn new_test_ext() -> sp_io::TestExternalities {
 		accounts: vec![
 			// id, account_id, balance
 			(999, 1, 100),
+			(999, 2, 300),
+			(999, 3, 500),
+			(999, 4, 300),
 		],
 	};
 
