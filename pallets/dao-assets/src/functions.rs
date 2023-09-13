@@ -11,13 +11,7 @@ impl<T: Config> Pallet<T> {
 	/// Get DaoId
 	pub fn dao_id(asset_id: &T::AssetId) -> Vec<u8> {
 		Metadata::<T>::get(asset_id).symbol.to_vec()
-		// if Metadata::<T>::contains_key(asset_id) {
-		// } else {
-		// 	unreachable!()
-		// }
 	}
-
-	// Public immutables
 
 	/// Get the asset `id` free balance of `who`, or zero if the asset-account doesn't exist.
 	pub fn balance(id: T::AssetId, who: impl Borrow<T::AccountId>) -> T::Balance {
@@ -70,10 +64,14 @@ impl<T: Config> Pallet<T> {
 		Self::search_history(SupplyHistory::<T>::get(id), block)
 	}
 
+    /// Remove the whole account history under this assetId
+    /// This is mainly used when this account is to be dead
 	pub fn remove_account_history(asset_id: T::AssetId, account: &T::AccountId) {
 		AccountHistory::<T>::remove_prefix((asset_id, account), None);
 	}
 
+    /// Action to perfrom when any call is made that
+    /// changes the asset balance of involved account
 	pub fn mutate_account(
 		asset_id: T::AssetId,
 		who: impl Borrow<T::AccountId>,
@@ -161,12 +159,6 @@ impl<T: Config> Pallet<T> {
 
 	pub(super) fn update_account_history(id: T::AssetId, who: &T::AccountId, balance: T::Balance) {
 		Self::mutate_account(id, who, balance);
-		// // update history
-		// let history =
-		// 	Self::update_history(AccountHistory::<T>::get(id, who).unwrap_or_default(), balance);
-		//
-		// // record new history
-		// AccountHistory::<T>::insert(id, who, history);
 	}
 
 	fn update_history<V: Copy + Debug + Zero, B: Get<u32>>(
