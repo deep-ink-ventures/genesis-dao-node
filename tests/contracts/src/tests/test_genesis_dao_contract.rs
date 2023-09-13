@@ -139,6 +139,9 @@ fn test_add_and_remove_vote_plugins() {
 		assert_eq!(contracts[0], vesting_contract);
 		assert_eq!(contracts[1], voting_contract);
 
+		assert_eq!(call::<u32>(ALICE, vesting_contract.clone(), selector_from_str("Vote::get_id")).unwrap(), 1);
+		assert_eq!(call::<u32>(ALICE, voting_contract.clone(), selector_from_str("Vote::get_id")).unwrap(), 2);
+
 		// remove 'em all
 		let mut data = selector_from_str("remove_vote_plugin");
 		data.append(&mut vesting_contract.clone().encode());

@@ -321,6 +321,12 @@ pub mod vote_escrow {
     }
 
     impl plugins::Vote for VoteEscrow {
+
+         #[ink(message)]
+        fn get_id(&self) -> u32 {
+            2
+        }
+
         #[ink(message)]
         fn get_voting_power(&self, voter: AccountId, voting_power: Balance) -> Balance {
             voting_power + self.voting_power(voter)

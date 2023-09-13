@@ -238,6 +238,12 @@ pub mod vesting_wallet {
     }
 
     impl plugins::Vote for VestingWallets {
+
+        #[ink(message)]
+        fn get_id(&self) -> u32 {
+            1
+        }
+
         #[ink(message)]
         fn get_voting_power(&self, voter: AccountId, voting_power: Balance) -> Balance {
             voting_power + self.get_total(voter)

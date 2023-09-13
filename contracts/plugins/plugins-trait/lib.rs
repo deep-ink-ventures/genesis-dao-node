@@ -6,6 +6,11 @@ type Balance = <ink::env::DefaultEnvironment as ink::env::Environment>::Balance;
 #[ink::trait_definition]
 pub trait Vote {
 
+    /// Retrieves the id of the vote plugin.
+    /// The id should be unique.
+    #[ink(message)]
+    fn get_id(&self) -> u32;
+
     /// Retrieves the voting power from the underlying contract.
     /// The plugin should return the new total, not the additional total.
     ///
