@@ -13,9 +13,6 @@ scale-info = { version = "2.6", default-features = false, features = ["derive"],
 
 genesis-dao-contract-trait = { package = "genesis-dao-contract-trait", default-features = false, path = "../genesis-dao-contract-trait" }
 
-[dev-dependencies]
-ink_e2e = "4.2"
-
 [lib]
 path = "lib.rs"
 
