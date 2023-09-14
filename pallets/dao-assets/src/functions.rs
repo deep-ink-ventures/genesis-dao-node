@@ -1,7 +1,7 @@
 //! Functions for the Assets pallet.
 
 use super::*;
-use commons::traits::{ActiveProposals, UsableCheckpoints};
+use commons::traits::pallets::{ActiveProposals, UsableCheckpoints};
 use frame_support::{traits::Get, BoundedVec};
 use frame_system::pallet_prelude::BlockNumberFor;
 use sp_std::{borrow::Borrow, fmt::Debug};
@@ -894,7 +894,7 @@ impl<T: Config> Pallet<T> {
 	}
 }
 
-impl<T: Config> commons::traits::AssetInterface for Pallet<T> {
+impl<T: Config> commons::traits::pallets::AssetInterface for Pallet<T> {
 	type AssetId = pallet_dao_core::AssetIdOf<T>;
 	type AssetInfo = AssetDetails<AssetBalanceOf<T>, AccountIdOf<T>>;
 	type AccountId = AccountIdOf<T>;

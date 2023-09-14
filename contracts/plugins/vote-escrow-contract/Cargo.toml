@@ -1,0 +1,30 @@
+[package]
+name = "vote-escrow-contract"
+version = "1.0.0"
+authors = ["chp"]
+edition = "2021"
+
+[dependencies]
+ink = { version = "4.2.0", default-features = false }
+
+scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
+scale-info = { version = "2.6", default-features = false, features = ["derive"], optional = true }
+plugins = { default-features = false, path = "../plugins-trait" }
+
+[lib]
+path = "lib.rs"
+
+[features]
+default = ["std"]
+std = [
+    "ink/std",
+    "scale/std",
+    "scale-info/std",
+]
+ink-as-dependency = []
+
+# https://github.com/rust-lang/rust/issues/78744
+[profile.release.package.compiler_builtins]
+debug-assertions = false
+overflow-checks = false
+codegen-units = 10000

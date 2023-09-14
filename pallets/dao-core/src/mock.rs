@@ -6,7 +6,7 @@ use frame_support::{
 };
 use sp_core::H256;
 
-use commons::traits::ActiveProposalsMock;
+use commons::traits::pallets::ActiveProposalsMock;
 use sp_runtime::{
 	traits::{BlakeTwo256, IdentityLookup},
 	BuildStorage,

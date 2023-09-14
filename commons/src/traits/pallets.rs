@@ -9,7 +9,7 @@ pub trait ActiveProposals<BlockNumber> {
 	///
 	/// This is an easy wrapper around `get_active_proposals` that returns only the starting time of
 	/// each proposal, without the proposal itself; avoiding the need to implement unnecessary
-	/// traits.
+	/// pallets.
 	///
 	/// - `dao_id`: the unique identifier for the DAO
 	/// - `current_block`: the current block number
