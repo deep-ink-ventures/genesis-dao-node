@@ -29,7 +29,7 @@ impl<T: frame_system::Config> ActiveProposals<BlockNumberFor<T>> for ActivePropo
 		_dao_id: Vec<u8>,
 		_current_block: BlockNumberFor<T>,
 	) -> Vec<BlockNumberFor<T>> {
-		return vec![100_u32.into()]
+		vec![100_u32.into()]
 	}
 }
 
