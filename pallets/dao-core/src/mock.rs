@@ -1,12 +1,13 @@
 use crate as pallet_dao_core;
 use crate::*;
+use commons::traits::pallets::ActiveProposals;
 use frame_support::{
 	parameter_types,
 	traits::{AsEnsureOriginWithArg, ConstU128, ConstU32, ConstU64, ConstU8},
 };
+use frame_system::pallet_prelude::*;
 use sp_core::H256;
 
-use commons::traits::pallets::ActiveProposalsMock;
 use sp_runtime::{
 	traits::{BlakeTwo256, IdentityLookup},
 	BuildStorage,
@@ -113,7 +114,7 @@ impl Config for Test {
 }
 
 impl pallet_dao_assets::Config for Test {
-	type ActiveProposals = ActiveProposalsMock<Self>;
+	type ActiveProposals = ActiveProposalsMock;
 	type RuntimeEvent = RuntimeEvent;
 	type Balance = Balance;
 	type AssetIdParameter = u32;
@@ -126,6 +127,20 @@ impl pallet_dao_assets::Config for Test {
 	type WeightInfo = ();
 	#[cfg(feature = "runtime-benchmarks")]
 	type BenchmarkHelper = ();
+}
+
+pub struct ActiveProposalsMock;
+impl ActiveProposals<BlockNumberFor<Test>> for ActiveProposalsMock {
+	fn active_proposals_starting_time(
+		dao_id: Vec<u8>,
+		current_block: BlockNumberFor<Test>,
+	) -> Vec<BlockNumberFor<Test>> {
+		vec![20, 40, 60, 80]
+	}
+
+	fn max_proposals_limit() -> u32 {
+		25
+	}
 }
 
 // Build genesis storage according to the mock runtime.

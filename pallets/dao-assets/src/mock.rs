@@ -111,6 +111,10 @@ impl ActiveProposals<BlockNumberFor<Test>> for ActiveProposalsMock {
 	) -> Vec<BlockNumberFor<Test>> {
 		vec![20, 40, 60, 80]
 	}
+
+	fn max_proposals_limit() -> u32 {
+		25
+	}
 }
 
 pub(crate) fn new_test_ext() -> sp_io::TestExternalities {

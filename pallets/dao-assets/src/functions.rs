@@ -64,14 +64,24 @@ impl<T: Config> Pallet<T> {
 		Self::search_history(SupplyHistory::<T>::get(id), block)
 	}
 
-    /// Remove the whole account history under this assetId
-    /// This is mainly used when this account is to be dead
+	/// Remove the whole account history under this assetId
+	/// This is mainly used when this account is to be dead
 	pub fn remove_account_history(asset_id: T::AssetId, account: &T::AccountId) {
-		AccountHistory::<T>::remove_prefix((asset_id, account), None);
+		let limit = T::ActiveProposals::max_proposals_limit() + 1;
+		let result = AccountHistory::<T>::clear_prefix((asset_id, account), limit, None);
+
+		// By this we except that all history of this pair will be removed
+		// but since clear_prefix does not provide this gurantee
+		if let Some(_) = result.maybe_cursor {
+			// this case should not happen in idea case but
+			// just in case. we write the account history to 0
+			let block_num = frame_system::Pallet::<T>::block_number();
+			AccountHistory::<T>::insert((asset_id, &account), block_num, T::Balance::zero());
+		}
 	}
 
-    /// Action to perfrom when any call is made that
-    /// changes the asset balance of involved account
+	/// Action to perfrom when any call is made that
+	/// changes the asset balance of involved account
 	pub fn mutate_account(
 		asset_id: T::AssetId,
 		who: impl Borrow<T::AccountId>,
