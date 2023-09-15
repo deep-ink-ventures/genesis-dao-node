@@ -139,7 +139,7 @@ pub mod vote_escrow {
 		pub fn get_lock(&self, account: AccountId) -> (Balance, u32, u32) {
 			match self.locked_balances.get(account) {
 				None => (0, 0, 0),
-				Some((amount, start_time, lock_time)) => (amount, start_time.into(), lock_time),
+				Some((amount, start_time, lock_time)) => (amount, start_time, lock_time),
 			}
 		}
 
@@ -182,7 +182,7 @@ pub mod vote_escrow {
 		#[ink(message)]
 		pub fn increase_amount(&mut self, additional_amount: Balance) -> Result<(), Error> {
 			match self.locked_balances.get(self.env().caller()) {
-				None => return Err(Error::NoLockedBalance),
+				None => Err(Error::NoLockedBalance),
 				Some((amount, start_time, lock_time)) => {
 					let result = build_call::<DefaultEnvironment>()
 						.call(self.token)
@@ -225,7 +225,7 @@ pub mod vote_escrow {
 				return Err(Error::UnlockTimeToFarInTheFuture)
 			}
 			match self.locked_balances.get(self.env().caller()) {
-				None => return Err(Error::NoLockedBalance),
+				None => Err(Error::NoLockedBalance),
 				Some((amount, start_time, lock_time)) => {
 					let elapsed_time = self.env().block_number().saturating_sub(start_time);
 					let remaining_time = lock_time.saturating_sub(elapsed_time);
@@ -271,7 +271,7 @@ pub mod vote_escrow {
 				Err(_) => Err(Error::WithdrawFailed),
 				Ok(_) => {
 					// this is fine as reentrancy is disabled by default
-					self.locked_balances.remove(&self.env().caller());
+					self.locked_balances.remove(self.env().caller());
 					self.env().emit_event(Withdrawn { account: self.env().caller(), amount });
 					Ok(())
 				},

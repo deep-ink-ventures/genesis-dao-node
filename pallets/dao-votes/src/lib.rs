@@ -165,7 +165,7 @@ pub mod pallet {
 
 			// reserve DAO token, but unreserve currency if that fails
 			if let Err(error) =
-				T::ExposeAsset::reserve(asset_id.into(), &sender, governance.proposal_token_deposit)
+				T::ExposeAsset::reserve(asset_id, &sender, governance.proposal_token_deposit)
 			{
 				CurrencyOf::<T>::unreserve(&sender, deposit);
 				Err(error)?;
@@ -298,7 +298,7 @@ pub mod pallet {
 					// threshold to be exceeded for a proposal to pass
 					Voting::Majority { minimum_majority_per_1024 } => {
 						let token_supply = T::ExposeAsset::total_historical_supply(
-							asset_id.into(),
+							asset_id,
 							proposal.birth_block,
 						)
 						.expect("History exists (horizon checked above)");
@@ -373,7 +373,7 @@ pub mod pallet {
 			let dao = Core::<T>::get_dao(&proposal.dao_id).expect("DAO exists");
 			let asset_id = dao.asset_id.expect("asset has been issued");
 			let voting_power = T::ExposeAsset::total_historical_balance(
-				asset_id.into(),
+				asset_id,
 				&voter,
 				proposal.birth_block,
 			)

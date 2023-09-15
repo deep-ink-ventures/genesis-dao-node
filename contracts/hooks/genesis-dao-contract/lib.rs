@@ -43,6 +43,7 @@ mod genesis_dao {
 
 	impl GenesisDao {
 		/// Constructor initializes the contract.
+		#[allow(clippy::new_without_default)]
 		#[ink(constructor)]
 		pub fn new() -> Self {
 			Self { vote_plugins: Vec::new() }
@@ -107,11 +108,11 @@ mod genesis_dao {
 		/// - `Balance`: Updated voting power after considering all vote plugins.
 		#[ink(message)]
 		fn on_vote(&self, voter: AccountId, voting_power: Balance) -> Balance {
-			let mut voting_power = voting_power.clone();
+			let mut voting_power = voting_power;
 
 			for contract_id in self.vote_plugins.iter() {
 				voting_power = match build_call::<DefaultEnvironment>()
-					.call(contract_id.clone())
+					.call(*contract_id)
 					.exec_input(
 						ExecutionInput::new(Selector::new(ink::selector_bytes!(
 							"Vote::get_voting_power"
