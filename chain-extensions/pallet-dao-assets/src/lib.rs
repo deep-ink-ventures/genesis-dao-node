@@ -82,7 +82,7 @@ impl From<DispatchError> for Outcome {
 			DispatchError::Module(ModuleError { message, .. }) => message,
 			_ => Some("No module error Info"),
 		};
-		return match error_text {
+		match error_text {
 			Some("BalanceLow") => Outcome::BalanceLow,
 			Some("NoAccount") => Outcome::NoAccount,
 			Some("NoPermission") => Outcome::NoPermission,
@@ -130,7 +130,7 @@ where
 				let (id, who): (<T as pallet_dao_core::Config>::AssetId, T::AccountId) =
 					env.read_as()?;
 
-				env.charge_weight(T::DbWeight::get().reads(1 as u64))?;
+				env.charge_weight(T::DbWeight::get().reads(1_u64))?;
 
 				let balance = pallet_dao_assets::Pallet::<T>::balance(id, who);
 				env.write(&balance.encode(), false, None)?;
@@ -139,7 +139,7 @@ where
 			AssetsFunc::TotalSupply => {
 				let id: <T as pallet_dao_core::Config>::AssetId = env.read_as()?;
 
-				env.charge_weight(T::DbWeight::get().reads(1 as u64))?;
+				env.charge_weight(T::DbWeight::get().reads(1_u64))?;
 
 				let total_supply = pallet_dao_assets::Pallet::<T>::total_supply(id);
 				env.write(&total_supply.encode(), false, None)?;
@@ -152,7 +152,7 @@ where
 					T::AccountId,
 				) = env.read_as()?;
 
-				env.charge_weight(T::DbWeight::get().reads(1 as u64))?;
+				env.charge_weight(T::DbWeight::get().reads(1_u64))?;
 
 				let allowance = pallet_dao_assets::Pallet::<T>::allowance(id, &owner, &delegate);
 				env.write(&allowance.encode(), false, None)?;
@@ -234,7 +234,7 @@ where
 				)
 			},
 		};
-		return match call_result {
+		match call_result {
 			Err(e) => {
 				let mapped_error = Outcome::from(e);
 				Ok(RetVal::Converging(mapped_error as u32))
