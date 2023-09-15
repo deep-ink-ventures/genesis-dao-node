@@ -6,6 +6,7 @@ mod genesis_dao {
 	pub struct GenesisDao {}
 
 	impl GenesisDao {
+		#[allow(clippy::new_without_default)]
 		#[ink(constructor)]
 		pub fn new() -> Self {
 			Self {}
