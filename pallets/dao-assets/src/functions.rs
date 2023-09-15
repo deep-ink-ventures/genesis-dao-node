@@ -72,7 +72,7 @@ impl<T: Config> Pallet<T> {
 
 		// By this we except that all history of this pair will be removed
 		// but since clear_prefix does not provide this gurantee
-		if let Some(_) = result.maybe_cursor {
+		if result.maybe_cursor.is_some() {
 			// this case should not happen in idea case but
 			// just in case. we write the account history to 0
 			let block_num = frame_system::Pallet::<T>::block_number();
@@ -108,7 +108,7 @@ impl<T: Config> Pallet<T> {
 
 		// remove checkpoints that are older than the proposal start
 		for ch in checkpoint_blocks {
-			if !usable_checkpoints.contains(&&ch) {
+			if !usable_checkpoints.contains(&ch) {
 				AccountHistory::<T>::remove((asset_id, who.borrow()), ch);
 			}
 		}
@@ -202,7 +202,7 @@ impl<T: Config> Pallet<T> {
 	}
 
 	pub(super) fn dead_account(
-		id: T::AssetId,
+		_id: T::AssetId,
 		who: &T::AccountId,
 		details: &mut AssetDetailsOf<T>,
 	) {

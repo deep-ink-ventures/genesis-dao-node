@@ -406,8 +406,6 @@ pub mod pallet {
 			let id: T::AssetId = id.into();
 			let removed_accounts = Self::do_destroy_accounts(id, T::RemoveItemsLimit::get())?;
 
-			let dao_id = Self::dao_id(&id);
-
 			Ok(Some(T::WeightInfo::destroy_accounts(removed_accounts)).into())
 		}
 

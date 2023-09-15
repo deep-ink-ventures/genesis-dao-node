@@ -1,8 +1,7 @@
 use core::borrow::Borrow;
 
 use frame_support::pallet_prelude::*;
-use frame_system::pallet_prelude::BlockNumberFor;
-use sp_std::{marker::PhantomData, prelude::*};
+use sp_std::prelude::*;
 
 pub trait ActiveProposals<BlockNumber> {
 	/// Get the starting time of all active proposals.
@@ -21,20 +20,6 @@ pub trait ActiveProposals<BlockNumber> {
 	/// Get the maximum number of proposals that can be active at the same time
 	fn max_proposals_limit() -> u32;
 }
-
-// pub struct ActiveProposalsMock<T> {
-// 	// include any fields that might depend on T
-// 	_marker: PhantomData<T>,
-// }
-//
-// impl<T: frame_system::Config> ActiveProposals<BlockNumberFor<T>> for ActiveProposalsMock<T> {
-// 	fn active_proposals_starting_time(
-// 		_dao_id: Vec<u8>,
-// 		_current_block: BlockNumberFor<T>,
-// 	) -> Vec<BlockNumberFor<T>> {
-// 		vec![100_u32.into()]
-// 	}
-// }
 
 pub trait AssetInterface {
 	type AccountId;
