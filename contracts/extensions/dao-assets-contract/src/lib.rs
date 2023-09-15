@@ -83,7 +83,7 @@ mod dao_assets_contract {
 			let result = self
 				.env()
 				.extension()
-				.transfer_keep_alive(self.asset_id, to.clone(), value)
+				.transfer_keep_alive(self.asset_id, to, value)
 				.map_err(PSP22Error::from);
 			if result.is_ok() {
 				self.env().emit_event(Transfer {
@@ -127,7 +127,7 @@ mod dao_assets_contract {
 			let result = self
 				.env()
 				.extension()
-				.transfer(self.asset_id, to.clone(), value)
+				.transfer(self.asset_id, to, value)
 				.map_err(PSP22Error::from);
 			if result.is_ok() {
 				self.env().emit_event(Transfer {
@@ -151,7 +151,7 @@ mod dao_assets_contract {
 			let result = self
 				.env()
 				.extension()
-				.transfer_from(self.asset_id, from.clone(), to.clone(), value)
+				.transfer_from(self.asset_id, from, to, value)
 				.map_err(PSP22Error::from);
 			if result.is_ok() {
 				self.env().emit_event(Transfer { from: Some(from), to: Some(to), value });
@@ -165,7 +165,7 @@ mod dao_assets_contract {
 			let result = self
 				.env()
 				.extension()
-				.approve(self.asset_id, spender.clone(), value)
+				.approve(self.asset_id, spender, value)
 				.map_err(PSP22Error::from);
 			if result.is_ok() {
 				self.env().emit_event(Approval { owner: self.env().caller(), spender, value });
@@ -181,11 +181,11 @@ mod dao_assets_contract {
 			delta_value: Balance,
 		) -> Result<(), PSP22Error> {
 			let sender = self.env().caller();
-			let current_allowance = self.allowance(sender.clone(), spender.clone());
+			let current_allowance = self.allowance(sender, spender);
 			let new_allowance = current_allowance + delta_value;
 			self.env()
 				.extension()
-				.cancel_approval(self.asset_id, spender.clone())
+				.cancel_approval(self.asset_id, spender)
 				.map_err(PSP22Error::from)?;
 			self.approve(spender, new_allowance).map_err(PSP22Error::from)
 		}
@@ -198,14 +198,14 @@ mod dao_assets_contract {
 			delta_value: Balance,
 		) -> Result<(), PSP22Error> {
 			let sender = self.env().caller();
-			let current_allowance = self.allowance(sender.clone(), spender.clone());
+			let current_allowance = self.allowance(sender, spender);
 			if current_allowance < delta_value {
 				return Err(PSP22Error::InsufficientAllowance)
 			}
 			let new_allowance = current_allowance - delta_value;
 			self.env()
 				.extension()
-				.cancel_approval(self.asset_id, spender.clone())
+				.cancel_approval(self.asset_id, spender)
 				.map_err(PSP22Error::from)?;
 			self.approve(spender, new_allowance).map_err(PSP22Error::from)
 		}
