@@ -233,17 +233,17 @@ pub mod pallet {
 			<CurrentAssetId<T>>::mutate(|asset_id| asset_id.saturating_inc());
 
 			T::ExposeAsset::force_create(
-				<CurrentAssetId<T>>::get().into(),
+				<CurrentAssetId<T>>::get(),
 				dao.owner.clone(),
 				One::one(),
 			)?;
 
 			// and distribute it to the owner
-			T::ExposeAsset::mint(<CurrentAssetId<T>>::get().into(), &dao.owner, supply)?;
+			T::ExposeAsset::mint(<CurrentAssetId<T>>::get(), &dao.owner, supply)?;
 
 			// set the token metadata to the dao metadata
 			T::ExposeAsset::set_metadata(
-				<CurrentAssetId<T>>::get().into(),
+				<CurrentAssetId<T>>::get(),
 				&dao.owner,
 				dao.name.into(),
 				dao.id.clone().into(),
@@ -321,7 +321,7 @@ pub mod pallet {
 				}
 				// also change asset owner if token was issued
 				if let Some(asset_id) = dao.asset_id {
-					T::ExposeAsset::change_owner(asset_id.into(), new_owner.clone())?;
+					T::ExposeAsset::change_owner(asset_id, new_owner.clone())?;
 				}
 
 				dao.owner = new_owner.clone();
