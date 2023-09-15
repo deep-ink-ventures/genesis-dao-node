@@ -43,6 +43,7 @@ mod genesis_dao {
 
 	impl GenesisDao {
 		/// Constructor initializes the contract.
+		#[allow(clippy::new_without_default)]
 		#[ink(constructor)]
 		pub fn new() -> Self {
 			Self { vote_plugins: Vec::new() }
