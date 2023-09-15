@@ -139,14 +139,14 @@ pub mod vesting_wallet {
 		/// - `duration`: The total duration over which the tokens will be vested.
 		#[ink(message)]
 		pub fn get_unvested(&self, account: AccountId) -> Balance {
-			match self.wallets.get(&account) {
+			match self.wallets.get(account) {
 				None => 0,
 				Some(wallet) => {
 					let now: Balance = self.env().block_number().into();
 					let start: Balance = wallet.start_time.into();
 					let duration: Balance = wallet.duration.into();
 
-					return if duration == 0 {
+					if duration == 0 {
 						// a bit of a pointless vesting wallet but we'll allow it
 						wallet.total_tokens
 					} else if duration < now - start {
@@ -167,7 +167,7 @@ pub mod vesting_wallet {
 		/// - `account`: The AccountId to check for withdrawn tokens.
 		#[ink(message)]
 		pub fn get_withdrawn(&self, account: AccountId) -> Balance {
-			match self.wallets.get(&account) {
+			match self.wallets.get(account) {
 				None => 0,
 				Some(wallet) => wallet.withdrawn_tokens,
 			}
@@ -180,7 +180,7 @@ pub mod vesting_wallet {
 		/// - `account`: The AccountId to check for withdrawn tokens.
 		#[ink(message)]
 		pub fn get_available_for_withdraw(&self, account: AccountId) -> Balance {
-			match self.wallets.get(&account) {
+			match self.wallets.get(account) {
 				None => 0,
 				Some(wallet) =>
 					wallet.total_tokens - wallet.withdrawn_tokens - self.get_unvested(account),
@@ -194,7 +194,7 @@ pub mod vesting_wallet {
 		/// - `account`: The AccountId to check for total tokens.
 		#[ink(message)]
 		pub fn get_total(&self, account: AccountId) -> Balance {
-			self.get_unvested(account.clone()) + self.get_available_for_withdraw(account)
+			self.get_unvested(account) + self.get_available_for_withdraw(account)
 		}
 
 		/// Allows an account to withdraw vested tokens.
@@ -204,7 +204,7 @@ pub mod vesting_wallet {
 		/// - `account`: The AccountId from which tokens will be withdrawn.
 		#[ink(message)]
 		pub fn withdraw(&mut self, account: AccountId) -> Result<(), Error> {
-			let mut wallet = match self.wallets.get(&account) {
+			let mut wallet = match self.wallets.get(account) {
 				None => return Ok(()),
 				Some(wallet) => wallet,
 			};
