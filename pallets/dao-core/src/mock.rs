@@ -133,8 +133,8 @@ impl pallet_dao_assets::Config for Test {
 pub struct ActiveProposalsMock;
 impl ActiveProposals<BlockNumberFor<Test>> for ActiveProposalsMock {
 	fn active_proposals_starting_time(
-		dao_id: Vec<u8>,
-		current_block: BlockNumberFor<Test>,
+		_dao_id: Vec<u8>,
+		_current_block: BlockNumberFor<Test>,
 	) -> Vec<BlockNumberFor<Test>> {
 		vec![20, 40, 60, 80]
 	}

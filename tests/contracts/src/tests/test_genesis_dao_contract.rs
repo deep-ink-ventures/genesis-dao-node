@@ -35,7 +35,6 @@ fn warmup_on_vote() -> (AccountId, AccountId, AccountId) {
 	data.append(&mut 1000_u32.encode());
 	assert_ok!(call::<()>(ALICE, vesting_contract.clone(), data));
 
-	// create vote escrow for Bob
 	let mut data = selector_from_str("PSP22::transfer");
 	data.append(&mut BOB.clone().encode());
 	data.append(&mut 200_u128.encode());
