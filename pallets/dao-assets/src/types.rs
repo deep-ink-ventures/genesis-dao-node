@@ -76,3 +76,11 @@ impl From<TransferFlags> for DebitFlags {
 		Self { keep_alive: f.keep_alive, best_effort: f.best_effort }
 	}
 }
+
+/// Represent a single checkpoint
+pub struct Checkpoint<AccountId, Balance, DelegatedMax> {
+    // how much is through self mutating action
+    pub mutated: Balance,
+    // how much is through delegation from someone
+    pub delegated: BoundedBTreeMap<AccountId, Balance, DelegatedMax>,
+}

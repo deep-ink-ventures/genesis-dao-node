@@ -836,6 +836,28 @@ impl<T: Config> Pallet<T> {
 			.map(|x| x.amount)
 			.unwrap_or_else(Zero::zero)
 	}
+
+    /// Delegate source's balance to target's
+    pub fn do_delegate(
+        source: &T::AccountId,
+        target: &T::AccountId,
+        is_revoke: bool,
+    ) -> DispatchResult {
+        // get source's latest checkpoint
+        // get target's latest checkpoint
+
+        // if this is revoke:
+        // let amount = source[account_id]
+        // let target.mutated += amount
+        // let source[account_id] = 0
+        
+        // if this is no revoke
+        // target.delegated[account_id] += source.mutated ( delegated amount cannot be delegated
+        // again)
+        // source.mutate = 0
+        
+        Ok(())
+    }
 }
 
 impl<T: Config> commons::traits::pallets::AssetInterface for Pallet<T> {
