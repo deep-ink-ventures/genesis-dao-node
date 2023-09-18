@@ -14,7 +14,6 @@ use pallet_contracts::{CollectEvents, DebugInfo, Determinism};
 use pallet_contracts_primitives::{Code, ReturnFlags};
 use sp_core::H256;
 
-use commons::traits::pallets::ActiveProposalsMock;
 use sp_runtime::{
 	generic,
 	traits::{BlakeTwo256, IdentityLookup},
@@ -166,7 +165,7 @@ parameter_types! {
 }
 
 impl pallet_dao_assets::Config for Test {
-	type ActiveProposals = ActiveProposalsMock<Self>;
+	type ActiveProposals = DaoVotes;
 	type RuntimeEvent = RuntimeEvent;
 	type Balance = Balance;
 	type AssetIdParameter = u32;
@@ -205,6 +204,7 @@ impl pallet_dao_votes::Config for Test {
 	type RuntimeEvent = RuntimeEvent;
 	type ProposalDeposit = ConstU128<10>;
 	type ProposalId = u32;
+	type MaxProposals = ConstU32<25>;
 	type WeightInfo = ();
 }
 

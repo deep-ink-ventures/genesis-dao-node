@@ -1,13 +1,17 @@
 //! Functions for the Assets pallet.
 
 use super::*;
+use commons::traits::pallets::{ActiveProposals, UsableCheckpoints};
 use frame_support::{traits::Get, BoundedVec};
 use frame_system::pallet_prelude::BlockNumberFor;
 use sp_std::{borrow::Borrow, fmt::Debug};
 
 // The main implementation block for the module.
 impl<T: Config> Pallet<T> {
-	// Public immutables
+	/// Get DaoId
+	pub fn dao_id(asset_id: &T::AssetId) -> Vec<u8> {
+		Metadata::<T>::get(asset_id).symbol.to_vec()
+	}
 
 	/// Get the asset `id` free balance of `who`, or zero if the asset-account doesn't exist.
 	pub fn balance(id: T::AssetId, who: impl Borrow<T::AccountId>) -> T::Balance {
@@ -60,6 +64,56 @@ impl<T: Config> Pallet<T> {
 		Self::search_history(SupplyHistory::<T>::get(id), block)
 	}
 
+	/// Remove the whole account history under this assetId
+	/// This is mainly used when this account is to be dead
+	pub fn remove_account_history(asset_id: T::AssetId, account: &T::AccountId) {
+		let limit = T::ActiveProposals::max_proposals_limit() + 1;
+		let result = AccountHistory::<T>::clear_prefix((asset_id, account), limit, None);
+
+		// By this we except that all history of this pair will be removed
+		// but since clear_prefix does not provide this gurantee
+		if result.maybe_cursor.is_some() {
+			// this case should not happen in idea case but
+			// just in case. we write the account history to 0
+			let block_num = frame_system::Pallet::<T>::block_number();
+			AccountHistory::<T>::insert((asset_id, &account), block_num, T::Balance::zero());
+		}
+	}
+
+	/// Action to perfrom when any call is made that
+	/// changes the asset balance of involved account
+	pub fn mutate_account(
+		asset_id: T::AssetId,
+		who: impl Borrow<T::AccountId>,
+		balance: T::Balance,
+	) {
+		let current_block = frame_system::Pallet::<T>::block_number();
+		let dao_id = Self::dao_id(&asset_id);
+
+		// Insert new checkpoint balance
+		AccountHistory::<T>::insert((asset_id, who.borrow()), current_block, balance);
+
+		// get all proposals
+		let proposal_start_dates = <T::ActiveProposals as ActiveProposals::<BlockNumberFor<T>>>::active_proposals_starting_time(dao_id, current_block);
+		// get all checkpoints
+		let checkpoint_blocks = AccountHistory::<T>::iter_prefix((asset_id, who.borrow()))
+			.map(|(bl_num, _)| bl_num)
+			.collect::<Vec<_>>();
+
+		let usable_checkpoints =
+			Self::proposal_checkpoint_pair(&proposal_start_dates, &checkpoint_blocks)
+				.into_iter()
+				.map(|(_prop, ch)| ch)
+				.collect::<Vec<_>>();
+
+		// remove checkpoints that are older than the proposal start
+		for ch in checkpoint_blocks {
+			if !usable_checkpoints.contains(&ch) {
+				AccountHistory::<T>::remove((asset_id, who.borrow()), ch);
+			}
+		}
+	}
+
 	/// Get the total historical balance of an asset `id` at a certain `block` for an account `who`.
 	/// Result may be None, if the age of the requested block is at or beyond
 	/// the HistoryHorizon and history has been removed.
@@ -68,7 +122,21 @@ impl<T: Config> Pallet<T> {
 		who: impl Borrow<T::AccountId>,
 		block: BlockNumberFor<T>,
 	) -> Option<T::Balance> {
-		Self::search_history(AccountHistory::<T>::get(id, who.borrow()), block)
+		// Self::search_history(AccountHistory::<T>::get(id, who.borrow()), block)
+		let mut nearest_block = 0_u32.into();
+		let mut final_balance = Some(0_u32.into());
+
+		// Iterate through AccountHistory that is NO later than provided block number
+		for (block_num, balance) in AccountHistory::<T>::iter_prefix((id, who.borrow()))
+			.filter(|(bl_num, _)| *bl_num <= block)
+		{
+			if block_num >= nearest_block {
+				nearest_block = block_num;
+				final_balance = Some(balance);
+			}
+		}
+
+		final_balance
 	}
 
 	/// Search a history for the value at a specific block.
@@ -100,12 +168,7 @@ impl<T: Config> Pallet<T> {
 	}
 
 	pub(super) fn update_account_history(id: T::AssetId, who: &T::AccountId, balance: T::Balance) {
-		// update history
-		let history =
-			Self::update_history(AccountHistory::<T>::get(id, who).unwrap_or_default(), balance);
-
-		// record new history
-		AccountHistory::<T>::insert(id, who, history);
+		Self::mutate_account(id, who, balance);
 	}
 
 	fn update_history<V: Copy + Debug + Zero, B: Get<u32>>(
@@ -139,13 +202,12 @@ impl<T: Config> Pallet<T> {
 	}
 
 	pub(super) fn dead_account(
-		id: T::AssetId,
+		_id: T::AssetId,
 		who: &T::AccountId,
 		details: &mut AssetDetailsOf<T>,
 	) {
 		let _ = frame_system::Pallet::<T>::dec_providers(who);
 		details.accounts.saturating_dec();
-		AccountHistory::<T>::remove(id, who);
 	}
 
 	/// Returns `true` when the balance of `account` can be increased by `amount`.
@@ -319,6 +381,7 @@ impl<T: Config> Pallet<T> {
 
 			Ok(())
 		})?;
+		Self::mutate_account(id, beneficiary, amount);
 		Self::deposit_event(Event::Issued {
 			asset_id: id,
 			owner: beneficiary.clone(),
@@ -642,6 +705,9 @@ impl<T: Config> Pallet<T> {
 				// account already removed by drain
 				Self::dead_account(id, &who, details);
 				dead_accounts += 1;
+
+				// todo: weather to remove the history or rewrite to 0?
+				Self::remove_account_history(id, &who);
 			}
 			remaining_accounts = details.accounts;
 			Ok(())
@@ -922,5 +988,32 @@ impl<T: Config> commons::traits::pallets::AssetInterface for Pallet<T> {
 		block: Self::BlockNumber,
 	) -> Option<Self::Balance> {
 		Pallet::<T>::total_historical_balance(id, who, block)
+	}
+}
+
+impl<T: Config> UsableCheckpoints for Pallet<T> {
+	type BlockNumber = BlockNumberFor<T>;
+	type BlockIter = Vec<Self::BlockNumber>;
+	type Res = Vec<(Self::BlockNumber, Self::BlockNumber)>;
+
+	fn proposal_checkpoint_pair(
+		// where porposals starts
+		proposals_starts: impl Borrow<Self::BlockIter>,
+		// where checkpoint are made
+		checkpoint_blocks: impl Borrow<Self::BlockIter>,
+	) -> Self::Res {
+		let mut usable_checkpoints = vec![];
+
+		for prop_start in proposals_starts.borrow() {
+			let mut checkpoint = 0_u32.into();
+			for chp in checkpoint_blocks.borrow().iter().filter(|c| *c <= prop_start) {
+				if chp >= &checkpoint {
+					checkpoint = *chp;
+				}
+			}
+			usable_checkpoints.push((*prop_start, checkpoint));
+		}
+
+		usable_checkpoints
 	}
 }

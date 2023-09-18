@@ -87,6 +87,9 @@ pub mod pallet {
 			+ One
 			+ Saturating;
 
+		#[pallet::constant]
+		type MaxProposals: Get<u32>;
+
 		type WeightInfo: WeightInfo;
 	}
 

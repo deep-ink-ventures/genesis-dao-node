@@ -201,10 +201,10 @@ pub mod pallet {
 	pub(super) type AccountHistory<T: Config> = StorageDoubleMap<
 		_,
 		Blake2_128Concat,
-		T::AssetId,
+		(T::AssetId, T::AccountId),
 		Blake2_128Concat,
-		T::AccountId,
-		BoundedBTreeMap<BlockNumberFor<T>, AssetBalanceOf<T>, T::HistoryHorizon>,
+		BlockNumberFor<T>,
+		AssetBalanceOf<T>,
 	>;
 
 	#[derive(frame_support::DefaultNoBound)]
@@ -405,6 +405,7 @@ pub mod pallet {
 			let _ = ensure_signed(origin)?;
 			let id: T::AssetId = id.into();
 			let removed_accounts = Self::do_destroy_accounts(id, T::RemoveItemsLimit::get())?;
+
 			Ok(Some(T::WeightInfo::destroy_accounts(removed_accounts)).into())
 		}
 

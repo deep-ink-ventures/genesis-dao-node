@@ -3,6 +3,7 @@ use crate::{
 	Config, Pallet, ProposalOf, ProposalStatus,
 };
 use commons::traits::pallets::ActiveProposals;
+use frame_support::traits::Get;
 use frame_system::pallet_prelude::BlockNumberFor;
 use sp_std::prelude::*;
 
@@ -32,6 +33,10 @@ impl<T: Config> Pallet<T> {
 	}
 }
 impl<T: Config> ActiveProposals<BlockNumberFor<T>> for Pallet<T> {
+	fn max_proposals_limit() -> u32 {
+		T::MaxProposals::get()
+	}
+
 	fn active_proposals_starting_time(
 		dao_id: Vec<u8>,
 		current_block: BlockNumberFor<T>,
