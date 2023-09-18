@@ -294,11 +294,9 @@ pub mod pallet {
 					// we ship a majority vote implementation as default, that is requiring a
 					// threshold to be exceeded for a proposal to pass
 					Voting::Majority { minimum_majority_per_1024 } => {
-						let token_supply = T::ExposeAsset::total_historical_supply(
-							asset_id,
-							proposal.birth_block,
-						)
-						.expect("History exists (horizon checked above)");
+						let token_supply =
+							T::ExposeAsset::total_historical_supply(asset_id, proposal.birth_block)
+								.expect("History exists (horizon checked above)");
 						let required_majority = token_supply /
 							Into::<AssetBalanceOf<T>>::into(1024_u32) *
 							minimum_majority_per_1024.into();
@@ -369,12 +367,9 @@ pub mod pallet {
 			<Votes<T>>::set(proposal_id, &voter, in_favor);
 			let dao = Core::<T>::get_dao(&proposal.dao_id).expect("DAO exists");
 			let asset_id = dao.asset_id.expect("asset has been issued");
-			let voting_power = T::ExposeAsset::total_historical_balance(
-				asset_id,
-				&voter,
-				proposal.birth_block,
-			)
-			.expect("history exists");
+			let voting_power =
+				T::ExposeAsset::total_historical_balance(asset_id, &voter, proposal.birth_block)
+					.expect("history exists");
 
 			let voting_power =
 				on_vote::<T>(dao.owner.clone(), voter.clone(), voter.clone(), voting_power);
@@ -454,6 +449,59 @@ pub mod pallet {
 			})?;
 
 			Self::deposit_event(Event::<T>::ProposalImplemented { proposal_id });
+			Ok(())
+		}
+
+		#[pallet::call_index(8)]
+		#[pallet::weight(10_000)]
+		pub fn delegate_votes(
+			origin: OriginFor<T>,
+			proposal_id: T::ProposalId,
+			target: AccountIdOf<T>,
+		) -> DispatchResult {
+			let caller = ensure_signed(origin)?;
+
+			// - Get dao_id and asset_id
+			//
+			// - Get the checkpoint amount of sender
+			//
+			// - let amount = total latest checkpoint balance of sender
+			//
+			// - Set sender's accountHistory balance to 0
+			//
+			// - Get current block block_number
+			//
+			// - New checkpoint of target account at this block is +amount
+			//
+			// - emit event
+
+			Ok(())
+		}
+
+		#[pallet::call_index(9)]
+		#[pallet::weight(10_000)]
+		pub fn revoke_delegated_votes(
+			origin: OriginFor<T>,
+			proposal_id: T::ProposalId,
+			source: AccountIdOf<T>,
+		) -> DispatchResult {
+			let caller = ensure_signed(origin)?;
+
+			// - Get dao_id and asset_id
+			//
+			// - ensure source's have received amount from delegation of sender
+			// This have to be changed from pallet-asset interface.
+			// While storing AccountHistory, not only we store the balance we store a
+			// source `enum Source{Myself, Delegated(AccountIdOf<T>)}`
+			//
+			// - get current block number
+			//
+			// - new checkpoint balance of caller is +amount
+			//
+			// - new checkpoint balance of source is -amount
+			//
+			// - emit event
+
 			Ok(())
 		}
 	}
