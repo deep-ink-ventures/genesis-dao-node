@@ -122,7 +122,6 @@ impl<T: Config> Pallet<T> {
 		who: impl Borrow<T::AccountId>,
 		block: BlockNumberFor<T>,
 	) -> Option<T::Balance> {
-		// Self::search_history(AccountHistory::<T>::get(id, who.borrow()), block)
 		let mut nearest_block = 0_u32.into();
 		let mut final_balance = Some(0_u32.into());
 
