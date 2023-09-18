@@ -8,6 +8,7 @@ use frame_support::{
 };
 use pallet_balances::Error as BalancesError;
 use sp_runtime::TokenError;
+use std::collections::BTreeMap;
 
 fn asset_ids() -> Vec<u32> {
 	let mut s: Vec<_> = Assets::asset_ids().collect();
@@ -600,15 +601,74 @@ fn run_to_block(n: u64) {
 }
 
 #[test]
+fn checkpoint_behaviour_ok() {
+	new_test_ext().execute_with(|| {
+		let mut alice_checkpoint = CheckpointOf::<Test> {
+			mutated: 100,
+			delegated: BTreeMap::from([(BOB, 50_u32.into()), (CHARLIE, 10_u32.into())])
+				.try_into()
+				.unwrap(),
+			total_delegation: 60,
+		};
+
+		let mut bob_checkpoint = CheckpointOf::<Test> { mutated: 200, ..Default::default() };
+
+		// Total amount gives right value
+		assert_eq!(alice_checkpoint.total_amount(), 160);
+		assert_eq!(bob_checkpoint.total_amount(), 200);
+
+		let old_alice_delegated = alice_checkpoint.delegated.clone();
+		// can add to mutated
+		assert_eq!(
+			alice_checkpoint.delegate_to(&ALICE, &mut bob_checkpoint),
+			Some(()),
+			"max delegation reached"
+		);
+		assert_eq!(alice_checkpoint.total_amount(), 60);
+		assert_eq!(bob_checkpoint.total_amount(), 300);
+		assert_eq!(alice_checkpoint.delegated, old_alice_delegated);
+		assert_eq!(bob_checkpoint.delegated, BTreeMap::from([(ALICE, 100)]));
+	});
+
+	new_test_ext().execute_with(|| {
+		const ASSET_ID: u32 = 999;
+
+		let alice_checkpoint = CheckpointOf::<Test> {
+			mutated: 100,
+			delegated: std::collections::BTreeMap::from([
+				(BOB, 50_u32.into()),
+				(CHARLIE, 10_u32.into()),
+			])
+			.try_into()
+			.unwrap(),
+			..Default::default()
+		};
+		AccountHistory::<Test>::insert((ASSET_ID, ALICE), 5_u64, alice_checkpoint.clone());
+
+		Assets::add_mutated_checkpoint(
+			&999_u32.into(),
+			&ALICE,
+			&10,
+			alice_checkpoint.mutated + 100,
+		);
+		let new_checkpoint = AccountHistory::<Test>::get((ASSET_ID, ALICE), 10).unwrap();
+
+		assert_eq!(new_checkpoint.mutated, 100);
+		assert_eq!(new_checkpoint.total_amount(), alice_checkpoint.total_amount() + 100);
+		assert_eq!(new_checkpoint.delegated, alice_checkpoint.delegated);
+	});
+}
+
+#[test]
 fn account_history_is_ok() {
 	new_test_ext().execute_with(|| {
 		let asset_id = 999;
 
 		let asset_balance = |accnt| Assets::balance(asset_id, accnt);
-		let account_history = |account: AccountId| {
+		let account_history_mutated = |account: AccountId| {
 			AccountHistory::<Test>::iter()
-				.filter_map(move |((asset, acnt), bl_num, bal)| {
-					(asset_id == asset && acnt == account).then_some((bl_num, bal))
+				.filter_map(move |((asset, acnt), bl_num, chp)| {
+					(asset_id == asset && acnt == account).then_some((bl_num, chp.mutated))
 				})
 				.collect::<Vec<_>>()
 		};
@@ -628,6 +688,6 @@ fn account_history_is_ok() {
 		run_to_block(52);
 		assert_ok!(Assets::transfer(RuntimeOrigin::signed(CHARLIE), asset_id, ALICE, 50));
 
-		assert_array!(account_history(ALICE), vec![(10, 50), (52, 90)]);
+		assert_array!(account_history_mutated(ALICE), vec![(10, 50), (52, 90)]);
 	});
 }

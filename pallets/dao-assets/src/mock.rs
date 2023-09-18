@@ -99,6 +99,7 @@ impl Config for Test {
 	type HistoryHorizon = ConstU32<30>;
 	type WeightInfo = ();
 	type RemoveItemsLimit = ConstU32<5>;
+	type MaxDelegation = ConstU32<100>;
 	#[cfg(feature = "runtime-benchmarks")]
 	type BenchmarkHelper = ();
 }

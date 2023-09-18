@@ -133,6 +133,11 @@ pub mod pallet {
 		#[pallet::constant]
 		type StringLimit: Get<u32>;
 
+		/// How many delegation a single accuont can have
+		/// in it's account history
+		#[pallet::constant]
+		type MaxDelegation: Get<u32>;
+
 		/// The age for which historical data may be removed.
 		/// For example, if this is 100 and the current block is 150,
 		/// then history for blocks 50 and older may be removed.
@@ -204,7 +209,7 @@ pub mod pallet {
 		(T::AssetId, T::AccountId),
 		Blake2_128Concat,
 		BlockNumberFor<T>,
-		AssetBalanceOf<T>,
+		CheckpointOf<T>,
 	>;
 
 	#[derive(frame_support::DefaultNoBound)]
@@ -360,6 +365,8 @@ pub mod pallet {
 		AssetNotLive,
 		/// The asset status is not the expected status.
 		IncorrectStatus,
+		/// This account can recieve no more delegation
+		DelegationLimit,
 	}
 
 	#[pallet::call]

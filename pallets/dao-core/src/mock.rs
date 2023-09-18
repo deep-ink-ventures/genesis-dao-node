@@ -124,6 +124,7 @@ impl pallet_dao_assets::Config for Test {
 	type RemoveItemsLimit = ConstU32<1000>;
 	type StringLimit = AssetsStringLimit;
 	type HistoryHorizon = ConstU32<4200>;
+	type MaxDelegation = ConstU32<5>;
 	type WeightInfo = ();
 	#[cfg(feature = "runtime-benchmarks")]
 	type BenchmarkHelper = ();

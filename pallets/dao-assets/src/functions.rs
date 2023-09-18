@@ -76,7 +76,7 @@ impl<T: Config> Pallet<T> {
 			// this case should not happen in idea case but
 			// just in case. we write the account history to 0
 			let block_num = frame_system::Pallet::<T>::block_number();
-			AccountHistory::<T>::insert((asset_id, &account), block_num, T::Balance::zero());
+			AccountHistory::<T>::insert((asset_id, &account), block_num, CheckpointOf::<T>::zero());
 		}
 	}
 
@@ -91,15 +91,17 @@ impl<T: Config> Pallet<T> {
 		let dao_id = Self::dao_id(&asset_id);
 
 		// Insert new checkpoint balance
-		AccountHistory::<T>::insert((asset_id, who.borrow()), current_block, balance);
+		AccountHistory::<T>::mutate((asset_id, who.borrow()), current_block, |checkpoint| {});
 
 		// get all proposals
 		let proposal_start_dates = <T::ActiveProposals as ActiveProposals::<BlockNumberFor<T>>>::active_proposals_starting_time(dao_id, current_block);
 		// get all checkpoints
-		let checkpoint_blocks = AccountHistory::<T>::iter_prefix((asset_id, who.borrow()))
-			.map(|(bl_num, _)| bl_num)
-			.collect::<Vec<_>>();
-
+		let (mut checkpoint_blocks, last_checkpoint) =
+			Self::get_checkpoint_blocks(&asset_id, who.borrow());
+		// also include checkpoint we are processing
+		checkpoint_blocks.push(current_block);
+		// get only the checkpoint that is being used with some proposal
+		// ignore other stale ones
 		let usable_checkpoints =
 			Self::proposal_checkpoint_pair(&proposal_start_dates, &checkpoint_blocks)
 				.into_iter()
@@ -127,12 +129,12 @@ impl<T: Config> Pallet<T> {
 		let mut final_balance = Some(0_u32.into());
 
 		// Iterate through AccountHistory that is NO later than provided block number
-		for (block_num, balance) in AccountHistory::<T>::iter_prefix((id, who.borrow()))
+		for (block_num, checkpoint) in AccountHistory::<T>::iter_prefix((id, who.borrow()))
 			.filter(|(bl_num, _)| *bl_num <= block)
 		{
 			if block_num >= nearest_block {
 				nearest_block = block_num;
-				final_balance = Some(balance);
+				final_balance = Some(checkpoint.total_amount());
 			}
 		}
 
@@ -903,27 +905,63 @@ impl<T: Config> Pallet<T> {
 			.unwrap_or_else(Zero::zero)
 	}
 
-    /// Delegate source's balance to target's
-    pub fn do_delegate(
-        source: &T::AccountId,
-        target: &T::AccountId,
-        is_revoke: bool,
-    ) -> DispatchResult {
-        // get source's latest checkpoint
-        // get target's latest checkpoint
+	/// Return all block numbere where checkpoint of this asset_id,account pair is stored
+	/// Also return the latest one
+	pub fn get_checkpoint_blocks(
+		asset_id: &T::AssetId,
+		who: &T::AccountId,
+	) -> (Vec<BlockNumberFor<T>>, BlockNumberFor<T>) {
+		let mut latest = Zero::zero();
+		let mut blocks = vec![];
 
-        // if this is revoke:
-        // let amount = source[account_id]
-        // let target.mutated += amount
-        // let source[account_id] = 0
-        
-        // if this is no revoke
-        // target.delegated[account_id] += source.mutated ( delegated amount cannot be delegated
-        // again)
-        // source.mutate = 0
-        
-        Ok(())
-    }
+		for (block_num, _chp) in AccountHistory::<T>::iter_prefix((asset_id, who)) {
+			blocks.push(block_num);
+			if block_num > latest {
+				latest = block_num
+			}
+		}
+
+		(blocks, latest)
+	}
+
+	/// Add a new checkpoint in account's history
+	pub fn add_mutated_checkpoint(
+		asset_id: &T::AssetId,
+		who: &T::AccountId,
+		block_num: &BlockNumberFor<T>,
+		balance: T::Balance,
+	) {
+		AccountHistory::<T>::mutate((asset_id, who.borrow()), block_num, |checkpoint| {
+			if let Some(ref mut chp) = checkpoint.as_mut() {
+				chp.mutated = balance;
+			} else {
+				let chp = CheckpointOf::<T> { mutated: balance, ..CheckpointOf::<T>::zero() };
+				*checkpoint = Some(chp);
+			}
+		});
+	}
+
+	/// Delegate source's balance to target's
+	pub fn do_delegate(
+		source: &T::AccountId,
+		target: &T::AccountId,
+		is_revoke: bool,
+	) -> DispatchResult {
+		// get source's latest checkpoint
+		// get target's latest checkpoint
+
+		// if this is revoke:
+		// let amount = source[account_id]
+		// let target.mutated += amount
+		// let source[account_id] = 0
+
+		// if this is no revoke
+		// target.delegated[account_id] += source.mutated ( delegated amount cannot be delegated
+		// again)
+		// source.mutate = 0
+
+		Ok(())
+	}
 }
 
 impl<T: Config> commons::traits::pallets::AssetInterface for Pallet<T> {
