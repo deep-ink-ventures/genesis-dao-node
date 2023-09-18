@@ -87,6 +87,9 @@ pub mod pallet {
 			+ One
 			+ Saturating;
 
+		#[pallet::constant]
+		type MaxProposals: Get<u32>;
+
 		type WeightInfo: WeightInfo;
 	}
 
@@ -294,11 +297,9 @@ pub mod pallet {
 					// we ship a majority vote implementation as default, that is requiring a
 					// threshold to be exceeded for a proposal to pass
 					Voting::Majority { minimum_majority_per_1024 } => {
-						let token_supply = T::ExposeAsset::total_historical_supply(
-							asset_id,
-							proposal.birth_block,
-						)
-						.expect("History exists (horizon checked above)");
+						let token_supply =
+							T::ExposeAsset::total_historical_supply(asset_id, proposal.birth_block)
+								.expect("History exists (horizon checked above)");
 						let required_majority = token_supply /
 							Into::<AssetBalanceOf<T>>::into(1024_u32) *
 							minimum_majority_per_1024.into();
@@ -369,12 +370,9 @@ pub mod pallet {
 			<Votes<T>>::set(proposal_id, &voter, in_favor);
 			let dao = Core::<T>::get_dao(&proposal.dao_id).expect("DAO exists");
 			let asset_id = dao.asset_id.expect("asset has been issued");
-			let voting_power = T::ExposeAsset::total_historical_balance(
-				asset_id,
-				&voter,
-				proposal.birth_block,
-			)
-			.expect("history exists");
+			let voting_power =
+				T::ExposeAsset::total_historical_balance(asset_id, &voter, proposal.birth_block)
+					.expect("history exists");
 
 			let voting_power =
 				on_vote::<T>(dao.owner.clone(), voter.clone(), voter.clone(), voting_power);

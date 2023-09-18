@@ -1,8 +1,7 @@
 use core::borrow::Borrow;
 
 use frame_support::pallet_prelude::*;
-use frame_system::pallet_prelude::BlockNumberFor;
-use sp_std::{marker::PhantomData, prelude::*};
+use sp_std::prelude::*;
 
 pub trait ActiveProposals<BlockNumber> {
 	/// Get the starting time of all active proposals.
@@ -17,20 +16,9 @@ pub trait ActiveProposals<BlockNumber> {
 		dao_id: Vec<u8>,
 		current_block: BlockNumber,
 	) -> Vec<BlockNumber>;
-}
 
-pub struct ActiveProposalsMock<T> {
-	// include any fields that might depend on T
-	_marker: PhantomData<T>,
-}
-
-impl<T: frame_system::Config> ActiveProposals<BlockNumberFor<T>> for ActiveProposalsMock<T> {
-	fn active_proposals_starting_time(
-		_dao_id: Vec<u8>,
-		_current_block: BlockNumberFor<T>,
-	) -> Vec<BlockNumberFor<T>> {
-		vec![100_u32.into()]
-	}
+	/// Get the maximum number of proposals that can be active at the same time
+	fn max_proposals_limit() -> u32;
 }
 
 pub trait AssetInterface {
@@ -88,4 +76,17 @@ pub trait AssetInterface {
 		who: impl Borrow<Self::AccountId>,
 		block: Self::BlockNumber,
 	) -> Option<Self::Balance>;
+}
+
+pub trait UsableCheckpoints {
+	type BlockNumber: Copy;
+	type BlockIter;
+	type Res;
+
+	fn proposal_checkpoint_pair(
+		// where porposals starts
+		proposals_starts: impl Borrow<Self::BlockIter>,
+		// where checkpoint are made
+		checkpoint_blocks: impl Borrow<Self::BlockIter>,
+	) -> Self::Res;
 }
