@@ -602,6 +602,9 @@ fn run_to_block(n: u64) {
 
 #[test]
 fn checkpoint_behaviour_ok() {
+	let total_amount =
+		|checkpoint: &CheckpointOf<Test>| checkpoint.delegated_amount() + checkpoint.mutated;
+
 	new_test_ext().execute_with(|| {
 		let mut alice_checkpoint = CheckpointOf::<Test> {
 			mutated: 100,
@@ -614,8 +617,8 @@ fn checkpoint_behaviour_ok() {
 		let mut bob_checkpoint = CheckpointOf::<Test> { mutated: 200, ..Default::default() };
 
 		// Total amount gives right value
-		assert_eq!(alice_checkpoint.total_amount(), 160);
-		assert_eq!(bob_checkpoint.total_amount(), 200);
+		assert_eq!(total_amount(&alice_checkpoint), 160);
+		assert_eq!(total_amount(&bob_checkpoint), 200);
 
 		let old_alice_delegated = alice_checkpoint.delegated.clone();
 		// can add to mutated
@@ -624,10 +627,11 @@ fn checkpoint_behaviour_ok() {
 			Some(()),
 			"max delegation reached"
 		);
-		assert_eq!(alice_checkpoint.total_amount(), 60);
-		assert_eq!(bob_checkpoint.total_amount(), 300);
+		assert_eq!(total_amount(&alice_checkpoint), 60);
+		assert_eq!(total_amount(&bob_checkpoint), 300);
 		assert_eq!(alice_checkpoint.delegated, old_alice_delegated);
 		assert_eq!(bob_checkpoint.delegated, BTreeMap::from([(ALICE, 100)]));
+		assert_eq!(bob_checkpoint.delegated_amount(), &100);
 	});
 
 	new_test_ext().execute_with(|| {
@@ -645,16 +649,11 @@ fn checkpoint_behaviour_ok() {
 		};
 		AccountHistory::<Test>::insert((ASSET_ID, ALICE), 5_u64, alice_checkpoint.clone());
 
-		Assets::add_mutated_checkpoint(
-			&999_u32.into(),
-			&ALICE,
-			&10,
-			alice_checkpoint.mutated + 100,
-		);
+		run_to_block(10);
+		assert_ok!(Assets::transfer(RuntimeOrigin::signed(BOB), ASSET_ID, ALICE, 50));
 		let new_checkpoint = AccountHistory::<Test>::get((ASSET_ID, ALICE), 10).unwrap();
 
-		assert_eq!(new_checkpoint.mutated, 100);
-		assert_eq!(new_checkpoint.total_amount(), alice_checkpoint.total_amount() + 100);
+		assert_eq!(total_amount(&new_checkpoint), total_amount(&alice_checkpoint) + 50);
 		assert_eq!(new_checkpoint.delegated, alice_checkpoint.delegated);
 	});
 }

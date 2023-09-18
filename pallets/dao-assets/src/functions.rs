@@ -90,13 +90,10 @@ impl<T: Config> Pallet<T> {
 		let current_block = frame_system::Pallet::<T>::block_number();
 		let dao_id = Self::dao_id(&asset_id);
 
-		// Insert new checkpoint balance
-		AccountHistory::<T>::mutate((asset_id, who.borrow()), current_block, |checkpoint| {});
-
 		// get all proposals
 		let proposal_start_dates = <T::ActiveProposals as ActiveProposals::<BlockNumberFor<T>>>::active_proposals_starting_time(dao_id, current_block);
 		// get all checkpoints
-		let (mut checkpoint_blocks, last_checkpoint) =
+		let (mut checkpoint_blocks, (last_chp_block, last_chp)) =
 			Self::get_checkpoint_blocks(&asset_id, who.borrow());
 		// also include checkpoint we are processing
 		checkpoint_blocks.push(current_block);
@@ -109,11 +106,16 @@ impl<T: Config> Pallet<T> {
 				.collect::<Vec<_>>();
 
 		// remove checkpoints that are older than the proposal start
+		// but keep last_checkpoint no matter what
 		for ch in checkpoint_blocks {
 			if !usable_checkpoints.contains(&ch) {
 				AccountHistory::<T>::remove((asset_id, who.borrow()), ch);
 			}
 		}
+
+		// Finally insert
+		let checkpoint = CheckpointOf::<T> { mutated: balance, ..last_chp };
+		AccountHistory::<T>::insert((asset_id, who.borrow()), current_block, checkpoint);
 	}
 
 	/// Get the total historical balance of an asset `id` at a certain `block` for an account `who`.
@@ -133,7 +135,7 @@ impl<T: Config> Pallet<T> {
 		{
 			if block_num >= nearest_block {
 				nearest_block = block_num;
-				final_balance = Some(checkpoint.total_amount());
+				final_balance = Some(*checkpoint.delegated_amount() + checkpoint.mutated);
 			}
 		}
 
@@ -909,35 +911,18 @@ impl<T: Config> Pallet<T> {
 	pub fn get_checkpoint_blocks(
 		asset_id: &T::AssetId,
 		who: &T::AccountId,
-	) -> (Vec<BlockNumberFor<T>>, BlockNumberFor<T>) {
-		let mut latest = Zero::zero();
+	) -> (Vec<BlockNumberFor<T>>, (BlockNumberFor<T>, CheckpointOf<T>)) {
+		let mut latest = (Zero::zero(), CheckpointOf::<T>::zero());
 		let mut blocks = vec![];
 
-		for (block_num, _chp) in AccountHistory::<T>::iter_prefix((asset_id, who)) {
+		for (block_num, chp) in AccountHistory::<T>::iter_prefix((asset_id, who)) {
 			blocks.push(block_num);
-			if block_num > latest {
-				latest = block_num
+			if block_num > latest.0 {
+				latest = (block_num, chp)
 			}
 		}
 
 		(blocks, latest)
-	}
-
-	/// Add a new checkpoint in account's history
-	pub fn add_mutated_checkpoint(
-		asset_id: &T::AssetId,
-		who: &T::AccountId,
-		block_num: &BlockNumberFor<T>,
-		balance: T::Balance,
-	) {
-		AccountHistory::<T>::mutate((asset_id, who.borrow()), block_num, |checkpoint| {
-			if let Some(ref mut chp) = checkpoint.as_mut() {
-				chp.mutated = balance;
-			} else {
-				let chp = CheckpointOf::<T> { mutated: balance, ..CheckpointOf::<T>::zero() };
-				*checkpoint = Some(chp);
-			}
-		});
 	}
 
 	/// Delegate source's balance to target's

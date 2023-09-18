@@ -93,11 +93,14 @@ pub struct Checkpoint<AccountId: Ord, Balance: Zero, DelegatedMax: Get<u32>> {
 	pub(super) total_delegation: Balance,
 }
 
-impl<AccountId: Ord + Clone, Balance: Clone + Zero + Saturating, DelegatedMax: Get<u32>>
-	Checkpoint<AccountId, Balance, DelegatedMax>
+impl<
+		AccountId: Ord + Clone,
+		Balance: CheckedAdd + Clone + Zero + Saturating,
+		DelegatedMax: Get<u32>,
+	> Checkpoint<AccountId, Balance, DelegatedMax>
 {
-	pub fn total_amount(&self) -> Balance {
-		self.mutated.clone().saturating_add(self.total_delegation.clone())
+	pub fn delegated_amount(&self) -> &Balance {
+		&self.total_delegation
 	}
 
 	pub fn delegate_to(&mut self, me: &AccountId, target: &mut Self) -> Option<()> {
@@ -117,9 +120,14 @@ impl<AccountId: Ord + Clone, Balance: Clone + Zero + Saturating, DelegatedMax: G
 			.get(from)
 			.cloned()
 			.unwrap_or_else(Balance::zero)
-			.saturating_add(amount)
-			.clone();
-		self.delegated.try_insert(from.clone(), amount).map(|_| ()).ok()
+			.checked_add(&amount)?;
+		match self.delegated.try_insert(from.clone(), amount.clone()) {
+			Ok(_) => {
+				self.total_delegation = self.total_delegation.checked_add(&amount)?;
+				Some(())
+			},
+			Err(_) => None,
+		}
 	}
 
 	pub fn zero() -> Self {
