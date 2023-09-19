@@ -131,6 +131,14 @@ pub mod pallet {
 			proposal_token_deposit: BalanceOf<T>,
 			minimum_majority_per_1024: u8,
 		},
+		Delegated {
+			from: AccountIdOf<T>,
+			to: AccountIdOf<T>,
+		},
+		DelegationRevoked {
+			delegated_by: AccountIdOf<T>,
+			revoked_from: AccountIdOf<T>,
+		},
 	}
 
 	#[pallet::error]
@@ -464,19 +472,19 @@ pub mod pallet {
 		) -> DispatchResult {
 			let caller = ensure_signed(origin)?;
 
-			// - Get dao_id and asset_id
-			//
-			// - Get the checkpoint amount of sender
-			//
-			// - let amount = total latest checkpoint balance of sender
-			//
-			// - Set sender's accountHistory balance to 0
-			//
-			// - Get current block block_number
-			//
-			// - New checkpoint of target account at this block is +amount
-			//
-			// - emit event
+			// Get dao_id
+			let dao_id =
+				&Proposals::<T>::get(proposal_id).ok_or(Error::<T>::ProposalDoesNotExist)?.dao_id;
+			// From dao_id, get asset_id
+			let asset_id = pallet_dao_core::Pallet::<T>::load_dao(dao_id.to_vec())?
+				.asset_id
+				.ok_or(Error::<T>::DaoTokenNotYetIssued)?;
+
+			// Call underlying function to delegate
+			T::ExposeAsset::delegate(&asset_id, &caller, &target)?;
+
+			// Emit event
+			Self::deposit_event(Event::<T>::Delegated { from: caller, to: target });
 
 			Ok(())
 		}
@@ -490,20 +498,22 @@ pub mod pallet {
 		) -> DispatchResult {
 			let caller = ensure_signed(origin)?;
 
-			// - Get dao_id and asset_id
-			//
-			// - ensure source's have received amount from delegation of sender
-			// This have to be changed from pallet-asset interface.
-			// While storing AccountHistory, not only we store the balance we store a
-			// source `enum Source{Myself, Delegated(AccountIdOf<T>)}`
-			//
-			// - get current block number
-			//
-			// - new checkpoint balance of caller is +amount
-			//
-			// - new checkpoint balance of source is -amount
-			//
-			// - emit event
+			// Get dao_id
+			let dao_id =
+				&Proposals::<T>::get(proposal_id).ok_or(Error::<T>::ProposalDoesNotExist)?.dao_id;
+			// From dao_id, get asset_id
+			let asset_id = pallet_dao_core::Pallet::<T>::load_dao(dao_id.to_vec())?
+				.asset_id
+				.ok_or(Error::<T>::DaoTokenNotYetIssued)?;
+
+			// Call underlying function to revoke delegation
+			T::ExposeAsset::revoke_delegation(&asset_id, &caller, &source)?;
+
+			// Emit event
+			Self::deposit_event(Event::<T>::DelegationRevoked {
+				delegated_by: caller,
+				revoked_from: source,
+			});
 
 			Ok(())
 		}

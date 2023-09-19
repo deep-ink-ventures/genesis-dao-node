@@ -1051,6 +1051,22 @@ impl<T: Config> commons::traits::pallets::AssetInterface for Pallet<T> {
 	) -> Option<Self::Balance> {
 		Pallet::<T>::total_historical_balance(id, who, block)
 	}
+
+	fn delegate(
+		id: impl Borrow<Self::AssetId>,
+		from: impl Borrow<Self::AccountId>,
+		to: impl Borrow<Self::AccountId>,
+	) -> DispatchResult {
+		Self::do_delegate(id.borrow(), from.borrow(), to.borrow(), false)
+	}
+
+	fn revoke_delegation(
+		id: impl Borrow<Self::AssetId>,
+		revoke_from: impl Borrow<Self::AccountId>,
+		revert_to: impl Borrow<Self::AccountId>,
+	) -> DispatchResult {
+		Self::do_delegate(id.borrow(), revoke_from.borrow(), revert_to.borrow(), true)
+	}
 }
 
 impl<T: Config> UsableCheckpoints for Pallet<T> {

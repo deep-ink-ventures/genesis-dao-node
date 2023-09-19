@@ -64,6 +64,21 @@ pub trait AssetInterface {
 		amount: Self::Balance,
 	) -> Result<Self::Balance, DispatchError>;
 
+	/// Delegate source's power to target
+	fn delegate(
+		id: impl Borrow<Self::AssetId>,
+		from: impl Borrow<Self::AccountId>,
+		to: impl Borrow<Self::AccountId>,
+	) -> DispatchResult;
+
+	/// Revoke delegation from revoke_from's account
+	/// and put it back to revert_to account
+	fn revoke_delegation(
+		id: impl Borrow<Self::AssetId>,
+		revoke_from: impl Borrow<Self::AccountId>,
+		revert_to: impl Borrow<Self::AccountId>,
+	) -> DispatchResult;
+
 	/// Get total historical supply
 	fn total_historical_supply(
 		id: Self::AssetId,
