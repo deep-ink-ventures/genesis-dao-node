@@ -368,6 +368,8 @@ pub mod pallet {
 		IncorrectStatus,
 		/// This account can recieve no more delegation
 		DelegationLimit,
+		/// No delegation have been found
+		NoDelegation,
 	}
 
 	#[pallet::call]

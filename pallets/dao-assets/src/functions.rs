@@ -93,29 +93,46 @@ impl<T: Config> Pallet<T> {
 		// get all proposals
 		let proposal_start_dates = <T::ActiveProposals as ActiveProposals::<BlockNumberFor<T>>>::active_proposals_starting_time(dao_id, current_block);
 		// get all checkpoints
-		let (mut checkpoint_blocks, (last_chp_block, last_chp)) =
+		let (mut checkpoint_blocks, (_last_chp_block, last_chp)) =
 			Self::get_checkpoint_blocks(&asset_id, who.borrow());
 		// also include checkpoint we are processing
 		checkpoint_blocks.push(current_block);
-		// get only the checkpoint that is being used with some proposal
-		// ignore other stale ones
-		let usable_checkpoints =
-			Self::proposal_checkpoint_pair(&proposal_start_dates, &checkpoint_blocks)
+
+		// Remove unused checkpoints
+		Self::remove_unused_checkpoint(
+			&asset_id,
+			&proposal_start_dates,
+			&checkpoint_blocks,
+			who.borrow(),
+		);
+
+		// Finally insert
+		let checkpoint = CheckpointOf::<T> { mutated: balance, ..last_chp };
+		AccountHistory::<T>::insert((asset_id, who.borrow()), current_block, checkpoint);
+	}
+
+	/// Remove unused checkpoints that are not associated with any proposals
+	fn remove_unused_checkpoint(
+		asset_id: &T::AssetId,
+		proposal_starts: &Vec<BlockNumberFor<T>>,
+		checkpoint_blocks: &Vec<BlockNumberFor<T>>,
+		who: &T::AccountId,
+	) {
+		// Get only checkpoints that are associated with proposals
+		let mut usable_checkpoints =
+			Self::proposal_checkpoint_pair(proposal_starts, checkpoint_blocks)
 				.into_iter()
 				.map(|(_prop, ch)| ch)
 				.collect::<Vec<_>>();
+		// We keep the one inserted in this block
+		usable_checkpoints.push(frame_system::Pallet::<T>::block_number());
 
-		// remove checkpoints that are older than the proposal start
-		// but keep last_checkpoint no matter what
+		// remove those that are not
 		for ch in checkpoint_blocks {
 			if !usable_checkpoints.contains(&ch) {
 				AccountHistory::<T>::remove((asset_id, who.borrow()), ch);
 			}
 		}
-
-		// Finally insert
-		let checkpoint = CheckpointOf::<T> { mutated: balance, ..last_chp };
-		AccountHistory::<T>::insert((asset_id, who.borrow()), current_block, checkpoint);
 	}
 
 	/// Get the total historical balance of an asset `id` at a certain `block` for an account `who`.
@@ -927,22 +944,45 @@ impl<T: Config> Pallet<T> {
 
 	/// Delegate source's balance to target's
 	pub fn do_delegate(
+		asset_id: &T::AssetId,
 		source: &T::AccountId,
 		target: &T::AccountId,
 		is_revoke: bool,
 	) -> DispatchResult {
 		// get source's latest checkpoint
 		// get target's latest checkpoint
+		let current_block = frame_system::Pallet::<T>::block_number();
+		let (mut source_checkpoints, (_src_bl, mut src_chp)) =
+			Self::get_checkpoint_blocks(asset_id, source);
+		let (mut target_checkpoints, (_tg_bl, mut tg_chp)) =
+			Self::get_checkpoint_blocks(asset_id, target);
 
-		// if this is revoke:
-		// let amount = source[account_id]
-		// let target.mutated += amount
-		// let source[account_id] = 0
+		if is_revoke {
+			src_chp.revoke_delegation(source, &mut tg_chp);
+		} else {
+			tg_chp.delegate_to(target, &mut src_chp).ok_or(Error::<T>::DelegationLimit)?;
+		}
 
-		// if this is no revoke
-		// target.delegated[account_id] += source.mutated ( delegated amount cannot be delegated
-		// again)
-		// source.mutate = 0
+		AccountHistory::<T>::insert((asset_id, source), current_block, src_chp);
+		AccountHistory::<T>::insert((asset_id, target), current_block, tg_chp);
+
+		let dao_id = Self::dao_id(asset_id);
+		let proposal_start_dates =
+			T::ActiveProposals::active_proposals_starting_time(dao_id, current_block);
+		source_checkpoints.push(current_block);
+		target_checkpoints.push(current_block);
+		Self::remove_unused_checkpoint(
+			&asset_id,
+			&proposal_start_dates,
+			&source_checkpoints,
+			&source,
+		);
+		Self::remove_unused_checkpoint(
+			&asset_id,
+			&proposal_start_dates,
+			&target_checkpoints,
+			&target,
+		);
 
 		Ok(())
 	}
