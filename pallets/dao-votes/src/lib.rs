@@ -379,8 +379,7 @@ pub mod pallet {
 			let dao = Core::<T>::get_dao(&proposal.dao_id).expect("DAO exists");
 			let asset_id = dao.asset_id.expect("asset has been issued");
 			let voting_power =
-				T::ExposeAsset::total_historical_balance(asset_id, &voter, proposal.birth_block)
-					.expect("history exists");
+				T::ExposeAsset::total_historical_balance(asset_id, &voter, proposal.birth_block);
 
 			let voting_power =
 				on_vote::<T>(dao.owner.clone(), voter.clone(), voter.clone(), voting_power);

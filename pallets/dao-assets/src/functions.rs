@@ -136,27 +136,23 @@ impl<T: Config> Pallet<T> {
 	}
 
 	/// Get the total historical balance of an asset `id` at a certain `block` for an account `who`.
-	/// Result may be None, if the age of the requested block is at or beyond
-	/// the HistoryHorizon and history has been removed.
 	pub fn total_historical_balance(
-		id: T::AssetId,
+		asset_id: T::AssetId,
 		who: impl Borrow<T::AccountId>,
 		block: BlockNumberFor<T>,
-	) -> Option<T::Balance> {
-		let mut nearest_block = 0_u32.into();
-		let mut final_balance = Some(0_u32.into());
+	) -> (BlockNumberFor<T>, AssetBalanceOf<T>) {
+		let mut latest = (Zero::zero(), Zero::zero());
 
-		// Iterate through AccountHistory that is NO later than provided block number
-		for (block_num, checkpoint) in AccountHistory::<T>::iter_prefix((id, who.borrow()))
-			.filter(|(bl_num, _)| *bl_num <= block)
+		for (block_num, chp) in AccountHistory::<T>::iter_prefix((asset_id, who.borrow()))
+			.filter(|(bl_num, chp)| bl_num >= &block)
 		{
-			if block_num >= nearest_block {
-				nearest_block = block_num;
-				final_balance = Some(*checkpoint.delegated_amount() + checkpoint.mutated);
+			if block_num > latest.0 {
+				let amount = chp.mutated.saturating_add(*chp.delegated_amount());
+				latest = (block_num, amount);
 			}
 		}
 
-		final_balance
+		latest
 	}
 
 	/// Search a history for the value at a specific block.
@@ -1048,8 +1044,8 @@ impl<T: Config> commons::traits::pallets::AssetInterface for Pallet<T> {
 		id: Self::AssetId,
 		who: impl Borrow<Self::AccountId>,
 		block: Self::BlockNumber,
-	) -> Option<Self::Balance> {
-		Pallet::<T>::total_historical_balance(id, who, block)
+	) -> Self::Balance {
+		Pallet::<T>::total_historical_balance(id, who, block).1
 	}
 
 	fn delegate(

@@ -90,7 +90,7 @@ pub trait AssetInterface {
 		id: Self::AssetId,
 		who: impl Borrow<Self::AccountId>,
 		block: Self::BlockNumber,
-	) -> Option<Self::Balance>;
+	) -> Self::Balance;
 }
 
 pub trait UsableCheckpoints {

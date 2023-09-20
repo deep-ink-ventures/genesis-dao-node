@@ -274,8 +274,8 @@ pub mod pallet {
 						Ok(())
 					},
 				);
-				Pallet::<T>::mutate_account(*id, account_id, *amount);
 				assert!(result.is_ok());
+				Pallet::<T>::mutate_account(*id, account_id, *amount);
 			}
 		}
 	}
