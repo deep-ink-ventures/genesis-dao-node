@@ -136,7 +136,7 @@ pub mod pallet {
 		/// How many delegation a single accuont can have
 		/// in it's account history
 		#[pallet::constant]
-		type MaxDelegation: Get<u32>;
+		type MaxDelegation: Get<u32> + sp_std::fmt::Debug;
 
 		/// The age for which historical data may be removed.
 		/// For example, if this is 100 and the current block is 150,

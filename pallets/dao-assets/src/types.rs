@@ -110,8 +110,9 @@ impl<
 	}
 
 	pub fn revoke_delegation(&mut self, me: &AccountId, from: &mut Self) {
-		let amount = from.delegated.remove(me).unwrap_or_else(|| Balance::zero());
-		self.mutated = self.mutated.clone().saturating_add(amount);
+		let amount = from.delegated.remove(me).unwrap_or_else(Balance::zero);
+		self.mutated = self.mutated.clone().saturating_add(amount.clone());
+        self.total_delegation = self.total_delegation.clone().saturating_sub(amount);
 	}
 
 	pub fn add_delegation(&mut self, from: &AccountId, amount: Balance) -> Option<()> {

@@ -144,9 +144,9 @@ impl<T: Config> Pallet<T> {
 		let mut latest = (Zero::zero(), Zero::zero());
 
 		for (block_num, chp) in AccountHistory::<T>::iter_prefix((asset_id, who.borrow()))
-			.filter(|(bl_num, chp)| bl_num >= &block)
+			.filter(|(bl_num, _)| bl_num <= &block)
 		{
-			if block_num > latest.0 {
+			if block_num >= latest.0 {
 				let amount = chp.mutated.saturating_add(*chp.delegated_amount());
 				latest = (block_num, amount);
 			}
@@ -948,15 +948,15 @@ impl<T: Config> Pallet<T> {
 		// get source's latest checkpoint
 		// get target's latest checkpoint
 		let current_block = frame_system::Pallet::<T>::block_number();
-		let (mut source_checkpoints, (_src_bl, mut src_chp)) =
+		let (source_checkpoints, (_src_bl, mut src_chp)) =
 			Self::get_checkpoint_blocks(asset_id, source);
-		let (mut target_checkpoints, (_tg_bl, mut tg_chp)) =
+		let (target_checkpoints, (_tg_bl, mut tg_chp)) =
 			Self::get_checkpoint_blocks(asset_id, target);
 
 		if is_revoke {
 			src_chp.revoke_delegation(source, &mut tg_chp);
 		} else {
-			tg_chp.delegate_to(target, &mut src_chp).ok_or(Error::<T>::DelegationLimit)?;
+			src_chp.delegate_to(target, &mut tg_chp).ok_or(Error::<T>::DelegationLimit)?;
 		}
 
 		AccountHistory::<T>::insert((asset_id, source), current_block, src_chp);
@@ -965,8 +965,6 @@ impl<T: Config> Pallet<T> {
 		let dao_id = Self::dao_id(asset_id);
 		let proposal_start_dates =
 			T::ActiveProposals::active_proposals_starting_time(dao_id, current_block);
-		source_checkpoints.push(current_block);
-		target_checkpoints.push(current_block);
 		Self::remove_unused_checkpoint(
 			&asset_id,
 			&proposal_start_dates,

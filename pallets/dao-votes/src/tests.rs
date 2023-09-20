@@ -384,11 +384,11 @@ fn delegate_votes_ok() {
 	new_test_ext().execute_with(|| {
 		const ASSET_ID: u32 = 1;
 
-		let dao_id = setup_dao_with_governance::<Test>(ALICE);
-		let prop_id = setup_proposal::<Test>(ALICE, dao_id);
-
 		let current_block = 10;
 		run_to_block::<Test>(10);
+
+		let dao_id = setup_dao_with_governance::<Test>(ALICE);
+		let prop_id = setup_proposal::<Test>(ALICE, dao_id);
 
 		let historical_balance = |asset_id, account, block| {
 			<Test as pallet_dao_core::Config>::ExposeAsset::total_historical_balance(
@@ -397,28 +397,25 @@ fn delegate_votes_ok() {
 			.1
 		};
 
-		// Alice have amount of 999
-		assert_eq!(Assets::balance(ASSET_ID, ALICE), 999);
-		assert_eq!(historical_balance(ASSET_ID, ALICE, current_block), 999);
+		// Alice have amount of 1000
+		assert_eq!(Assets::total_balance(ASSET_ID, ALICE), 1000);
+		assert_eq!(historical_balance(ASSET_ID, ALICE, current_block), 1000);
 		// Bob have amount of 0
-		assert_eq!(Assets::balance(ASSET_ID, BOB), 0);
+		assert_eq!(Assets::total_balance(ASSET_ID, BOB), 0);
 		assert_eq!(historical_balance(ASSET_ID, BOB, current_block), 0);
 		// No votes made yet in infavour or against
 		assert_eq!(DaoVotes::proposals(&prop_id).map(|p| (p.in_favor, p.against)), Some((0, 0)));
-
-		let current_block = 20;
-		run_to_block::<Test>(20);
 
 		// delegate some votes from alice to bob
 		assert_ok!(DaoVotes::delegate_votes(RuntimeOrigin::signed(ALICE), prop_id, BOB));
 
 		// Asset balance is still same
-		assert_eq!(Assets::balance(ASSET_ID, ALICE), 999);
-		assert_eq!(Assets::balance(ASSET_ID, BOB), 0);
+		assert_eq!(Assets::total_balance(ASSET_ID, ALICE), 1000);
+		assert_eq!(Assets::total_balance(ASSET_ID, BOB), 0);
 
 		// all historical balance ( current factor of vote ) is transferred to bob
 		assert_eq!(historical_balance(ASSET_ID, ALICE, current_block * 2), 0);
-		assert_eq!(historical_balance(ASSET_ID, BOB, current_block * 2), 999);
+		assert_eq!(historical_balance(ASSET_ID, BOB, current_block * 2), 1000);
 
 		// allow alice to vote
 		// this does not change the vote since alice have no power
@@ -427,6 +424,6 @@ fn delegate_votes_ok() {
 		// allow bob to vote
 		// this will change the vote
 		assert_ok!(DaoVotes::vote(RuntimeOrigin::signed(BOB), prop_id, Some(true)));
-		assert_eq!(DaoVotes::proposals(&prop_id).map(|p| (p.in_favor, p.against)), Some((999, 0)));
+		assert_eq!(DaoVotes::proposals(&prop_id).map(|p| (p.in_favor, p.against)), Some((1000, 0)));
 	});
 }
