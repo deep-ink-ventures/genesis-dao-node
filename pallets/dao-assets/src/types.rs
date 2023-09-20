@@ -94,37 +94,33 @@ pub struct Checkpoint<AccountId: Ord, Balance: Zero, DelegatedMax: Get<u32>> {
 }
 
 impl<
-		AccountId: Ord + Clone,
-		Balance: CheckedAdd + Clone + Zero + Saturating,
-		DelegatedMax: Get<u32>,
+		AccountId: Ord + Clone + sp_std::fmt::Debug,
+		Balance: CheckedAdd + Clone + Zero + Saturating + sp_std::fmt::Debug,
+		DelegatedMax: Get<u32> + sp_std::fmt::Debug,
 	> Checkpoint<AccountId, Balance, DelegatedMax>
 {
 	pub fn delegated_amount(&self) -> &Balance {
 		&self.total_delegation
 	}
 
-	pub fn delegate_to(&mut self, me: &AccountId, target: &mut Self) -> Option<()> {
-		target.add_delegation(&me, self.mutated.clone())?;
-		self.mutated = Zero::zero();
-		Some(())
+	pub fn revoke_delegation(&mut self, from: &AccountId, from_chp: &mut Self) {
+        println!("Removing delegation from: {self:#?}. Delegation was made by: {from:?}");
+        let amount = self.delegated.remove(from).unwrap_or_else(Balance::zero);
+        self.total_delegation = self.total_delegation.clone().saturating_sub(amount.clone());
+        from_chp.mutated = from_chp.mutated.clone().saturating_add(amount);
 	}
 
-	pub fn revoke_delegation(&mut self, me: &AccountId, from: &mut Self) {
-		let amount = from.delegated.remove(me).unwrap_or_else(Balance::zero);
-		self.mutated = self.mutated.clone().saturating_add(amount.clone());
-        self.total_delegation = self.total_delegation.clone().saturating_sub(amount);
-	}
-
-	pub fn add_delegation(&mut self, from: &AccountId, amount: Balance) -> Option<()> {
+	pub fn add_delegation(&mut self, from: &AccountId, from_chp: &mut Self) -> Option<()> {
 		let amount = self
 			.delegated
 			.get(from)
 			.cloned()
 			.unwrap_or_else(Balance::zero)
-			.checked_add(&amount)?;
+			.checked_add(&from_chp.mutated)?;
 		match self.delegated.try_insert(from.clone(), amount.clone()) {
 			Ok(_) => {
-				self.total_delegation = self.total_delegation.checked_add(&amount)?;
+                from_chp.mutated = Zero::zero();
+				self.total_delegation = self.total_delegation.clone().saturating_add(amount);
 				Some(())
 			},
 			Err(_) => None,

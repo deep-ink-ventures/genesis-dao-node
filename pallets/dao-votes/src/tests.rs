@@ -427,3 +427,41 @@ fn delegate_votes_ok() {
 		assert_eq!(DaoVotes::proposals(&prop_id).map(|p| (p.in_favor, p.against)), Some((1000, 0)));
 	});
 }
+
+#[test]
+fn revoke_delegation_ok() {
+	new_test_ext().execute_with(|| {
+		const ASSET_ID: u32 = 1;
+
+		let current_block = 10;
+		run_to_block::<Test>(10);
+
+		let dao_id = setup_dao_with_governance::<Test>(ALICE);
+		let prop_id = setup_proposal::<Test>(ALICE, dao_id);
+
+		let historical_balance = |asset_id, account, block| {
+			<Test as pallet_dao_core::Config>::ExposeAsset::total_historical_balance(
+				asset_id, account, block,
+			)
+			.1
+		};
+
+		// Alice have voting power of 1000
+		assert_eq!(historical_balance(ASSET_ID, ALICE, current_block * 2), 1000);
+		assert_eq!(historical_balance(ASSET_ID, BOB, current_block * 2), 0);
+
+		// Transfer voting power to BOB
+		assert_ok!(DaoVotes::delegate_votes(RuntimeOrigin::signed(ALICE), prop_id, BOB));
+
+		// Verify historical balance have changed
+		assert_eq!(historical_balance(ASSET_ID, ALICE, current_block * 2), 0);
+		assert_eq!(historical_balance(ASSET_ID, BOB, current_block * 2), 1000);
+
+		// Now revert back
+		assert_ok!(DaoVotes::revoke_delegated_votes(RuntimeOrigin::signed(ALICE), prop_id, BOB));
+
+		// Make sure revoke have worked
+		assert_eq!(historical_balance(ASSET_ID, ALICE, current_block * 2), 1000);
+		assert_eq!(historical_balance(ASSET_ID, BOB, current_block * 2), 0);
+	});
+}

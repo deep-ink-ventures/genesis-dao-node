@@ -954,9 +954,9 @@ impl<T: Config> Pallet<T> {
 			Self::get_checkpoint_blocks(asset_id, target);
 
 		if is_revoke {
-			src_chp.revoke_delegation(source, &mut tg_chp);
+			tg_chp.revoke_delegation(source, &mut src_chp);
 		} else {
-			src_chp.delegate_to(target, &mut tg_chp).ok_or(Error::<T>::DelegationLimit)?;
+			tg_chp.add_delegation(source, &mut src_chp).ok_or(Error::<T>::DelegationLimit)?;
 		}
 
 		AccountHistory::<T>::insert((asset_id, source), current_block, src_chp);
