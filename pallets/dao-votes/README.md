@@ -14,3 +14,5 @@ of the dao-assets pallet and implements the full lifecycle of proposal managemen
 - `finalize_proposal`: Determine whether a proposal should be accepted or rejected according to the number of votes and governance.
 - `vote`: Vote in favor or against a proposal. Your voting power is your token balance at the moment of proposal creation.
 - `set_governance_majority_vote`: Configure the default voting mechanism - majority vote.
+- `delegate_vote`: Delegate caller's voting power to another account
+- `revoke_delegation`: Revoke/revert the delegated voting power back from target to caller's account
