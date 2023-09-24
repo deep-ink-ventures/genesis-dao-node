@@ -1,5 +1,4 @@
 use crate::{mock::*, test_utils::*, types::*, Config, Error, ProposalSlots, Proposals, Votes};
-use commons::traits::pallets::AssetInterface;
 use frame_support::{assert_noop, assert_ok, traits::TypedGet};
 use pallet_dao_core::{CurrencyOf, Error as DaoError};
 

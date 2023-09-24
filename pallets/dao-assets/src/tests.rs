@@ -623,7 +623,7 @@ fn checkpoint_behaviour_ok() {
 		let old_alice_delegated = alice_checkpoint.delegated.clone();
 		// can add to mutated
 		assert_eq!(
-			alice_checkpoint.delegate_to(&ALICE, &mut bob_checkpoint),
+			alice_checkpoint.add_delegation(&ALICE, &mut bob_checkpoint),
 			Some(()),
 			"max delegation reached"
 		);
@@ -656,7 +656,6 @@ fn checkpoint_behaviour_ok() {
 		assert_eq!(total_amount(&new_checkpoint), total_amount(&alice_checkpoint) + 50);
 		assert_eq!(new_checkpoint.delegated, alice_checkpoint.delegated);
 	});
-}
 
 #[test]
 fn account_history_is_ok() {

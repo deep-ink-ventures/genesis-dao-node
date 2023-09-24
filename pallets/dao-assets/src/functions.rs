@@ -130,7 +130,7 @@ impl<T: Config> Pallet<T> {
 		// remove those that are not
 		for ch in checkpoint_blocks {
 			if !usable_checkpoints.contains(&ch) {
-				AccountHistory::<T>::remove((asset_id, who.borrow()), ch);
+				AccountHistory::<T>::remove((asset_id, who), ch);
 			}
 		}
 	}

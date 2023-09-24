@@ -104,7 +104,6 @@ impl<
 	}
 
 	pub fn revoke_delegation(&mut self, from: &AccountId, from_chp: &mut Self) {
-        println!("Removing delegation from: {self:#?}. Delegation was made by: {from:?}");
         let amount = self.delegated.remove(from).unwrap_or_else(Balance::zero);
         self.total_delegation = self.total_delegation.clone().saturating_sub(amount.clone());
         from_chp.mutated = from_chp.mutated.clone().saturating_add(amount);
