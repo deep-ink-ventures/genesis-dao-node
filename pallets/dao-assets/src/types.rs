@@ -85,7 +85,7 @@ impl From<TransferFlags> for DebitFlags {
 #[scale_info(skip_type_params(DelegatedMax))]
 pub struct Checkpoint<AccountId: Ord, Balance: Zero, DelegatedMax: Get<u32>> {
 	// how much is through self mutating action
-	pub mutated: Balance,
+	pub amount: Balance,
 	// how much is through delegation from someone
 	pub(crate) delegated: BoundedBTreeMap<AccountId, Balance, DelegatedMax>,
 	// total sum of mutated and delegated. this saves up having to iterate
@@ -106,7 +106,7 @@ impl<
 	pub fn revoke_delegation(&mut self, from: &AccountId, from_chp: &mut Self) {
         let amount = self.delegated.remove(from).unwrap_or_else(Balance::zero);
         self.total_delegation = self.total_delegation.clone().saturating_sub(amount.clone());
-        from_chp.mutated = from_chp.mutated.clone().saturating_add(amount);
+        from_chp.amount = from_chp.amount.clone().saturating_add(amount);
 	}
 
 	pub fn add_delegation(&mut self, from: &AccountId, from_chp: &mut Self) -> Option<()> {
@@ -115,10 +115,10 @@ impl<
 			.get(from)
 			.cloned()
 			.unwrap_or_else(Balance::zero)
-			.checked_add(&from_chp.mutated)?;
+			.checked_add(&from_chp.amount)?;
 		match self.delegated.try_insert(from.clone(), amount.clone()) {
 			Ok(_) => {
-                from_chp.mutated = Zero::zero();
+                from_chp.amount = Zero::zero();
 				self.total_delegation = self.total_delegation.clone().saturating_add(amount);
 				Some(())
 			},
@@ -136,7 +136,7 @@ impl<AccountId: Ord, Balance: Zero, DelegatedMax: Get<u32>> Default
 {
 	fn default() -> Self {
 		Self {
-			mutated: Zero::zero(),
+			amount: Zero::zero(),
 			total_delegation: Zero::zero(),
 			delegated: BoundedBTreeMap::new(),
 		}

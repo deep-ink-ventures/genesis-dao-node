@@ -107,7 +107,7 @@ impl<T: Config> Pallet<T> {
 		);
 
 		// Finally insert
-		let checkpoint = CheckpointOf::<T> { mutated: balance, ..last_chp };
+		let checkpoint = CheckpointOf::<T> { amount: balance, ..last_chp };
 		AccountHistory::<T>::insert((asset_id, who.borrow()), current_block, checkpoint);
 	}
 
@@ -147,7 +147,7 @@ impl<T: Config> Pallet<T> {
 			.filter(|(bl_num, _)| bl_num <= &block)
 		{
 			if block_num >= latest.0 {
-				let amount = chp.mutated.saturating_add(*chp.delegated_amount());
+				let amount = chp.amount.saturating_add(*chp.delegated_amount());
 				latest = (block_num, amount);
 			}
 		}

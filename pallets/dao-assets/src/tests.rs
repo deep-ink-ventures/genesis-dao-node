@@ -603,42 +603,45 @@ fn run_to_block(n: u64) {
 #[test]
 fn checkpoint_behaviour_ok() {
 	let total_amount =
-		|checkpoint: &CheckpointOf<Test>| checkpoint.delegated_amount() + checkpoint.mutated;
+		|checkpoint: &CheckpointOf<Test>| checkpoint.delegated_amount() + checkpoint.amount;
 
 	new_test_ext().execute_with(|| {
 		let mut alice_checkpoint = CheckpointOf::<Test> {
-			mutated: 100,
+			amount: 100,
 			delegated: BTreeMap::from([(BOB, 50_u32.into()), (CHARLIE, 10_u32.into())])
 				.try_into()
 				.unwrap(),
 			total_delegation: 60,
 		};
 
-		let mut bob_checkpoint = CheckpointOf::<Test> { mutated: 200, ..Default::default() };
+		let mut bob_checkpoint = CheckpointOf::<Test> { amount: 200, ..Default::default() };
 
 		// Total amount gives right value
 		assert_eq!(total_amount(&alice_checkpoint), 160);
 		assert_eq!(total_amount(&bob_checkpoint), 200);
 
-		let old_alice_delegated = alice_checkpoint.delegated.clone();
 		// can add to mutated
 		assert_eq!(
 			alice_checkpoint.add_delegation(&ALICE, &mut bob_checkpoint),
 			Some(()),
 			"max delegation reached"
 		);
-		assert_eq!(total_amount(&alice_checkpoint), 60);
-		assert_eq!(total_amount(&bob_checkpoint), 300);
-		assert_eq!(alice_checkpoint.delegated, old_alice_delegated);
-		assert_eq!(bob_checkpoint.delegated, BTreeMap::from([(ALICE, 100)]));
-		assert_eq!(bob_checkpoint.delegated_amount(), &100);
+
+		// the 200 moved from bob to alice
+		assert_eq!(total_amount(&alice_checkpoint), 360);
+		assert_eq!(total_amount(&bob_checkpoint), 0);
+
+		alice_checkpoint.revoke_delegation(&ALICE, &mut bob_checkpoint);
+
+		assert_eq!(total_amount(&alice_checkpoint), 160);
+		assert_eq!(total_amount(&bob_checkpoint), 200);
 	});
 
 	new_test_ext().execute_with(|| {
 		const ASSET_ID: u32 = 999;
 
 		let alice_checkpoint = CheckpointOf::<Test> {
-			mutated: 100,
+			amount: 100,
 			delegated: std::collections::BTreeMap::from([
 				(BOB, 50_u32.into()),
 				(CHARLIE, 10_u32.into()),
@@ -667,7 +670,7 @@ fn account_history_is_ok() {
 		let account_history_mutated = |account: AccountId| {
 			AccountHistory::<Test>::iter()
 				.filter_map(move |((asset, acnt), bl_num, chp)| {
-					(asset_id == asset && acnt == account).then_some((bl_num, chp.mutated))
+					(asset_id == asset && acnt == account).then_some((bl_num, chp.amount))
 				})
 				.collect::<Vec<_>>()
 		};
