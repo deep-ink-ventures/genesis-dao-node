@@ -643,8 +643,8 @@ fn checkpoint_behaviour_ok() {
 				(BOB, 50_u32.into()),
 				(CHARLIE, 10_u32.into()),
 			])
-			.try_into()
-			.unwrap(),
+				.try_into()
+				.unwrap(),
 			..Default::default()
 		};
 		AccountHistory::<Test>::insert((ASSET_ID, ALICE), 5_u64, alice_checkpoint.clone());
@@ -656,6 +656,7 @@ fn checkpoint_behaviour_ok() {
 		assert_eq!(total_amount(&new_checkpoint), total_amount(&alice_checkpoint) + 50);
 		assert_eq!(new_checkpoint.delegated, alice_checkpoint.delegated);
 	});
+}
 
 #[test]
 fn account_history_is_ok() {
