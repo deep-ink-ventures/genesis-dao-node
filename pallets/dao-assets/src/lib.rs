@@ -334,6 +334,18 @@ pub mod pallet {
 		},
 		/// An asset has had its attributes changed by the `Force` origin.
 		AssetStatusChanged { asset_id: T::AssetId },
+
+		/// An account has been delegated to
+		Delegated {
+			from: AccountIdOf<T>,
+			to: AccountIdOf<T>,
+		},
+
+		/// An account has been undelegated
+		DelegationRevoked {
+			delegated_by: AccountIdOf<T>,
+			revoked_from: AccountIdOf<T>,
+		},
 	}
 
 	#[pallet::error]
@@ -632,6 +644,51 @@ pub mod pallet {
 			let destination = T::Lookup::lookup(destination)?;
 			let id: T::AssetId = id.into();
 			Self::do_transfer_approved(id, &owner, &delegate, &destination, amount)
+		}
+
+
+		/// Delegate votes to another account
+		///
+		/// - `id`: The identifier of the asset.
+		/// - `target`: The account to delegate votes to.
+		///
+		/// Emits `Delegated` on success.
+		#[pallet::call_index(26)]
+		#[pallet::weight(10_000)]
+		pub fn delegate(
+			origin: OriginFor<T>,
+			id: T::AssetIdParameter,
+			target: AccountIdOf<T>,
+		) -> DispatchResult {
+			let caller = ensure_signed(origin)?;
+			let id: T::AssetId = id.into();
+			let _ = Self::do_delegate(&id, &caller, &target, false);
+			Self::deposit_event(Event::Delegated { from: caller, to: target });
+			Ok(())
+		}
+
+		/// Revoke delegated votes from another account
+		///
+		/// - `id`: The identifier of the asset.
+		/// - `source`: The account to revoke votes from.
+		///
+		/// Emits `DelegationRevoked` on success.
+		#[pallet::call_index(27)]
+		#[pallet::weight(10_000)]
+		pub fn revoke_delegation(
+			origin: OriginFor<T>,
+			id: T::AssetIdParameter,
+			source: AccountIdOf<T>,
+		) -> DispatchResult {
+			let caller = ensure_signed(origin)?;
+			let id: T::AssetId = id.into();
+			let _ = Self::do_delegate(&id, &caller, &source, true);
+			Self::deposit_event(Event::DelegationRevoked {
+				delegated_by: caller,
+				revoked_from: source,
+			});
+
+			Ok(())
 		}
 	}
 }

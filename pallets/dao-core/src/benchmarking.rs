@@ -72,7 +72,7 @@ benchmarks! {
 	issue_token {
 		let caller = setup_caller::<T>();
 		let dao_id = setup_dao::<T>(caller.clone());
-		let supply:  T::Balance = 1000u32.into();
+		let supply: BalanceOf<T> = 1000u32.into();
 	}: _(RawOrigin::Signed(caller.clone()), dao_id.clone(), supply)
 	  verify {
 		let asset_id = DaoCore::<T>::load_dao(dao_id.clone()).unwrap().asset_id.unwrap();

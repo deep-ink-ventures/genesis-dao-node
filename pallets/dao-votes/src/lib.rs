@@ -131,14 +131,6 @@ pub mod pallet {
 			proposal_token_deposit: BalanceOf<T>,
 			minimum_majority_per_1024: u8,
 		},
-		Delegated {
-			from: AccountIdOf<T>,
-			to: AccountIdOf<T>,
-		},
-		DelegationRevoked {
-			delegated_by: AccountIdOf<T>,
-			revoked_from: AccountIdOf<T>,
-		},
 	}
 
 	#[pallet::error]
@@ -459,61 +451,6 @@ pub mod pallet {
 			})?;
 
 			Self::deposit_event(Event::<T>::ProposalImplemented { proposal_id });
-			Ok(())
-		}
-
-		#[pallet::call_index(8)]
-		#[pallet::weight(10_000)]
-		pub fn delegate_votes(
-			origin: OriginFor<T>,
-			proposal_id: T::ProposalId,
-			target: AccountIdOf<T>,
-		) -> DispatchResult {
-			let caller = ensure_signed(origin)?;
-
-			// Get dao_id
-			let dao_id =
-				&Proposals::<T>::get(proposal_id).ok_or(Error::<T>::ProposalDoesNotExist)?.dao_id;
-			// From dao_id, get asset_id
-			let asset_id = pallet_dao_core::Pallet::<T>::load_dao(dao_id.to_vec())?
-				.asset_id
-				.ok_or(Error::<T>::DaoTokenNotYetIssued)?;
-
-			// Call underlying function to delegate
-			T::ExposeAsset::delegate(&asset_id, &caller, &target)?;
-
-			// Emit event
-			Self::deposit_event(Event::<T>::Delegated { from: caller, to: target });
-
-			Ok(())
-		}
-
-		#[pallet::call_index(9)]
-		#[pallet::weight(10_000)]
-		pub fn revoke_delegated_votes(
-			origin: OriginFor<T>,
-			proposal_id: T::ProposalId,
-			source: AccountIdOf<T>,
-		) -> DispatchResult {
-			let caller = ensure_signed(origin)?;
-
-			// Get dao_id
-			let dao_id =
-				&Proposals::<T>::get(proposal_id).ok_or(Error::<T>::ProposalDoesNotExist)?.dao_id;
-			// From dao_id, get asset_id
-			let asset_id = pallet_dao_core::Pallet::<T>::load_dao(dao_id.to_vec())?
-				.asset_id
-				.ok_or(Error::<T>::DaoTokenNotYetIssued)?;
-
-			// Call underlying function to revoke delegation
-			T::ExposeAsset::revoke_delegation(&asset_id, &caller, &source)?;
-
-			// Emit event
-			Self::deposit_event(Event::<T>::DelegationRevoked {
-				delegated_by: caller,
-				revoked_from: source,
-			});
-
 			Ok(())
 		}
 	}

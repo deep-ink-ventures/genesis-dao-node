@@ -180,5 +180,24 @@ benchmarks! {
 		assert_last_event::<T>(Event::ApprovalCancelled { asset_id: asset_id.into(), owner: caller, delegate }.into());
 	}
 
+	delegate {
+		let amount = T::Balance::from(100u32);
+		let (asset_id, caller) = create_default_minted_asset::<T>(amount);
+		let target: T::AccountId = account("target", 0, SEED);
+	}: _(SystemOrigin::Signed(caller.clone()), asset_id, target_lookup)
+	verify {
+		assert_last_event::<T>(Event::Delegated { from: caller, to: target }.into());
+	}
+
+	revoke_delegation {
+		let amount = T::Balance::from(100u32);
+		let (asset_id, caller) = create_default_minted_asset::<T>(amount);
+		let target: T::AccountId = account("target", 0, SEED);
+		Assets::<T>::do_delegate(asset_id, caller.clone(), target.clone(), false)?;
+	}: _(SystemOrigin::Signed(caller.clone()), asset_id, target_lookup)
+	verify {
+		assert_last_event::<T>(Event::DelegationRevoked { delegated_by: caller, revoked_from: target }.into());
+	}
+
 	impl_benchmark_test_suite!(Assets, crate::mock::new_test_ext(), crate::mock::Test)
 }

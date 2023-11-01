@@ -693,3 +693,32 @@ fn account_history_is_ok() {
 		assert_array!(account_history_mutated(ALICE), vec![(10, 50), (52, 90)]);
 	});
 }
+
+#[test]
+fn historical_balance_and_delegation_works() {
+	new_test_ext().execute_with(|| {
+		let asset_id = 999;
+		run_to_block(10);
+
+		assert_eq!(Assets::total_historical_balance(asset_id, ALICE, 1), (0, 100_u64));
+		assert_eq!(Assets::total_historical_balance(asset_id, BOB, 1), (0, 300_u64));
+
+		run_to_block(20);
+		assert_ok!(Assets::transfer(RuntimeOrigin::signed(ALICE), asset_id, BOB, 50));
+
+		assert_eq!(Assets::total_historical_balance(asset_id, ALICE, 20), (20, 50_u64));
+		assert_eq!(Assets::total_historical_balance(asset_id, BOB, 20), (20, 350_u64));
+
+		run_to_block(30);
+		assert_ok!(Assets::delegate(RuntimeOrigin::signed(ALICE), asset_id, BOB));
+
+		assert_eq!(Assets::total_historical_balance(asset_id, ALICE, 30), (30, 0_u64));
+		assert_eq!(Assets::total_historical_balance(asset_id, BOB, 30), (30, 400_u64));
+
+		run_to_block(40);
+		assert_ok!(Assets::revoke_delegation(RuntimeOrigin::signed(ALICE), asset_id, BOB));
+
+		assert_eq!(Assets::total_historical_balance(asset_id, ALICE, 40), (40, 50_u64));
+		assert_eq!(Assets::total_historical_balance(asset_id, BOB, 40), (40, 350_u64));
+	});
+}
