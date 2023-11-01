@@ -654,7 +654,7 @@ pub mod pallet {
 		///
 		/// Emits `Delegated` on success.
 		#[pallet::call_index(26)]
-		#[pallet::weight(10_000)]
+		#[pallet::weight(T::WeightInfo::delegate())]
 		pub fn delegate(
 			origin: OriginFor<T>,
 			id: T::AssetIdParameter,
@@ -674,7 +674,7 @@ pub mod pallet {
 		///
 		/// Emits `DelegationRevoked` on success.
 		#[pallet::call_index(27)]
-		#[pallet::weight(10_000)]
+		#[pallet::weight(T::WeightInfo::revoke_delegation())]
 		pub fn revoke_delegation(
 			origin: OriginFor<T>,
 			id: T::AssetIdParameter,

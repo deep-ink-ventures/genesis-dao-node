@@ -2,7 +2,7 @@
 
 use super::*;
 use frame_system::RawOrigin;
-use pallet_dao_assets::Pallet as Assets;
+use pallet_dao_core::Pallet as Assets;
 
 use crate::Pallet as Votes;
 use frame_system::{pallet_prelude::BlockNumberFor, Pallet as System};
@@ -97,7 +97,7 @@ pub fn setup_proposal<T: Config>(caller: T::AccountId, dao_id: Vec<u8>) -> T::Pr
 	proposal_id
 }
 
-pub fn run_to_block<T: Config + pallet_dao_assets::Config>(n: BlockNumberFor<T>) {
+pub fn run_to_block<T: Config + pallet_dao_core::Config>(n: BlockNumberFor<T>) {
 	use frame_support::traits::{OnFinalize, OnInitialize};
 	while System::<T>::block_number() < n {
 		let mut block = System::<T>::block_number();
