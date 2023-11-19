@@ -339,12 +339,14 @@ pub mod pallet {
 		Delegated {
 			from: AccountIdOf<T>,
 			to: AccountIdOf<T>,
+			asset_id: T::AssetId,
 		},
 
 		/// An account has been undelegated
 		DelegationRevoked {
 			delegated_by: AccountIdOf<T>,
 			revoked_from: AccountIdOf<T>,
+			asset_id: T::AssetId,
 		},
 	}
 
@@ -663,7 +665,7 @@ pub mod pallet {
 			let caller = ensure_signed(origin)?;
 			let id: T::AssetId = id.into();
 			let _ = Self::do_delegate(&id, &caller, &target, false);
-			Self::deposit_event(Event::Delegated { from: caller, to: target });
+			Self::deposit_event(Event::Delegated { from: caller, to: target, asset_id: id});
 			Ok(())
 		}
 
@@ -686,6 +688,7 @@ pub mod pallet {
 			Self::deposit_event(Event::DelegationRevoked {
 				delegated_by: caller,
 				revoked_from: source,
+				asset_id: id,
 			});
 
 			Ok(())
