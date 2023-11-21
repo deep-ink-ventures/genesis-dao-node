@@ -20,8 +20,11 @@ fn warmup_on_vote() -> (AccountId, AccountId, AccountId) {
 	data.append(&mut 4_u8.encode());
 	let voting_contract = install(ALICE, VOTE_ESCROW_CONTRACT_PATH, data).expect("code deployed");
 
+
+	let mut data = selector_from_str("new");
+	data.append(&mut ALICE.encode());
 	let dao_contract =
-		install(ALICE, DAO_CONTRACT_PATH, selector_from_str("new")).expect("code deployed");
+		install(ALICE, DAO_CONTRACT_PATH, data).expect("code deployed");
 
 	// create a vesting wallet for Bob
 	let mut data = selector_from_str("PSP22::approve");
@@ -177,4 +180,20 @@ fn test_add_and_remove_vote_plugins() {
 		.unwrap();
 		assert_eq!(contracts.len(), 0);
 	});
+}
+
+#[test]
+fn test_transfer_ownership() {
+    new_test_ext().execute_with(|| {
+        let (dao_contract, _, _) = warmup_on_vote();
+
+        // Transfer ownership from ALICE to BOB
+        let mut data = selector_from_str("transfer_ownership");
+        data.append(&mut BOB.encode());
+        assert_ok!(call::<()>(ALICE, dao_contract.clone(), data));
+
+        // Verify new owner is BOB
+        let new_owner = call::<AccountId>(ALICE, dao_contract.clone(), selector_from_str("get_owner")).unwrap();
+        assert_eq!(new_owner, BOB);
+    });
 }

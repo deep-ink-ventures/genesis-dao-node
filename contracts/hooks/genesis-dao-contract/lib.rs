@@ -36,17 +36,42 @@ mod genesis_dao {
 
 	/// Contract storage.
 	#[ink(storage)]
-	pub struct GenesisDao {
-		/// Registered vote plugins.
-		vote_plugins: Vec<AccountId>,
-	}
+    pub struct GenesisDao {
+        /// Owner of the contract.
+        owner: AccountId,
+        /// Registered vote plugins.
+        vote_plugins: Vec<AccountId>,
+    }
 
 	impl GenesisDao {
-		/// Constructor initializes the contract.
-		#[allow(clippy::new_without_default)]
-		#[ink(constructor)]
-		pub fn new() -> Self {
-			Self { vote_plugins: Vec::new() }
+		/// Constructor initializes the contract with an owner.
+		///
+		/// # Arguments
+		/// - `owner`: AccountId of the owner of the contract.
+        #[ink(constructor)]
+        pub fn new(owner: AccountId) -> Self {
+            Self { owner, vote_plugins: Vec::new() }
+        }
+
+		/// Transfers ownership of the contract to a new owner.
+        ///
+        /// # Arguments
+        ///
+        /// - `new_owner`: AccountId of the new owner.
+        #[ink(message)]
+        pub fn transfer_ownership(&mut self, new_owner: AccountId) {
+            if self.env().caller() == self.owner {
+                self.owner = new_owner;
+            }
+        }
+
+		/// Retrieve the current owner
+		///
+		/// # Returns
+		/// - `AccountId`: AccountId of the current owner.
+		#[ink(message)]
+		pub fn get_owner(&self) -> AccountId {
+			self.owner
 		}
 
 		/// Registers a new vote plugin.
@@ -59,8 +84,11 @@ mod genesis_dao {
 		/// - `vote_plugin`: AccountId of the vote plugin contract.
 		#[ink(message)]
 		pub fn register_vote_plugin(&mut self, vote_plugin: AccountId) {
+			if self.env().caller() != self.owner {
+                return; // Only the owner can register a vote plugin
+            }
 			if self.vote_plugins.contains(&vote_plugin) {
-				return
+				return;
 			}
 			self.vote_plugins.push(vote_plugin);
 			self.env().emit_event(VotePluginRegistered { plugin: vote_plugin });
@@ -75,6 +103,9 @@ mod genesis_dao {
 		/// - `vote_plugin`: AccountId of the vote plugin contract.
 		#[ink(message)]
 		pub fn remove_vote_plugin(&mut self, vote_plugin: AccountId) {
+			if self.env().caller() != self.owner {
+                return; // Only the owner can register a vote plugin
+            }
 			self.vote_plugins.retain(|&x| x != vote_plugin);
 			self.env().emit_event(VotePluginRemoved { plugin: vote_plugin });
 		}
