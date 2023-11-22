@@ -14,6 +14,7 @@
 # ---------------------------------------------
 
 ACTION=$1
+TARGET_DIR=$2
 BASE_DIR="$(pwd "$0")"
 
 # Evaluate the action to perform
@@ -23,6 +24,7 @@ case $ACTION in
         cd "$BASE_DIR/contracts/extensions/dao-assets-contract" || { echo "Failed to navigate to dao-assets-contract directory"; exit 1; }
         cargo contract build
         cp "$BASE_DIR/target/ink/dao_assets_contract/dao_assets_contract.wasm" "$BASE_DIR/tests/contracts/wasm/test_dao_assets_contract.wasm"
+        cp "$BASE_DIR/target/ink/dao_assets_contract/dao_assets_contract.json" "$BASE_DIR/tests/contracts/wasm/test_dao_assets_contract.json"
         cd "$BASE_DIR" || { echo "Failed to navigate back to base directory"; exit 1; }
         echo "Compilation of dao-assets-contract completed."
         ;;
@@ -32,6 +34,7 @@ case $ACTION in
         cd "$BASE_DIR/contracts/plugins/vesting-wallet-contract" || { echo "Failed to navigate to vesting-wallet-contract directory"; exit 1; }
         cargo contract build
         cp "$BASE_DIR/target/ink/vesting_wallet_contract/vesting_wallet_contract.wasm" "$BASE_DIR/tests/contracts/wasm/test_vesting_wallet_contract.wasm"
+        cp "$BASE_DIR/target/ink/vesting_wallet_contract/vesting_wallet_contract.json" "$BASE_DIR/tests/contracts/wasm/test_vesting_wallet_contract.json"
         cd "$BASE_DIR" || { echo "Failed to navigate back to base directory"; exit 1; }
         echo "Compilation of vesting-wallet-contract completed."
         ;;
@@ -50,6 +53,7 @@ case $ACTION in
         cd "$BASE_DIR/contracts/hooks/genesis-dao-contract" || { echo "Failed to navigate to genesis-dao-contract directory"; exit 1; }
         cargo contract build
         cp "$BASE_DIR/target/ink/genesis_dao_contract/genesis_dao_contract.wasm" "$BASE_DIR/tests/contracts/wasm/test_genesis_dao_contract.wasm"
+        cp "$BASE_DIR/target/ink/genesis_dao_contract/genesis_dao_contract.json" "$BASE_DIR/tests/contracts/wasm/test_genesis_dao_contract.jsom"
         cd "$BASE_DIR" || { echo "Failed to navigate back to base directory"; exit 1; }
         echo "Compilation of genesis-dao-contract completed."
         ;;
@@ -63,12 +67,32 @@ case $ACTION in
         ./contracts.sh compile-genesis-dao-contract
         echo "Compilation of all test contracts completed."
         ;;
+
     "test-contracts")
         echo "Running tests for contracts..."
         cargo test -p contracts-test-suite
         ;;
 
+    "create-release")
+        echo "Creating release"
+        # compile to test first
+        ./contracts.sh compile-test-contracts
+
+        # copy to target dir
+        mkdir -p "$TARGET_DIR/wasm"
+        cp "$BASE_DIR/tests/contracts/wasm/test_dao_assets_contract.wasm" "$TARGET_DIR/wasm/dao_asset_contract.wasm"
+        cp "$BASE_DIR/tests/contracts/wasm/test_vesting_wallet_contract.wasm" "$TARGET_DIR/wasm/vesting_wallet_contract.wasm"
+        cp "$BASE_DIR/tests/contracts/wasm/test_vote_escrow_contract.wasm" "$TARGET_DIR/wasm/vote_escrow_contract.wasm"
+        cp "$BASE_DIR/tests/contracts/wasm/test_genesis_dao_contract.wasm" "$TARGET_DIR/wasm/genesis_dao_contract.wasm"
+    
+        cp "$BASE_DIR/tests/contracts/wasm/test_dao_assets_contract.json" "$TARGET_DIR/wasm/dao_asset_contract.json"
+        cp "$BASE_DIR/tests/contracts/wasm/test_vesting_wallet_contract.json" "$TARGET_DIR/wasm/vesting_wallet_contract.json"
+        cp "$BASE_DIR/tests/contracts/wasm/test_vote_escrow_contract.json" "$TARGET_DIR/wasm/vote_escrow_contract.json"
+        cp "$BASE_DIR/tests/contracts/wasm/test_genesis_dao_contract.json" "$TARGET_DIR/wasm/genesis_dao_contract.json"
+
+        echo "Release created"
+        ;;
     *)
-        printf "\nInvalid action. Valid actions are\n\n - compile-dao-assets-contract\n - compile-vesting-wallet-contract\n - compile-vote-escrow-contract\n - compile-genesis-dao-contract\n - compile-test-contracts\n - test-contracts\n\n"
+        printf "\nInvalid action. Valid actions are\n\n - compile-dao-assets-contract\n - compile-vesting-wallet-contract\n - compile-vote-escrow-contract\n - compile-genesis-dao-contract\n - compile-test-contracts\n - test-contracts\n - create-release\n\n"
         ;;
 esac
