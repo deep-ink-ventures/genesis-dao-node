@@ -44,6 +44,7 @@ case $ACTION in
         cd "$BASE_DIR/contracts/plugins/vote-escrow-contract" || { echo "Failed to navigate to vote-escrow-contract directory"; exit 1; }
         cargo contract build
         cp "$BASE_DIR/target/ink/vote_escrow_contract/vote_escrow_contract.wasm" "$BASE_DIR/tests/contracts/wasm/test_vote_escrow_contract.wasm"
+        cp "$BASE_DIR/target/ink/vote_escrow_contract/vote_escrow_contract.json" "$BASE_DIR/tests/contracts/wasm/test_vote_escrow_contract.json"
         cd "$BASE_DIR" || { echo "Failed to navigate back to base directory"; exit 1; }
         echo "Compilation of vote-escrow-contract completed."
         ;;
@@ -53,7 +54,7 @@ case $ACTION in
         cd "$BASE_DIR/contracts/hooks/genesis-dao-contract" || { echo "Failed to navigate to genesis-dao-contract directory"; exit 1; }
         cargo contract build
         cp "$BASE_DIR/target/ink/genesis_dao_contract/genesis_dao_contract.wasm" "$BASE_DIR/tests/contracts/wasm/test_genesis_dao_contract.wasm"
-        cp "$BASE_DIR/target/ink/genesis_dao_contract/genesis_dao_contract.json" "$BASE_DIR/tests/contracts/wasm/test_genesis_dao_contract.jsom"
+        cp "$BASE_DIR/target/ink/genesis_dao_contract/genesis_dao_contract.json" "$BASE_DIR/tests/contracts/wasm/test_genesis_dao_contract.json"
         cd "$BASE_DIR" || { echo "Failed to navigate back to base directory"; exit 1; }
         echo "Compilation of genesis-dao-contract completed."
         ;;
