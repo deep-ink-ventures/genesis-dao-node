@@ -43,6 +43,15 @@ pub mod vote_escrow {
 
 	type LockedBalance = (Balance, BlockNumber, u32); // (amount, created_time, unlock_time)
 
+	/// Event emitted when contract is initialized
+	#[ink(event)]
+	pub struct VoteEscrowInitialized {
+		#[ink(topic)]
+		token: AccountId,
+		max_time: u32,
+		boost: u8,
+	}
+
 	/// Event emitted when tokens are successfully locked.
 	#[ink(event)]
 	pub struct Locked {
@@ -117,7 +126,9 @@ pub mod vote_escrow {
 		/// - `boost`: The boost factor to be applied to voting power.
 		#[ink(constructor)]
 		pub fn new(token: AccountId, max_time: u32, boost: u8) -> Self {
-			Self { token, max_time, boost, locked_balances: Mapping::new() }
+			let contract = Self { token, max_time, boost, locked_balances: Mapping::new() };
+			Self::env().emit_event(VoteEscrowInitialized { token, max_time, boost });
+			contract
 		}
 
 		/// Returns the PSP22 token contract used in this contract.

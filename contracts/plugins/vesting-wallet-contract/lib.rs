@@ -28,6 +28,13 @@ pub mod vesting_wallet {
 		storage::Mapping,
 	};
 
+	/// Emitted when a new vesting wallet is initialized.
+	#[ink(event)]
+	pub struct VestingWalletInitialized {
+		#[ink(topic)]
+		token: AccountId
+	}
+
 	/// Event emitted when a new vesting wallet is created.
 	#[ink(event)]
 	pub struct VestingWalletCreated {
@@ -78,7 +85,9 @@ pub mod vesting_wallet {
 		/// - `token`: The AccountId of the token contract that will be vested.
 		#[ink(constructor)]
 		pub fn new(token: AccountId) -> Self {
-			Self { token, wallets: Mapping::new() }
+			let contract = Self { token, wallets: Mapping::new() };
+			Self::env().emit_event(VestingWalletInitialized { token });
+			contract
 		}
 
 		/// Returns the AccountId of the token contract.

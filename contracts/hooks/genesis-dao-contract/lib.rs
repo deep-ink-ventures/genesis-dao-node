@@ -20,6 +20,23 @@ mod genesis_dao {
 	#[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
 	pub enum Error {}
 
+	/// Event emitted when a contract is initialized.
+	#[ink(event)]
+	pub struct GenesisDaoContractInitialized {
+		#[ink(topic)]
+		owner: AccountId,
+		asset_id: u32,
+	}
+
+	/// Event emitted when ownership of the contract is transferred.
+	#[ink(event)]
+    pub struct OwnershipTransferred {
+        #[ink(topic)]
+        from: AccountId,
+        #[ink(topic)]
+        to: AccountId,
+    }
+
 	/// Event emitted when a new vote plugin is registered.
 	#[ink(event)]
 	pub struct VotePluginRegistered {
@@ -39,6 +56,8 @@ mod genesis_dao {
     pub struct GenesisDao {
         /// Owner of the contract.
         owner: AccountId,
+		/// Asset ID of the DAO
+		asset_id: u32,
         /// Registered vote plugins.
         vote_plugins: Vec<AccountId>,
     }
@@ -49,8 +68,10 @@ mod genesis_dao {
 		/// # Arguments
 		/// - `owner`: AccountId of the owner of the contract.
         #[ink(constructor)]
-        pub fn new(owner: AccountId) -> Self {
-            Self { owner, vote_plugins: Vec::new() }
+        pub fn new(owner: AccountId, asset_id: u32) -> Self {
+			let contract = Self { owner, vote_plugins: Vec::new(), asset_id };
+			Self::env().emit_event(GenesisDaoContractInitialized { owner, asset_id });
+			contract
         }
 
 		/// Transfers ownership of the contract to a new owner.
@@ -62,6 +83,9 @@ mod genesis_dao {
         pub fn transfer_ownership(&mut self, new_owner: AccountId) {
             if self.env().caller() == self.owner {
                 self.owner = new_owner;
+				self.env().emit_event(OwnershipTransferred {
+					from: self.env().caller(), to: new_owner
+				});
             }
         }
 
@@ -72,6 +96,15 @@ mod genesis_dao {
 		#[ink(message)]
 		pub fn get_owner(&self) -> AccountId {
 			self.owner
+		}
+
+		/// Retrieve the asset id
+		///
+		/// # Returns
+		/// - `u32`: Asset ID of the DAO
+		#[ink(message)]
+		pub fn get_asset_id(&self) -> u32 {
+			self.asset_id
 		}
 
 		/// Registers a new vote plugin.

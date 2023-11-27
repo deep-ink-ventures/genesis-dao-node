@@ -38,6 +38,13 @@ mod dao_assets_contract {
 		asset_id: AssetId,
 	}
 
+	#[ink(event)]
+	/// Event emitted when a new asset is created.
+	pub struct AssetCreated {
+		#[ink(topic)]
+		asset_id: AssetId,
+	}
+
 	/// Event emitted when a token transfer occurs.
 	#[ink(event)]
 	pub struct Transfer {
@@ -63,7 +70,9 @@ mod dao_assets_contract {
 		/// Constructs a new `AssetContract` with a given `asset_id`.
 		#[ink(constructor)]
 		pub fn new(asset_id: AssetId) -> Self {
-			Self { asset_id }
+			let asset = Self { asset_id };
+			Self::env().emit_event(AssetCreated { asset_id });
+			asset
 		}
 
 		/// Returns the asset id
