@@ -1,6 +1,6 @@
 {
   "source": {
-    "hash": "0xa4b9136d4369c78ac45918f29122a55216b34e4904297f9b9acf751ee8b0473d",
+    "hash": "0x90a67a5dc972e62079137516e848c72f4a11712f9e9a7ddd8587b19596a545fa",
     "language": "ink! 4.3.0",
     "compiler": "rustc 1.74.0-nightly",
     "build_info": {
@@ -93,6 +93,25 @@
       }
     },
     "events": [
+      {
+        "args": [
+          {
+            "docs": [],
+            "indexed": true,
+            "label": "asset_id",
+            "type": {
+              "displayName": [
+                "AssetId"
+              ],
+              "type": 0
+            }
+          }
+        ],
+        "docs": [
+          "Event emitted when a new asset is created."
+        ],
+        "label": "AssetCreated"
+      },
       {
         "args": [
           {

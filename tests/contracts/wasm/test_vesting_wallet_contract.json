@@ -1,6 +1,6 @@
 {
   "source": {
-    "hash": "0xbddf01f805420d7e33b6cc9c1bc8f57fe01c68c6e07f790aa722f8f35867816f",
+    "hash": "0xc0db9108e43204de2950b73e23f470994ad5da60269eee0f277d7b043c4795d6",
     "language": "ink! 4.3.0",
     "compiler": "rustc 1.74.0-nightly",
     "build_info": {
@@ -95,6 +95,25 @@
       }
     },
     "events": [
+      {
+        "args": [
+          {
+            "docs": [],
+            "indexed": true,
+            "label": "token",
+            "type": {
+              "displayName": [
+                "AccountId"
+              ],
+              "type": 0
+            }
+          }
+        ],
+        "docs": [
+          "Emitted when a new vesting wallet is initialized."
+        ],
+        "label": "VestingWalletInitialized"
+      },
       {
         "args": [
           {

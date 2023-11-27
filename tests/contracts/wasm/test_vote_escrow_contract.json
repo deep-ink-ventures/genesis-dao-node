@@ -1,6 +1,6 @@
 {
   "source": {
-    "hash": "0x38ac6dfac97ea2bdf076611e946aa456b6ff239604e025f11885a229ab38000c",
+    "hash": "0xcc1afa0532657ecf16d07502f8473a1bc07ddee96d8b0e9d6c3bd2e8e9005694",
     "language": "ink! 4.3.0",
     "compiler": "rustc 1.74.0-nightly",
     "build_info": {
@@ -113,6 +113,47 @@
       }
     },
     "events": [
+      {
+        "args": [
+          {
+            "docs": [],
+            "indexed": true,
+            "label": "token",
+            "type": {
+              "displayName": [
+                "AccountId"
+              ],
+              "type": 0
+            }
+          },
+          {
+            "docs": [],
+            "indexed": false,
+            "label": "max_time",
+            "type": {
+              "displayName": [
+                "u32"
+              ],
+              "type": 3
+            }
+          },
+          {
+            "docs": [],
+            "indexed": false,
+            "label": "boost",
+            "type": {
+              "displayName": [
+                "u8"
+              ],
+              "type": 2
+            }
+          }
+        ],
+        "docs": [
+          "Event emitted when contract is initialized"
+        ],
+        "label": "VoteEscrowInitialized"
+      },
       {
         "args": [
           {

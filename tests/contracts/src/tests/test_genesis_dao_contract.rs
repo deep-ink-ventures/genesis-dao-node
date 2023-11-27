@@ -11,6 +11,7 @@ fn warmup_on_vote() -> (AccountId, AccountId, AccountId) {
 	let asset_contract = create_assets_contract();
 	let mut data = selector_from_str("new");
 	data.append(&mut asset_contract.clone().encode());
+
 	let vesting_contract =
 		install(ALICE, VESTING_WALLET_CONTRACT_PATH, data).expect("code deployed");
 
@@ -21,8 +22,10 @@ fn warmup_on_vote() -> (AccountId, AccountId, AccountId) {
 	let voting_contract = install(ALICE, VOTE_ESCROW_CONTRACT_PATH, data).expect("code deployed");
 
 
+	let asset_id = get_asset_id_from_contract(vesting_contract.clone());
 	let mut data = selector_from_str("new");
 	data.append(&mut ALICE.encode());
+	data.append(&mut asset_id.encode());
 	let dao_contract =
 		install(ALICE, DAO_CONTRACT_PATH, data).expect("code deployed");
 
